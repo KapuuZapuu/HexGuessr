@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+        rel="stylesheet" />
+    <title>HexGuessr</title>
+    <style>
+        /* Define a shadow variable for light mode */
+        :root {
+            --icon-shadow: rgba(200, 200, 200, 0.8);  /* softer on light backgrounds */
+        }
+
+        /* Top-right container for the two buttons */
+        .top-controls {
+            position: absolute;
+            top: 60px;
+            right: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+            align-items: center;
+            justify-content: flex-end;    /* make sure everything hugs the right edge */
+        }
+
+        .author-credit {
+            position: absolute;
+            top: 78px;
+            left: 40px;
+            display: inline-block;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 15px;
+            color: inherit;              /* keep your current text color */
+            text-decoration: none;       /* remove underline */
+            white-space: nowrap;
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+            transition: transform 0.2s ease;
+            z-index: 1001;
+        }
+
+        .author-credit:hover {
+            transform: translateY(-6px);                    /* lift on hover */
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-6px);
+        }
+
+        .icon-btn img {
+            width: 45px;
+            height: 45px;
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow)); /* subtle shadow for depth */
+        }
+
+        /* Light mode style */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: black;
+            --icon-shadow: rgba(200, 200, 200, 0.8);
+        }
+
+        /* Dark-mode overrides */
+        body.dark {
+          background: #262626;
+          color: white;
+          --icon-shadow: rgba(0, 0, 0, 0.8);  /* crisper on dark backgrounds */
+        }
+        body.dark .color-display {           
+            color: #eee;                  /* make sure your placeholder text is still readable */
+            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+        }
+        body.dark .color-display.hidden {
+            /* override the always‑black you had before */
+            background: #222 !important;
+        }
+        body.dark .color-display.game-ended {
+            /* reuse the dark‑mode text style */
+            color: #eee;
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.8),
+                1px -1px 0 rgba(0,0,0,0.8),
+                -1px  1px 0 rgba(0,0,0,0.8),
+                1px  1px 0 rgba(0,0,0,0.8);
+        }
+        body:not(.dark) .color-display.game-ended {
+            /* reuse the dark‑mode text style */
+            color: #eee;
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.8),
+                1px -1px 0 rgba(0,0,0,0.8),
+                -1px  1px 0 rgba(0,0,0,0.8),
+                1px  1px 0 rgba(0,0,0,0.8);
+        }
+        body.dark .game-container {
+          background: rgba(0, 0, 0, 0.05);
+        }
+        body.dark .hex-input {
+          background: rgba(0, 0, 0, 0.1);
+          color: #000;
+        }
+        body.dark .submit-btn {
+          background: #388e3c;
+        }
+        body.dark .submit-btn:hover {
+          background: #2e7d32;
+        }
+        body.dark .restart-btn {
+          background: #1565c0;
+        }
+        body.dark .restart-btn:hover {
+          background: #0d47a1;
+        }
+        body.dark .timer-bar {
+            background: rgba(255,255,255,0.1);
+        }
+        body.dark .timer-fill {
+            background: #81C784;       /* lighter green, for example */
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            /* OUT OF USE (FOR NOW) */
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 10px;
+        }
+
+        .ascii-title {
+            /* 1) Monospace ensures each character is exactly the same width */
+            font-family: monospace;
+            /* 2) Preserve every space and line‐break exactly as you type them */
+            white-space: pre;
+            /* 3) Prevent it from wrapping mid‑line */
+            overflow-x: auto;
+            /* Optional styling to match your theme */
+            color: inherit;
+            text-align: center;
+            margin: 0 auto;
+            padding: 30px 20px 20px 20px;
+            line-height: 1em;      /* tighten the lines if you like */
+            font-size: 1em;        /* adjust so it fits */
+            position: relative;
+            max-width: fit-content;
+        }
+
+        /* animate every character */
+        .ascii-title span {
+            display: inline-block;                      /* so animation-delay works per char */
+            animation: wave 6s linear infinite;         /* 6s for a full cycle */
+            animation-delay: calc(var(--col) * 0.1s);   /* stagger by 0.1s per character */
+            transition: transform 0.2s ease;
+        }
+
+        .ascii-title span.hover-group {
+            transform: translateY(-8px);                /* tweak how high it jumps */
+        }
+
+        /* “paused” class will freeze all ascii‑title spans */
+        .paused .ascii-title span {
+            animation-play-state: paused !important;
+        }
+
+        /* cycle through hues for title */
+        @keyframes wave {
+            0%   { color: hsl(   0, 100%, 50%); }
+            16%  { color: hsl(  60, 100%, 50%); }
+            33%  { color: hsl( 120, 100%, 50%); }
+            50%  { color: hsl( 180, 100%, 50%); }
+            66%  { color: hsl( 240, 100%, 50%); }
+            83%  { color: hsl( 300, 100%, 50%); }
+            100% { color: hsl( 360, 100%, 50%); }
+        }
+
+        .color-display {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            filter: drop-shadow(6px 6px 0 var(--icon-shadow)); /* same shadow as icons */
+            justify-content: center;
+            text-align: center;
+            font-size: 18px;
+            font-family: 'Press Start 2P', cursive;
+            text-shadow: 3px 3px 0 var(--icon-shadow);
+            color: black;
+        }
+
+        .color-display:hover {
+            transform: translateY(-6px);
+        }
+
+        .color-display.hidden {
+            background: rgb(255, 255, 255) !important;
+        }
+
+        .game-info {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .input-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .hex-input {
+            font-size: 20px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            width: 200px;
+            text-align: center;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .submit-btn {
+            font-size: 18px;
+            padding: 12px 24px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #45a049;
+        }
+
+        .submit-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .guesses-container {
+            margin: 20px 0;
+        }
+
+        .guess-row {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            gap: 5px;
+        }
+
+        .guess-char {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .correct {
+            background: #4CAF50 !important;
+            border-color: #4CAF50;
+        }
+
+        .close {
+            background: #FFC107 !important;
+            border-color: #FFC107;
+            color: #333;
+        }
+
+        .wrong {
+            background: #f44336 !important;
+            border-color: #f44336;
+        }
+
+        .color-picker-section {
+            margin: 30px 0;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .color-picker-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .color-picker {
+            width: 100px;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .selected-color-info {
+            margin: 15px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .game-over {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        .restart-btn {
+            font-size: 18px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            background: #2196F3;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover {
+            background: #1976D2;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 16px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .timer-bar {
+            width: 200px;
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px auto;
+        }
+        /* the animated “fill” */
+        .timer-fill {
+            width: 100%;              /* starts full */
+            height: 100%;
+            background: #4CAF50;       /* or pick any accent color */
+            transition: width linear;  /* you’ll set duration in JS */
+        }
+    </style>
+</head>
+<body>
+    <a
+        href="https://www.youtube.com/@KapuuZapuu"
+        class="author-credit"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        A game by KapuuZapuu
+    </a>
+
+    <div class="top-controls">
+
+        <!-- Help / Instructions -->
+        <button id="infoButton"        class="icon-btn" aria-label="Show instructions">
+            <img 
+                id="infoIcon"
+                src="question-mark-light.png" 
+                data-light="question-mark-light.png" 
+                data-dark="question-mark-dark.png"
+                alt="Help">
+        </button>
+
+        <!-- Stats (if you have a stats panel) -->
+        <button id="statsButton"       class="icon-btn" aria-label="Show stats">
+            <img
+                id="statsIcon"
+                src="stats-light.png"
+                data-light="stats-light.png"
+                data-dark="stats-dark.png"
+                alt="Stats">
+        </button>
+
+        <!-- Animation toggle -->
+        <button id="toggleAnimations" class="icon-btn" aria-label="Pause animations">
+            <img
+                id="animIcon"
+                src="animation-suspend-light.png"
+                data-light="animation-suspend-light.png"
+                data-dark="animation-suspend-dark.png"
+                alt="Toggle animations">
+        </button>
+
+        <!-- Dark‑mode toggle -->
+        <button id="darkModeToggle"   class="icon-btn" aria-label="Toggle dark mode">
+            <img
+                id="darkModeIcon"
+                src="dark-mode-light.png"
+                data-light="dark-mode-light.png"
+                data-dark="dark-mode-dark.png"
+                alt="Dark mode">
+        </button>
+    </div>
+
+    <pre class="ascii-title">
+██╗  ██╗███████╗██╗  ██╗ ██████╗ ██╗   ██╗███████╗███████╗███████╗██████╗ 
+██║  ██║██╔════╝╚██╗██╔╝██╔════╝ ██║   ██║██╔════╝██╔════╝██╔════╝██╔══██╗
+███████║█████╗   ╚███╔╝ ██║  ███╗██║   ██║█████╗  ███████╗███████╗██████╔╝
+██╔══██║██╔══╝   ██╔██╗ ██║   ██║██║   ██║██╔══╝  ╚════██║╚════██║██╔══██╗
+██║  ██║███████╗██╔╝ ██╗╚██████╔╝╚██████╔╝███████╗███████║███████║██║  ██║
+╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝
+    </pre>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const pre   = document.querySelector(".ascii-title");
+            const lines = pre.textContent.split("\n");
+            pre.innerHTML = "";           // clear out the raw ASCII
+
+            const letterWidths = [8, 8, 8, 9, 9, 8, 8, 8, 8];  // <- manual widths for each ASCII letter 
+                                                        // (first char is for the spacing before the "H")
+            // build cumulative edges
+            const boundaries = letterWidths.reduce((acc, w) => {
+                acc.push(acc[acc.length-1] + w);
+                return acc;
+            }, [0]);
+
+            lines.forEach((line, row) => {
+                Array.from(line).forEach((ch, col) => {
+                    const span = document.createElement("span");
+                    span.textContent = ch;
+                    // store only the column number, not a running index
+                    span.style.setProperty("--col", col);
+                    // compute which ASCII‑letter this char belongs to
+                    const letterIndex = boundaries.findIndex((b, i) =>
+                        col >= b && col < (boundaries[i+1] || Infinity)
+                    );
+                    span.dataset.letter = letterIndex;
+                    pre.appendChild(span);
+                });
+                // re–insert a newline so your <pre> stays multi‑line
+                if (row < lines.length - 1) {
+                    pre.appendChild(document.createTextNode("\n"));
+                }
+            });
+
+            document.querySelectorAll(".ascii-title span").forEach(span => {
+                span.addEventListener("mouseenter", () => {
+                    const idx = span.dataset.letter;
+                    document
+                        .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
+                        .forEach(s => s.classList.add("hover-group"));
+                });
+                span.addEventListener("mouseleave", () => {
+                    const idx = span.dataset.letter;
+                    document
+                        .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
+                        .forEach(s => s.classList.remove("hover-group"));
+                });
+            });
+        });
+    </script>
+        
+    <div class="color-display hidden" id="colorDisplay">
+        Click to reveal color!
+    </div>
+        
+    <div class="timer-bar" id="timerBar" style="display:none;">
+        <div class="timer-fill" id="timerFill"></div>
+    </div>
+    
+    <div class="game-info">
+        <div>Attempt: <span id="currentAttempt">1</span> / 6</div>
+        <div>Click the square above to see the target color!</div>
+    </div>
+
+    <div class="input-section">
+        <input type="text" id="hexInput" class="hex-input" placeholder="Enter hex (e.g., FF5733)" maxlength="6">
+        <button id="submitBtn" class="submit-btn">Submit Guess</button>
+    </div>
+
+    <div class="guesses-container" id="guessesContainer"></div>
+
+    <div class="color-picker-section">
+        <h3>🎨 Color Helper</h3>
+        <input type="color" id="colorPicker" class="color-picker" value="#ff5733">
+        <div class="selected-color-info">
+            Selected Color: <span id="selectedColorHex">#FF5733</span>
+        </div>
+    </div>
+
+    <div id="gameOver" class="game-over" style="display: none;">
+        <h2 id="gameResult"></h2>
+        <p id="correctAnswer"></p>
+        <button id="restartBtn" class="restart-btn">Play Again</button>
+    </div>
+
+    <script>
+        class HexColorWordle {
+            constructor() {
+                this.targetColor = this.generateRandomColor();
+                this.currentAttempt = 1;
+                this.maxAttempts = 6;
+                this.gameOver = false;
+                this.colorVisible = false;
+                this.baseDuration = 1000; // 1 second for first attempt
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.updateColorPicker();
+
+                // Info button listener
+                this.infoBtn = document.getElementById('infoButton');
+                this.infoBtn.addEventListener('click', () => {
+                  alert(
+                    '🎨 Hex Color Wordle Instructions:\n\n' +
+                    '1) Click the square to briefly reveal the target color.\n' +
+                    '2) Enter your 6‑digit HEX guess and press Submit.\n' +
+                    '3) Green = correct digit, Yellow = off by 1, Red = wrong.\n' +
+                    '4) You have 6 attempts – good luck!'
+                  );
+                });
+            }
+
+            initializeElements() {
+                this.colorDisplay = document.getElementById('colorDisplay');
+                this.hexInput = document.getElementById('hexInput');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.currentAttemptSpan = document.getElementById('currentAttempt');
+                this.guessesContainer = document.getElementById('guessesContainer');
+                this.gameOverDiv = document.getElementById('gameOver');
+                this.gameResult = document.getElementById('gameResult');
+                this.correctAnswer = document.getElementById('correctAnswer');
+                this.restartBtn = document.getElementById('restartBtn');
+                this.colorPicker = document.getElementById('colorPicker');
+                this.selectedColorHex = document.getElementById('selectedColorHex');
+                this.timer = document.getElementById('timer');
+                this.timerBar  = document.getElementById('timerBar');
+                this.timerFill = document.getElementById('timerFill');
+            }
+
+            setupEventListeners() {
+                this.colorDisplay.addEventListener('click', () => this.showColor());
+                this.submitBtn.addEventListener('click', () => this.submitGuess());
+                this.hexInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.submitGuess();
+                });
+                this.hexInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+                });
+                this.restartBtn.addEventListener('click', () => this.restartGame());
+                this.colorPicker.addEventListener('input', () => this.updateColorPicker());
+            }
+
+            generateRandomColor() {
+                return Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase();
+            }
+
+            showColor() {
+                if (this.colorVisible || this.gameOver) return;
+                
+                this.colorVisible = true;
+                this.colorDisplay.style.background = `#${this.targetColor}`;
+                this.colorDisplay.classList.remove('hidden');
+                this.colorDisplay.textContent = '';
+                
+                // Calculate duration: increases with each attempt
+                const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
+                
+                this.startTimer(duration);
+                
+                setTimeout(() => {
+                    if (!this.gameOver) {
+                        this.colorDisplay.classList.add('hidden');
+                        this.colorDisplay.textContent = 'Click to reveal color!';
+                        this.colorVisible = false;
+                    }
+                }, duration);
+            }
+
+            startTimer(duration) {
+                // hide any old text‑timer
+                this.timer && (this.timer.textContent = '');
+
+                // show & animate the bar
+                this.timerBar.style.display = 'block';
+                // set the CSS transition to match your duration
+                this.timerFill.style.transition = `width ${duration}ms linear`;
+                // trigger the shrink to 0%
+                // (must be in next tick so transition applies)
+                requestAnimationFrame(() => {
+                    this.timerFill.style.width = '0%';
+                });
+
+                // after time's up, reset
+                setTimeout(() => {
+                    this.timerBar.style.display = 'none';
+                    // restore for next round
+                    this.timerFill.style.transition = '';
+                    this.timerFill.style.width = '100%';
+                }, duration);
+            }
+
+            submitGuess() {
+                if (this.gameOver) return;
+                
+                const guess = this.hexInput.value.trim().toUpperCase();
+                
+                if (guess.length !== 6 || !/^[0-9A-F]{6}$/.test(guess)) {
+                    alert('Please enter a valid 6-digit hex color (0-9, A-F)');
+                    return;
+                }
+
+                this.processGuess(guess);
+                this.hexInput.value = '';
+                
+                if (guess === this.targetColor) {
+                    this.endGame(true);
+                } else if (this.currentAttempt >= this.maxAttempts) {
+                    this.endGame(false);
+                } else {
+                    this.currentAttempt++;
+                    this.currentAttemptSpan.textContent = this.currentAttempt;
+                }
+            }
+
+            processGuess(guess) {
+                const guessRow = document.createElement('div');
+                guessRow.className = 'guess-row';
+                
+                for (let i = 0; i < 6; i++) {
+                    const charDiv = document.createElement('div');
+                    charDiv.className = 'guess-char';
+                    charDiv.textContent = guess[i];
+                    
+                    if (guess[i] === this.targetColor[i]) {
+                        charDiv.classList.add('correct');
+                    } else if (this.isClose(guess[i], this.targetColor[i])) {
+                        charDiv.classList.add('close');
+                    } else {
+                        charDiv.classList.add('wrong');
+                    }
+                    
+                    guessRow.appendChild(charDiv);
+                }
+                
+                this.guessesContainer.appendChild(guessRow);
+            }
+
+            isClose(guessChar, targetChar) {
+                const guessValue = parseInt(guessChar, 16);
+                const targetValue = parseInt(targetChar, 16);
+                return Math.abs(guessValue - targetValue) <= 1;
+            }
+
+            endGame(won) {
+                this.gameOver = true;
+                this.colorDisplay.style.background = `#${this.targetColor}`;
+                this.colorDisplay.classList.remove('hidden');
+                this.colorDisplay.textContent = `#${this.targetColor}`;
+                this.colorDisplay.classList.add('game-ended');
+                this.timer.textContent = '';
+                
+                this.gameResult.textContent = won ? '🎉 Congratulations! You won!' : '😔 Game Over!';
+                this.correctAnswer.textContent = `The correct color was: #${this.targetColor}`;
+                this.gameOverDiv.style.display = 'block';
+                
+                this.submitBtn.disabled = true;
+            }
+
+            updateColorPicker() {
+                const color = this.colorPicker.value;
+                const hex = color.substring(1).toUpperCase();
+                this.selectedColorHex.textContent = `#${hex}`;
+            }
+
+            restartGame() {
+                this.targetColor = this.generateRandomColor();
+                this.currentAttempt = 1;
+                this.gameOver = false;
+                this.colorVisible = false;
+                
+                this.colorDisplay.classList.add('hidden');
+                this.colorDisplay.textContent = 'Click to reveal color!';
+                this.currentAttemptSpan.textContent = '1';
+                this.guessesContainer.innerHTML = '';
+                this.gameOverDiv.style.display = 'none';
+                this.submitBtn.disabled = false;
+                this.hexInput.value = '';
+                this.timer.textContent = '';
+                this.colorDisplay.classList.remove('game-ended');
+            }
+        }
+
+        // Start the game when the page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1) Start the game
+            new HexColorWordle();
+
+            // 2) Cache your icon <img> elements
+            const infoIcon     = document.getElementById("infoIcon");
+            const statsIcon    = document.getElementById("statsIcon");
+            const animIcon     = document.getElementById("animIcon");
+            const darkModeIcon = document.getElementById("darkModeIcon");
+            const darkModeBtn  = document.getElementById("darkModeToggle");
+
+            // 3) Helper to swap src between data-light / data-dark
+            function updateIconTheme(img, isDark) {
+                img.src = isDark ? img.dataset.light : img.dataset.dark;
+            }
+
+            // 4) Refresh all icons at once
+            function refreshIcons(isDark) {
+                [infoIcon, statsIcon, animIcon, darkModeIcon]
+                .forEach(img => updateIconTheme(img, isDark));
+            }
+
+            // 5) Wire up the dark‑mode button to also swap icons
+            darkModeBtn.addEventListener("click", () => {
+                const isDark = document.body.classList.toggle("dark");
+                // swap the moon/sun icon itself
+                updateIconTheme(darkModeIcon, isDark);
+                // refresh the rest
+                refreshIcons(isDark);
+                // update its aria‐label
+                darkModeBtn.setAttribute(
+                    "aria-label",
+                    isDark ? "Switch to light mode" : "Switch to dark mode"
+                );
+            });
+
+            // 6) Wire up the info/stats buttons to swap icons
+            const toggleAnimationsBtn = document.getElementById("toggleAnimations");
+
+            toggleAnimationsBtn.addEventListener("click", () => {
+                const isPaused = document.body.classList.toggle("paused");
+                toggleAnimationsBtn.setAttribute(
+                    "aria-label",
+                    isPaused ? "Resume animations" : "Pause animations"
+                );
+            });
+
+
+            // 7) Initialize to the correct theme on load
+            refreshIcons(document.body.classList.contains("dark"));
+        });
+    </script>
+</body>
+</html>
