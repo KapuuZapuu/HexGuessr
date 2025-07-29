@@ -1,2 +1,2 @@
 # HexGuessr
-A Wordle-spinoff color guessing game using hexcodes.
+I'm not done yet please bear with me :)
