@@ -138,6 +138,15 @@
         body.dark .timer-fill {
             background: #81C784;       /* lighter green, for example */
         }
+        body.dark .color-picker-section {
+            background: #222 !important;
+        }
+        body.dark .color-picker-section h3 {
+            color: #eee !important;
+        }
+        body.dark .selected-color-info {
+            color: #eee !important;
+        }
 
         .game-container {
             background: rgba(255, 255, 255, 0.1);
@@ -206,7 +215,7 @@
         .color-display {
             width: 200px;
             height: 200px;
-            margin: 20px auto;
+            margin: 20px 0;
             cursor: pointer;
             transition: transform 0.2s;
             display: flex;
@@ -313,15 +322,31 @@
         }
 
         .color-picker-section {
-            margin: 30px 0;
+            width: 200px;
+            height: 200px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            font-family: 'Press Start 2P', cursive;
+            background: rgb(255, 255, 255) !important;
+        }
+
+        .color-picker-section:hover {
+            transform: translateY(-6px);
         }
 
         .color-picker-section h3 {
-            margin-bottom: 15px;
+            margin: 0 0 15px 0;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            color: black;
+            text-shadow: 3px 3px 0 var(--icon-shadow);
         }
 
         .color-picker {
@@ -333,10 +358,21 @@
             margin: 10px;
         }
 
+        .color-game-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
         .selected-color-info {
-            margin: 15px 0;
-            font-size: 16px;
-            font-weight: bold;
+            margin: 15px 0 0 0;
+            font-size: 12px;
+            font-family: 'Press Start 2P', cursive;
+            color: black;
+            text-shadow: 3px 3px 0 var(--icon-shadow);
         }
 
         .game-over {
@@ -363,7 +399,7 @@
             background: #1976D2;
         }
 
-        .timer {
+        .timer { /* Removeable? */
             text-align: center;
             font-size: 16px;
             margin: 10px 0;
@@ -498,12 +534,23 @@
         });
     </script>
         
-    <div class="color-display hidden" id="colorDisplay">
-        Click to reveal color!
-    </div>
+    <div class="color-game-section">
+        <div>
+            <div class="color-display hidden" id="colorDisplay">
+                Click to reveal color!
+            </div>
+            <div class="timer-bar" id="timerBar" style="display:none;">
+                <div class="timer-fill" id="timerFill"></div>
+            </div>
+        </div>
         
-    <div class="timer-bar" id="timerBar" style="display:none;">
-        <div class="timer-fill" id="timerFill"></div>
+        <div class="color-picker-section">
+            <h3>🎨 Color Helper</h3>
+            <input type="color" id="colorPicker" class="color-picker" value="#ff5733">
+            <div class="selected-color-info">
+                Selected Color: <span id="selectedColorHex">#FF5733</span>
+            </div>
+        </div>
     </div>
     
     <div class="game-info">
@@ -517,14 +564,6 @@
     </div>
 
     <div class="guesses-container" id="guessesContainer"></div>
-
-    <div class="color-picker-section">
-        <h3>🎨 Color Helper</h3>
-        <input type="color" id="colorPicker" class="color-picker" value="#ff5733">
-        <div class="selected-color-info">
-            Selected Color: <span id="selectedColorHex">#FF5733</span>
-        </div>
-    </div>
 
     <div id="gameOver" class="game-over" style="display: none;">
         <h2 id="gameResult"></h2>
@@ -571,7 +610,7 @@
                 this.restartBtn = document.getElementById('restartBtn');
                 this.colorPicker = document.getElementById('colorPicker');
                 this.selectedColorHex = document.getElementById('selectedColorHex');
-                this.timer = document.getElementById('timer');
+                this.timer = document.getElementById('timer'); // Removeable?
                 this.timerBar  = document.getElementById('timerBar');
                 this.timerFill = document.getElementById('timerFill');
             }
