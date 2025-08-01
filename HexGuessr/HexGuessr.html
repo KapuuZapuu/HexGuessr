@@ -342,40 +342,45 @@
 
         .custom-color-picker {
             width: 200px;
-            height: auto;
+            height: 200px;
             margin: 20px 0;
             padding: 15px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            text-align: center;
+            justify-content: flex-start;
             cursor: pointer;
             transition: transform 0.2s;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
             font-family: 'Press Start 2P', cursive;
             background: rgb(255, 255, 255) !important;
             border-radius: 10px;
+            gap: 15px;
         }
 
         .custom-color-picker:hover {
             transform: translateY(-6px);
         }
 
-        .custom-color-picker h3 {
-            margin: 0 0 15px 0;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            color: black;
-            text-shadow: 3px 3px 0 var(--icon-shadow);
+        .color-picker-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .color-picker-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
         .color-canvas {
             width: 150px;
-            height: 100px;
+            height: 150px;
             border: 2px solid #333;
             border-radius: 10px;
             cursor: pointer;
-            margin: 10px 0;
             position: relative;
             background: linear-gradient(to right, #fff, #f00);
         }
@@ -403,12 +408,11 @@
         }
 
         .hue-slider {
-            width: 150px;
-            height: 20px;
+            width: 20px;
+            height: 150px;
             border: 2px solid #333;
             border-radius: 10px;
-            margin: 10px 0;
-            background: linear-gradient(to right, 
+            background: linear-gradient(to bottom, 
                 #f00 0%, #ff0 16.66%, #0f0 33.33%, 
                 #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
             position: relative;
@@ -417,36 +421,34 @@
 
         .hue-cursor {
             position: absolute;
-            width: 16px;
-            height: 24px;
+            width: 24px;
+            height: 16px;
             border: 2px solid white;
             border-radius: 3px;
-            transform: translateX(-50%);
-            top: -2px;
+            transform: translateY(-50%);
+            left: -2px;
             pointer-events: none;
             box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
         }
 
         .color-preview {
-            width: 150px;
+            width: 80px;
             height: 30px;
             border: 2px solid #333;
             border-radius: 10px;
-            margin: 10px 0;
         }
 
         .hex-display {
             font-size: 10px;
-            margin: 5px 0;
             color: black;
             text-shadow: 2px 2px 0 var(--icon-shadow);
+            text-align: center;
         }
 
         .hex-controls {
             display: flex;
             gap: 5px;
             align-items: center;
-            margin: 5px 0;
         }
 
         .hex-input-field {
@@ -454,7 +456,7 @@
             padding: 5px;
             border: 1px solid #333;
             border-radius: 5px;
-            width: 80px;
+            width: 60px;
             text-align: center;
             text-transform: uppercase;
             background: rgba(255, 255, 255, 0.9);
@@ -657,22 +659,24 @@
         </div>
         
         <div class="custom-color-picker">
-            <h3>🎨 Color Helper</h3>
-            
-            <div class="color-canvas" id="colorCanvas">
-                <div class="canvas-cursor" id="canvasCursor"></div>
+            <div class="color-picker-left">
+                <div class="color-canvas" id="colorCanvas">
+                    <div class="canvas-cursor" id="canvasCursor"></div>
+                </div>
             </div>
             
-            <div class="hue-slider" id="hueSlider">
-                <div class="hue-cursor" id="hueCursor"></div>
-            </div>
-            
-            <div class="color-preview" id="colorPreview"></div>
-            
-            <div class="hex-display">Hexcode:</div>
-            <div class="hex-controls">
-                <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                <button id="copyBtn" class="copy-btn">Copy</button>
+            <div class="color-picker-right">
+                <div class="hue-slider" id="hueSlider">
+                    <div class="hue-cursor" id="hueCursor"></div>
+                </div>
+                
+                <div class="color-preview" id="colorPreview"></div>
+                
+                <div class="hex-display">Hexcode:</div>
+                <div class="hex-controls">
+                    <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
+                    <button id="copyBtn" class="copy-btn">Copy</button>
+                </div>
             </div>
         </div>
     </div>
@@ -842,19 +846,19 @@
                 
                 // Calculate saturation and lightness
                 this.currentSaturation = x / rect.width;
-                this.currentLightness = 1 - (y / rect.height);
+                this.currentLightness = (1 - (y / rect.height)) * 0.5 + 0.5; // Map to 0.5-1.0 range
                 
                 this.updateColorFromHSL();
             }
             
             updateHuePosition(e) {
                 const rect = this.hueSlider.getBoundingClientRect();
-                const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+                const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
                 
-                this.hueCursor.style.left = x + 'px';
+                this.hueCursor.style.top = y + 'px';
                 
                 // Calculate hue (0-360)
-                this.currentHue = (x / rect.width) * 360;
+                this.currentHue = (y / rect.height) * 360;
                 
                 // Update canvas background
                 const hueColor = `hsl(${this.currentHue}, 100%, 50%)`;
@@ -933,11 +937,11 @@
                 this.currentLightness = l;
                 
                 // Update UI positions
-                const huePos = (this.currentHue / 360) * this.hueSlider.offsetWidth;
-                this.hueCursor.style.left = huePos + 'px';
+                const huePos = (this.currentHue / 360) * this.hueSlider.offsetHeight;
+                this.hueCursor.style.top = huePos + 'px';
                 
                 const canvasX = this.currentSaturation * this.colorCanvas.offsetWidth;
-                const canvasY = (1 - this.currentLightness) * this.colorCanvas.offsetHeight;
+                const canvasY = (1 - ((this.currentLightness - 0.5) / 0.5)) * this.colorCanvas.offsetHeight;
                 this.canvasCursor.style.left = canvasX + 'px';
                 this.canvasCursor.style.top = canvasY + 'px';
                 
