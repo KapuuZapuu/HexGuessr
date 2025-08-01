@@ -4,7 +4,8 @@
   "description": "A hex color guessing game",
   "main": "HexGuessr/HexGuessr.html",
   "scripts": {
-    "start": "echo 'Open HexGuessr/HexGuessr.html in your browser to play the game'"
+    "dev": "npx serve .",
+    "start": "npx serve ."
   },
   "keywords": ["game", "color", "hex", "wordle"],
   "author": "KapuuZapuu",
