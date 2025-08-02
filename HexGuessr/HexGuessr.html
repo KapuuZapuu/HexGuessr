@@ -150,7 +150,7 @@
         body.dark .custom-color-picker {
             background: #222 !important;
         }
-        body.dark .custom-color-picker h3 {
+        body.dark .color-picker-title {
             color: #eee !important;
         }
         body.dark .hex-display {
@@ -341,43 +341,48 @@
         }
 
         .custom-color-picker {
-            width: 200px;
-            height: auto;
-            margin: 20px 0;
-            padding: 15px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
+            align-items: flex-start;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
             font-family: 'Press Start 2P', cursive;
-            background: rgb(255, 255, 255) !important;
-            border-radius: 10px;
+        }
+
+        .color-picker-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .color-picker-title {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: inherit;
+            padding: 0 10px;
+            font-size: 12px;
+            color: inherit;
+            text-shadow: 2px 2px 0 var(--icon-shadow);
         }
 
         .custom-color-picker:hover {
-            transform: translateY(-6px);
-        }
-
-        .custom-color-picker h3 {
-            margin: 0 0 15px 0;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            color: black;
-            text-shadow: 3px 3px 0 var(--icon-shadow);
+            transform: translateY(-3px);
         }
 
         .color-canvas {
-            width: 150px;
-            height: 100px;
+            width: 200px;
+            height: 200px;
             border: 2px solid #333;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 10px 0;
             position: relative;
             background: linear-gradient(to right, #fff, #f00);
+            flex-shrink: 0;
         }
 
         .color-canvas::before {
@@ -388,7 +393,7 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(to bottom, transparent, #000);
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         .canvas-cursor {
@@ -403,32 +408,40 @@
         }
 
         .hue-slider {
-            width: 150px;
-            height: 20px;
+            width: 20px;
+            height: 200px;
             border: 2px solid #333;
-            border-radius: 10px;
-            margin: 10px 0;
-            background: linear-gradient(to right, 
+            border-radius: 8px;
+            background: linear-gradient(to bottom, 
                 #f00 0%, #ff0 16.66%, #0f0 33.33%, 
                 #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
             position: relative;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
         .hue-cursor {
             position: absolute;
-            width: 16px;
-            height: 24px;
+            width: 24px;
+            height: 16px;
             border: 2px solid white;
             border-radius: 3px;
-            transform: translateX(-50%);
-            top: -2px;
+            transform: translateY(-50%);
+            left: -2px;
             pointer-events: none;
             box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
         }
 
+        .color-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            min-width: 180px;
+        }
+
         .color-preview {
-            width: 150px;
+            width: 160px;
             height: 30px;
             border: 2px solid #333;
             border-radius: 10px;
@@ -436,9 +449,10 @@
         }
 
         .hex-display {
-            font-size: 10px;
-            margin: 5px 0;
-            color: black;
+            font-size: 12px;
+            margin: 0;
+            color: inherit;
+            text-align: center;
             text-shadow: 2px 2px 0 var(--icon-shadow);
         }
 
@@ -446,7 +460,7 @@
             display: flex;
             gap: 5px;
             align-items: center;
-            margin: 5px 0;
+            justify-content: center;
         }
 
         .hex-input-field {
@@ -455,7 +469,7 @@
             border: 1px solid #333;
             border-radius: 5px;
             width: 80px;
-            text-align: center;
+            text-align: center; 
             text-transform: uppercase;
             background: rgba(255, 255, 255, 0.9);
             color: #333;
@@ -463,7 +477,7 @@
         }
 
         .copy-btn {
-            font-size: 8px;
+            font-size: 9px;
             padding: 5px 8px;
             border: none;
             border-radius: 5px;
@@ -481,7 +495,7 @@
         .color-game-section {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             gap: 30px;
             margin: 20px 0;
             flex-wrap: wrap;
@@ -657,22 +671,26 @@
         </div>
         
         <div class="custom-color-picker">
-            <h3>Color Helper</h3>
+            <div class="color-picker-title">Color Helper</div>
             
-            <div class="color-canvas" id="colorCanvas">
-                <div class="canvas-cursor" id="canvasCursor"></div>
-            </div>
-            
-            <div class="hue-slider" id="hueSlider">
-                <div class="hue-cursor" id="hueCursor"></div>
-            </div>
-            
-            <div class="color-preview" id="colorPreview"></div>
-            
-            <div class="hex-display">Hexcode:</div>
-            <div class="hex-controls">
-                <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                <button id="copyBtn" class="copy-btn">Copy</button>
+            <div class="color-picker-main">
+                <div class="color-canvas" id="colorCanvas">
+                    <div class="canvas-cursor" id="canvasCursor"></div>
+                </div>
+                
+                <div class="hue-slider" id="hueSlider">
+                    <div class="hue-cursor" id="hueCursor"></div>
+                </div>
+                
+                <div class="color-controls">
+                    <div class="color-preview" id="colorPreview"></div>
+                    
+                    <div class="hex-display">Hexcode:</div>
+                    <div class="hex-controls">
+                        <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
+                        <button id="copyBtn" class="copy-btn">Copy</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -849,12 +867,12 @@
             
             updateHuePosition(e) {
                 const rect = this.hueSlider.getBoundingClientRect();
-                const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+                const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
                 
-                this.hueCursor.style.left = x + 'px';
+                this.hueCursor.style.top = y + 'px';
                 
                 // Calculate hue (0-360)
-                this.currentHue = (x / rect.width) * 360;
+                this.currentHue = (y / rect.height) * 360;
                 
                 // Update canvas background
                 const hueColor = `hsl(${this.currentHue}, 100%, 50%)`;
@@ -933,8 +951,8 @@
                 this.currentLightness = l;
                 
                 // Update UI positions
-                const huePos = (this.currentHue / 360) * this.hueSlider.offsetWidth;
-                this.hueCursor.style.left = huePos + 'px';
+                const huePos = (this.currentHue / 360) * this.hueSlider.offsetHeight;
+                this.hueCursor.style.top = huePos + 'px';
                 
                 const canvasX = this.currentSaturation * this.colorCanvas.offsetWidth;
                 const canvasY = (1 - this.currentLightness) * this.colorCanvas.offsetHeight;
