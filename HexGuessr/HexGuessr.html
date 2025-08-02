@@ -819,7 +819,7 @@
                 // Initialize color picker
                 this.currentHue = 0;
                 this.currentSaturation = 1;
-                this.currentLightness = 0.5;
+                this.currentValue = 1;
                 this.updateColorPicker();
             }
             
@@ -831,11 +831,11 @@
                 this.canvasCursor.style.left = x + 'px';
                 this.canvasCursor.style.top = y + 'px';
                 
-                // Calculate saturation and lightness
+                // Calculate saturation and brightness (value)
                 this.currentSaturation = x / rect.width;
-                this.currentLightness = 1 - (y / rect.height);
+                this.currentValue = 1 - (y / rect.height);
                 
-                this.updateColorFromHSL();
+                this.updateColorFromHSV();
             }
             
             updateHuePosition(e) {
@@ -851,35 +851,37 @@
                 const hueColor = `hsl(${this.currentHue}, 100%, 50%)`;
                 this.colorCanvas.style.background = `linear-gradient(to right, #fff, ${hueColor})`;
                 
-                this.updateColorFromHSL();
+                this.updateColorFromHSV();
             }
             
-            updateColorFromHSL() {
-                // Convert HSL to RGB
+            updateColorFromHSV() {
+                // Convert HSV to RGB
                 const h = this.currentHue / 360;
                 const s = this.currentSaturation;
-                const l = this.currentLightness;
+                const v = this.currentValue;
+                
+                const c = v * s;
+                const x = c * (1 - Math.abs((h * 6) % 2 - 1));
+                const m = v - c;
                 
                 let r, g, b;
-                
-                if (s === 0) {
-                    r = g = b = l; // achromatic
+                if (h < 1/6) {
+                    r = c; g = x; b = 0;
+                } else if (h < 2/6) {
+                    r = x; g = c; b = 0;
+                } else if (h < 3/6) {
+                    r = 0; g = c; b = x;
+                } else if (h < 4/6) {
+                    r = 0; g = x; b = c;
+                } else if (h < 5/6) {
+                    r = x; g = 0; b = c;
                 } else {
-                    const hue2rgb = (p, q, t) => {
-                        if (t < 0) t += 1;
-                        if (t > 1) t -= 1;
-                        if (t < 1/6) return p + (q - p) * 6 * t;
-                        if (t < 1/2) return q;
-                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                        return p;
-                    };
-                    
-                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                    const p = 2 * l - q;
-                    r = hue2rgb(p, q, h + 1/3);
-                    g = hue2rgb(p, q, h);
-                    b = hue2rgb(p, q, h - 1/3);
+                    r = c; g = 0; b = x;
                 }
+                
+                r = (r + m);
+                g = (g + m);
+                b = (b + m);
                 
                 // Convert to 0-255 range
                 r = Math.round(r * 255);
@@ -900,20 +902,23 @@
                 const g = parseInt(hex.substr(2, 2), 16) / 255;
                 const b = parseInt(hex.substr(4, 2), 16) / 255;
                 
-                // Convert RGB to HSL
+                // Convert RGB to HSV
                 const max = Math.max(r, g, b);
                 const min = Math.min(r, g, b);
-                let h, s, l = (max + min) / 2;
+                const delta = max - min;
                 
-                if (max === min) {
-                    h = s = 0; // achromatic
+                let h, s, v = max;
+                
+                if (delta === 0) {
+                    h = 0;
+                    s = 0;
                 } else {
-                    const d = max - min;
-                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    s = delta / max;
+                    
                     switch (max) {
-                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                        case g: h = (b - r) / d + 2; break;
-                        case b: h = (r - g) / d + 4; break;
+                        case r: h = (g - b) / delta + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / delta + 2; break;
+                        case b: h = (r - g) / delta + 4; break;
                     }
                     h /= 6;
                 }
@@ -921,14 +926,14 @@
                 // Update internal state
                 this.currentHue = h * 360;
                 this.currentSaturation = s;
-                this.currentLightness = l;
+                this.currentValue = v;
                 
                 // Update UI positions
                 const huePos = (this.currentHue / 360) * this.hueSlider.offsetHeight;
                 this.hueCursor.style.top = huePos + 'px';
                 
                 const canvasX = this.currentSaturation * this.colorCanvas.offsetWidth;
-                const canvasY = (1 - this.currentLightness) * this.colorCanvas.offsetHeight;
+                const canvasY = (1 - this.currentValue) * this.colorCanvas.offsetHeight;
                 this.canvasCursor.style.left = canvasX + 'px';
                 this.canvasCursor.style.top = canvasY + 'px';
                 
