@@ -170,12 +170,6 @@
             background: rgba(255, 255, 255, 0.9);
             color: #333;
         }
-        body.dark .copy-btn {
-            background: #4CAF50;
-        }
-        body.dark .copy-btn:hover {
-            background: #45a049;
-        }
 
         .game-container {
             background: rgba(255, 255, 255, 0.1);
@@ -455,19 +449,20 @@
             font-family: monospace;
         }
 
-        .copy-btn {
-            font-size: 9px;
-            padding: 5px 8px;
+        /* style the new copy‐icon button */
+        #copyBtn {
+            background: none;
             border: none;
-            background: #4CAF50;
-            color: white;
+            padding: 4px;              /* match your other icon-btn padding */
             cursor: pointer;
-            transition: background 0.3s;
-            font-family: 'Press Start 2P', cursive;
         }
 
-        .copy-btn:hover {
-            background: #45a049;
+        /* size & shadow the copy icon to match everything else */
+        #copyIcon {
+            width: 45px;
+            height: 45px;
+            image-rendering: pixelated;
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
         }
 
         .color-game-section {
@@ -656,7 +651,15 @@
                     <div class="hex-display">Hexcode:</div>
                     <div class="hex-controls">
                         <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                        <button id="copyBtn" class="copy-btn">Copy</button>
+                        <button id="copyBtn" class="icon-btn" aria-label="Copy hex code">
+                            <img
+                                id="copyIcon"
+                                src="copy-light.png"
+                                data-light="copy-light.png"
+                                data-dark="copy-dark.png"
+                                alt="Copy"
+                            />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1094,6 +1097,7 @@
             const animIcon     = document.getElementById("animIcon");
             const darkModeIcon = document.getElementById("darkModeIcon");
             const darkModeBtn  = document.getElementById("darkModeToggle");
+            const copyIcon     = document.getElementById("copyIcon");
 
             // 3) Helper to swap src between data-light / data-dark
             function updateIconTheme(img, isDark) {
@@ -1102,7 +1106,7 @@
 
             // 4) Refresh all icons at once
             function refreshIcons(isDark) {
-                [infoIcon, statsIcon, animIcon, darkModeIcon]
+                [infoIcon, statsIcon, animIcon, darkModeIcon, copyIcon]
                 .forEach(img => updateIconTheme(img, isDark));
             }
 
