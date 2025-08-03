@@ -242,7 +242,33 @@
             text-shadow: 3px 3px 0 var(--icon-shadow);
             color: black;
             margin: 0;
-            border: 2px solid #000000;
+            border: none;
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+            position: relative;
+        }
+
+        .color-display::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: #000000;
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+            z-index: -1;
+        }
+
+        body.dark .color-display::before {
+            background: #ffffff;
         }
 
         .color-display:hover {
@@ -343,6 +369,32 @@
             background: rgba(143, 143, 143, 0.1);
             font-family: 'Press Start 2P', cursive;
             position: relative;
+            border: none;
+            clip-path: polygon(
+                0px 12px, 12px 12px, 12px 0px, calc(100% - 12px) 0px, calc(100% - 12px) 12px, 100% 12px,
+                100% calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%,
+                12px calc(100% - 12px), 0px calc(100% - 12px)
+            );
+        }
+
+        .custom-color-picker::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: #000000;
+            clip-path: polygon(
+                0px 12px, 12px 12px, 12px 0px, calc(100% - 12px) 0px, calc(100% - 12px) 12px, 100% 12px,
+                100% calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%,
+                12px calc(100% - 12px), 0px calc(100% - 12px)
+            );
+            z-index: -1;
+        }
+
+        body.dark .custom-color-picker::before {
+            background: #ffffff;
         }
 
         .color-picker-main {
@@ -354,12 +406,37 @@
         .color-canvas {
             width: 200px;
             height: 200px;
-            border: 2px solid #000000;
+            border: none;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
             cursor: pointer;
             position: relative;
             background: linear-gradient(to right, #fff, #f00);
             flex-shrink: 0;
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+        }
+
+        .color-canvas::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: #000000;
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+            z-index: -2;
+        }
+
+        body.dark .color-canvas::after {
+            background: #ffffff;
         }
 
         .color-canvas::before {
@@ -385,7 +462,7 @@
         .hue-slider {
             width: 20px;
             height: 200px;
-            border: 2px solid #000000;
+            border: none;
             background: linear-gradient(to bottom, 
                 #f00 0%, #ff0 16.66%, #0f0 33.33%, 
                 #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
@@ -393,6 +470,31 @@
             cursor: pointer;
             flex-shrink: 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+        }
+
+        .hue-slider::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: #000000;
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+            z-index: -1;
+        }
+
+        body.dark .hue-slider::before {
+            background: #ffffff;
         }
 
         .hue-cursor {
@@ -417,9 +519,35 @@
         .color-preview {
             width: 160px;
             height: 80px;
-            border: 2px solid #000000;
+            border: none;
             margin: 10px 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+            position: relative;
+        }
+
+        .color-preview::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: #000000;
+            clip-path: polygon(
+                0px 8px, 8px 8px, 8px 0px, calc(100% - 8px) 0px, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%,
+                8px calc(100% - 8px), 0px calc(100% - 8px)
+            );
+            z-index: -1;
+        }
+
+        body.dark .color-preview::before {
+            background: #ffffff;
         }
 
         .hex-display {
