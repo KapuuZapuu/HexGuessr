@@ -796,10 +796,29 @@
                 this.copyBtn.addEventListener('click', () => {
                     const hexValue = '#' + this.hexInputField.value;
                     navigator.clipboard.writeText(hexValue).then(() => {
-                        const originalText = this.copyBtn.textContent;
-                        this.copyBtn.textContent = 'Copied!';
+                        // Create a temporary tooltip-like feedback
+                        const feedback = document.createElement('div');
+                        feedback.textContent = 'Copied!';
+                        feedback.style.cssText = `
+                            position: absolute;
+                            top: -30px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: #4CAF50;
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-size: 10px;
+                            font-family: 'Press Start 2P', cursive;
+                            pointer-events: none;
+                            z-index: 1000;
+                        `;
+                        this.copyBtn.style.position = 'relative';
+                        this.copyBtn.appendChild(feedback);
                         setTimeout(() => {
-                            this.copyBtn.textContent = originalText;
+                            if (feedback.parentNode) {
+                                feedback.parentNode.removeChild(feedback);
+                            }
                         }, 1000);
                     }).catch(() => {
                         // Fallback for older browsers
@@ -810,10 +829,29 @@
                         document.execCommand('copy');
                         document.body.removeChild(textArea);
                         
-                        const originalText = this.copyBtn.textContent;
-                        this.copyBtn.textContent = 'Copied!';
+                        // Create a temporary tooltip-like feedback for fallback too
+                        const feedback = document.createElement('div');
+                        feedback.textContent = 'Copied!';
+                        feedback.style.cssText = `
+                            position: absolute;
+                            top: -30px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: #4CAF50;
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-size: 10px;
+                            font-family: 'Press Start 2P', cursive;
+                            pointer-events: none;
+                            z-index: 1000;
+                        `;
+                        this.copyBtn.style.position = 'relative';
+                        this.copyBtn.appendChild(feedback);
                         setTimeout(() => {
-                            this.copyBtn.textContent = originalText;
+                            if (feedback.parentNode) {
+                                feedback.parentNode.removeChild(feedback);
+                            }
                         }, 1000);
                     });
                 });
