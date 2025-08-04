@@ -167,8 +167,8 @@
             color: #eee !important;
         }
         body.dark .hex-input-field {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
+            background: #333;
+            color: #fff;
         }
 
         .game-container {
@@ -418,7 +418,7 @@
         }
 
         .hex-display {
-            font-size: 12px;
+            font-size: 16px;
             margin: 10px 0 5px 0;
             color: inherit;
             text-align: center;
@@ -433,31 +433,36 @@
         }
 
         .hex-input-field {
-            font-size: 10px;
+            font-size: 12px;
             padding: 5px;
-            border: 1px solid #333;
+            border: none;
             width: 80px;
             text-align: center; 
             text-transform: uppercase;
             background: rgba(255, 255, 255, 0.9);
             color: #333;
-            font-family: monospace;
+            font-family: 'Press Start 2P', cursive;
         }
 
         /* style the new copy‐icon button */
         #copyBtn {
             background: none;
             border: none;
-            padding: 4px;              /* match your other icon-btn padding */
+            padding: 2px;
             cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #copyBtn:hover {
+            transform: translateY(-3px);
         }
 
         /* size & shadow the copy icon to match everything else */
         #copyIcon {
-            width: 45px;
-            height: 45px;
+            width: 24px;
+            height: 24px;
             image-rendering: pixelated;
-            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+            filter: drop-shadow(2px 2px 0 var(--icon-shadow));
         }
 
         .color-game-section {
