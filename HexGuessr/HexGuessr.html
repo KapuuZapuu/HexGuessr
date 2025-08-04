@@ -233,6 +233,7 @@
             cursor: pointer;
             transition: transform 0.2s;
             display: flex;
+            align-items: center;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow)); /* same shadow as icons */
             justify-content: center;
             text-align: center;
@@ -240,25 +241,8 @@
             font-family: 'Press Start 2P', cursive;
             text-shadow: 3px 3px 0 var(--icon-shadow);
             color: black;
-            border: 4px solid;
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m12,4 4,0 0,-4 68,0 0,4 4,0 0,4 4,0 0,4 4,0 0,68 -4,0 0,4 -4,0 0,4 -4,0 0,4 -68,0 0,-4 -4,0 0,-4 -4,0 0,-4 -4,0 0,-68 4,0 0,-4 4,0 0,-4 z' fill='none' stroke='%23000000' stroke-width='4'/%3e%3c/svg%3e") 16;
-            box-shadow: 
-                6px 0px 0 0 var(--icon-shadow),
-                6px 2px 0 0 var(--icon-shadow),
-                6px 4px 0 0 var(--icon-shadow),
-                8px 4px 0 0 var(--icon-shadow),
-                8px 6px 0 0 var(--icon-shadow),
-                8px 8px 0 0 var(--icon-shadow),
-                6px 8px 0 0 var(--icon-shadow),
-                4px 8px 0 0 var(--icon-shadow),
-                2px 8px 0 0 var(--icon-shadow),
-                0px 8px 0 0 var(--icon-shadow),
-                0px 6px 0 0 var(--icon-shadow);
-            position: relative;
-        }
-
-        body.dark .color-display {
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m12,4 4,0 0,-4 68,0 0,4 4,0 0,4 4,0 0,4 4,0 0,68 -4,0 0,4 -4,0 0,4 -4,0 0,4 -68,0 0,-4 -4,0 0,-4 -4,0 0,-4 -4,0 0,-68 4,0 0,-4 4,0 0,-4 z' fill='none' stroke='%23ffffff' stroke-width='4'/%3e%3c/svg%3e") 16;
+            margin: 0;
+            border: 3px solid #000000;
         }
 
         .color-display:hover {
@@ -352,37 +336,13 @@
 
         .custom-color-picker {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 15px;
             margin: 20px 0;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            background: rgba(143, 143, 143, 0.1);
             font-family: 'Press Start 2P', cursive;
             position: relative;
-            border: 6px solid;
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m16,6 6,0 0,-6 56,0 0,6 6,0 0,6 6,0 0,6 6,0 0,56 -6,0 0,6 -6,0 0,6 -6,0 0,6 -56,0 0,-6 -6,0 0,-6 -6,0 0,-6 -6,0 0,-56 6,0 0,-6 6,0 0,-6 z' fill='none' stroke='%23000000' stroke-width='6'/%3e%3c/svg%3e") 24;
-            box-shadow: 
-                8px 0px 0 0 var(--icon-shadow),
-                8px 2px 0 0 var(--icon-shadow),
-                8px 4px 0 0 var(--icon-shadow),
-                10px 4px 0 0 var(--icon-shadow),
-                10px 6px 0 0 var(--icon-shadow),
-                10px 8px 0 0 var(--icon-shadow),
-                10px 10px 0 0 var(--icon-shadow),
-                8px 10px 0 0 var(--icon-shadow),
-                6px 10px 0 0 var(--icon-shadow),
-                4px 10px 0 0 var(--icon-shadow),
-                2px 10px 0 0 var(--icon-shadow),
-                0px 10px 0 0 var(--icon-shadow),
-                0px 8px 0 0 var(--icon-shadow),
-                0px 6px 0 0 var(--icon-shadow);
-        }
-
-
-        body.dark .custom-color-picker {
-            background: rgba(0, 0, 0, 0.2);
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m16,6 6,0 0,-6 56,0 0,6 6,0 0,6 6,0 0,6 6,0 0,56 -6,0 0,6 -6,0 0,6 -6,0 0,6 -56,0 0,-6 -6,0 0,-6 -6,0 0,-6 -6,0 0,-56 6,0 0,-6 6,0 0,-6 z' fill='none' stroke='%23ffffff' stroke-width='6'/%3e%3c/svg%3e") 24;
         }
 
         .color-picker-main {
@@ -394,26 +354,12 @@
         .color-canvas {
             width: 200px;
             height: 200px;
-            border: 4px solid;
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m8,2 2,0 0,-2 80,0 0,2 2,0 0,2 2,0 0,2 2,0 0,80 -2,0 0,2 -2,0 0,2 -2,0 0,2 -80,0 0,-2 -2,0 0,-2 -2,0 0,-2 -2,0 0,-80 2,0 0,-2 2,0 0,-2 z' fill='none' stroke='%23000000' stroke-width='4'/%3e%3c/svg%3e") 12;
-            box-shadow: 
-                4px 0px 0 0 var(--icon-shadow),
-                4px 2px 0 0 var(--icon-shadow),
-                6px 2px 0 0 var(--icon-shadow),
-                6px 4px 0 0 var(--icon-shadow),
-                6px 6px 0 0 var(--icon-shadow),
-                4px 6px 0 0 var(--icon-shadow),
-                2px 6px 0 0 var(--icon-shadow),
-                0px 6px 0 0 var(--icon-shadow),
-                0px 4px 0 0 var(--icon-shadow);
+            border: 3px solid #000000;
+            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
             cursor: pointer;
             position: relative;
             background: linear-gradient(to right, #fff, #f00);
             flex-shrink: 0;
-        }
-
-        body.dark .color-canvas {
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m8,2 2,0 0,-2 80,0 0,2 2,0 0,2 2,0 0,2 2,0 0,80 -2,0 0,2 -2,0 0,2 -2,0 0,2 -80,0 0,-2 -2,0 0,-2 -2,0 0,-2 -2,0 0,-80 2,0 0,-2 2,0 0,-2 z' fill='none' stroke='%23ffffff' stroke-width='4'/%3e%3c/svg%3e") 12;
         }
 
         .color-canvas::before {
@@ -439,28 +385,14 @@
         .hue-slider {
             width: 20px;
             height: 200px;
-            border: 4px solid;
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m8,2 2,0 0,-2 80,0 0,2 2,0 0,2 2,0 0,2 2,0 0,80 -2,0 0,2 -2,0 0,2 -2,0 0,2 -80,0 0,-2 -2,0 0,-2 -2,0 0,-2 -2,0 0,-80 2,0 0,-2 2,0 0,-2 z' fill='none' stroke='%23000000' stroke-width='4'/%3e%3c/svg%3e") 12;
+            border: 3px solid #000000;
             background: linear-gradient(to bottom, 
                 #f00 0%, #ff0 16.66%, #0f0 33.33%, 
                 #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
             position: relative;
             cursor: pointer;
             flex-shrink: 0;
-            box-shadow: 
-                4px 0px 0 0 var(--icon-shadow),
-                4px 2px 0 0 var(--icon-shadow),
-                6px 2px 0 0 var(--icon-shadow),
-                6px 4px 0 0 var(--icon-shadow),
-                6px 6px 0 0 var(--icon-shadow),
-                4px 6px 0 0 var(--icon-shadow),
-                2px 6px 0 0 var(--icon-shadow),
-                0px 6px 0 0 var(--icon-shadow),
-                0px 4px 0 0 var(--icon-shadow);
-        }
-
-        body.dark .hue-slider {
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m8,2 2,0 0,-2 80,0 0,2 2,0 0,2 2,0 0,2 2,0 0,80 -2,0 0,2 -2,0 0,2 -2,0 0,2 -80,0 0,-2 -2,0 0,-2 -2,0 0,-2 -2,0 0,-80 2,0 0,-2 2,0 0,-2 z' fill='none' stroke='%23ffffff' stroke-width='4'/%3e%3c/svg%3e") 12;
+            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
         }
 
         .hue-cursor {
@@ -479,30 +411,14 @@
             flex-direction: column;
             gap: 15px;
             align-items: center;
-            min-width: 180px;
         }
 
         .color-preview {
             width: 160px;
             height: 80px;
-            border: 4px solid;
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m8,2 2,0 0,-2 80,0 0,2 2,0 0,2 2,0 0,2 2,0 0,80 -2,0 0,2 -2,0 0,2 -2,0 0,2 -80,0 0,-2 -2,0 0,-2 -2,0 0,-2 -2,0 0,-80 2,0 0,-2 2,0 0,-2 z' fill='none' stroke='%23000000' stroke-width='4'/%3e%3c/svg%3e") 12;
-            margin: 10px 0;
-            box-shadow: 
-                4px 0px 0 0 var(--icon-shadow),
-                4px 2px 0 0 var(--icon-shadow),
-                6px 2px 0 0 var(--icon-shadow),
-                6px 4px 0 0 var(--icon-shadow),
-                6px 6px 0 0 var(--icon-shadow),
-                4px 6px 0 0 var(--icon-shadow),
-                2px 6px 0 0 var(--icon-shadow),
-                0px 6px 0 0 var(--icon-shadow),
-                0px 4px 0 0 var(--icon-shadow);
-            position: relative;
-        }
-
-        body.dark .color-preview {
-            border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m8,2 2,0 0,-2 80,0 0,2 2,0 0,2 2,0 0,2 2,0 0,80 -2,0 0,2 -2,0 0,2 -2,0 0,2 -80,0 0,-2 -2,0 0,-2 -2,0 0,-2 -2,0 0,-80 2,0 0,-2 2,0 0,-2 z' fill='none' stroke='%23ffffff' stroke-width='4'/%3e%3c/svg%3e") 12;
+            border: 3px solid #000000;
+            margin: 0;
+            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
         }
 
         .hex-display {
