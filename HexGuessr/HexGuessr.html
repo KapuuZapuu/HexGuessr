@@ -411,10 +411,18 @@
         }
 
         .color-preview {
-            width: 180px;
-            height: 120px;
+            width: 160px;
+            height: 80px;
             margin: 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+        }
+
+        .hex-display {
+            font-size: 16px;
+            margin: 10px 0 5px 0;
+            color: inherit;
+            text-align: center;
+            text-shadow: 2px 2px 0 var(--icon-shadow);
         }
 
         .hex-controls {
@@ -425,16 +433,15 @@
         }
 
         .hex-input-field {
-            font-size: 14px;
+            font-size: 12px;
             padding: 5px;
             border: none;
-            width: 150px;
+            width: 80px;
             text-align: center; 
             text-transform: uppercase;
             background: rgba(255, 255, 255, 0.9);
             color: #333;
             font-family: 'Press Start 2P', cursive;
-            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
         }
 
         /* style the new copy‐icon button */
@@ -641,6 +648,7 @@
                 <div class="color-controls">
                     <div class="color-preview" id="colorPreview"></div>
                     
+                    <div class="hex-display">Hexcode:</div>
                     <div class="hex-controls">
                         <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
                         <button id="copyBtn" class="icon-btn" aria-label="Copy hex code">
@@ -777,67 +785,16 @@
                 
                 // Hex input field
                 this.hexInputField.addEventListener('input', (e) => {
-                    let value = e.target.value;
-                    
-                    // Ensure it always starts with #
-                    if (!value.startsWith('#')) {
-                        value = '#' + value.replace('#', '');
-                    }
-                    
-                    // Remove any invalid characters after the #
-                    let hexPart = value.slice(1).replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
-                    
-                    // Limit to 6 characters after #
-                    if (hexPart.length > 6) {
-                        hexPart = hexPart.slice(0, 6);
-                    }
-                    
-                    e.target.value = '#' + hexPart;
-                    
-                    if (hexPart.length === 6) {
-                        this.updateFromHex(hexPart);
-                    }
-                });
-                
-                // Prevent deletion of the # symbol
-                this.hexInputField.addEventListener('keydown', (e) => {
-                    const cursorPos = e.target.selectionStart;
-                    const cursorEnd = e.target.selectionEnd;
-                    
-                    // Prevent deletion of # at position 0
-                    if ((e.key === 'Backspace' || e.key === 'Delete') && 
-                        (cursorPos === 0 || (cursorPos === 1 && cursorEnd === 1))) {
-                        e.preventDefault();
-                    }
-                    
-                    // Prevent cursor from going before #
-                    if (e.key === 'ArrowLeft' && cursorPos <= 1) {
-                        e.preventDefault();
-                    }
-                    
-                    // Prevent selection that includes the #
-                    if (e.key === 'Home' || (e.ctrlKey && e.key === 'a')) {
-                        e.preventDefault();
-                        e.target.setSelectionRange(1, e.target.value.length);
-                    }
-                });
-                
-                // Handle click/focus to prevent cursor before #
-                this.hexInputField.addEventListener('click', (e) => {
-                    if (e.target.selectionStart < 1) {
-                        e.target.setSelectionRange(1, 1);
-                    }
-                });
-                
-                this.hexInputField.addEventListener('focus', (e) => {
-                    if (e.target.selectionStart < 1) {
-                        e.target.setSelectionRange(1, 1);
+                    let value = e.target.value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+                    e.target.value = value;
+                    if (value.length === 6) {
+                        this.updateFromHex(value);
                     }
                 });
                 
                 // Copy button
                 this.copyBtn.addEventListener('click', () => {
-                    const hexValue = this.hexInputField.value;
+                    const hexValue = '#' + this.hexInputField.value;
                     navigator.clipboard.writeText(hexValue).then(() => {
                         // Create a temporary tooltip-like feedback
                         const feedback = document.createElement('div');
@@ -1026,9 +983,6 @@
                 
                 // Update preview
                 this.colorPreview.style.backgroundColor = `#${hex}`;
-                
-                // Update the input field with # prefix
-                this.hexInputField.value = '#' + hex;
             }
 
             generateRandomColor() {
@@ -1150,8 +1104,6 @@
             updateColorPicker() {
                 // Initialize with default color
                 this.updateFromHex('FF5733');
-                // Set initial value with # prefix
-                this.hexInputField.value = '#FF5733';
             }
 
             restartGame() {
