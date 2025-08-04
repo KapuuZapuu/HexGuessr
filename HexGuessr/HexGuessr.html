@@ -72,18 +72,38 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: black;
             --icon-shadow: #c8c8c8;
+            position: relative;
+        }
+
+        /* Add scanlines effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
         }
 
         /* Dark-mode overrides */
         body.dark {
-          background: #262626;
+          background: linear-gradient(135deg, #2c1810 0%, #8b4513 100%);
           color: white;
           --icon-shadow: #000000;  /* crisper on dark backgrounds */
         }
@@ -172,12 +192,39 @@
         }
 
         .game-container {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
             padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 0 0 3px #00ff00,
+                0 0 20px rgba(0, 255, 0, 0.3),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
             max-width: 600px;
             width: 100%;
+            border: 3px solid #00ff00;
+            position: relative;
+        }
+
+        /* Add CRT glow effect */
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(0, 255, 0, 0.1) 50%, 
+                transparent 70%);
+            border-radius: inherit;
+            z-index: -1;
+            animation: crtGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes crtGlow {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         .ascii-title {
@@ -240,9 +287,12 @@
             font-size: 18px;
             font-family: 'Press Start 2P', cursive;
             text-shadow: 3px 3px 0 var(--icon-shadow);
-            color: black;
+            color: #00ff00;
             margin: 0;
-            border: 3px solid #000000;
+            border: 3px solid #00ff00;
+            box-shadow: 
+                0 0 10px rgba(0, 255, 0, 0.5),
+                inset 0 0 10px rgba(0, 255, 0, 0.1);
         }
 
         .color-display:hover {
@@ -250,13 +300,18 @@
         }
 
         .color-display.hidden {
-            background: rgb(255, 255, 255) !important;
+            background: #000000 !important;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
         }
 
         .game-info {
             text-align: center;
             margin: 20px 0;
             font-size: 18px;
+            font-family: 'Press Start 2P', cursive;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
 
         .input-section {
@@ -271,28 +326,47 @@
             width: 200px;
             text-align: center;
             text-transform: uppercase;
-            background: #ffffff;
-            color: #333;
+            background: #000000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .hex-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            text-shadow: 0 0 5px #00ff00;
         }
 
         .submit-btn {
-            font-size: 18px;
+            font-size: 12px;
             padding: 12px 24px;
             margin-left: 10px;
             border: none;
-            background: #4CAF50;
-            color: white;
+            background: #000000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            font-family: 'Press Start 2P', cursive;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
 
         .submit-btn:hover {
-            background: #45a049;
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            transform: translateY(-2px);
         }
 
         .submit-btn:disabled {
-            background: #666;
+            background: #333;
+            color: #666;
+            border-color: #666;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         .guesses-container {
@@ -309,29 +383,40 @@
         .guess-char {
             width: 40px;
             height: 40px;
-            border: 2px solid white;
+            border: 2px solid #00ff00;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 18px;
-            background: rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            font-family: 'Press Start 2P', cursive;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
         }
 
         .correct {
-            background: #4CAF50 !important;
-            border-color: #4CAF50;
+            background: #00ff00 !important;
+            border-color: #00ff00;
+            color: #000000 !important;
+            text-shadow: none !important;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
         }
 
         .close {
-            background: #FFC107 !important;
-            border-color: #FFC107;
-            color: #333;
+            background: #ffff00 !important;
+            border-color: #ffff00;
+            color: #000000 !important;
+            text-shadow: none !important;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
         }
 
         .wrong {
-            background: #f44336 !important;
-            border-color: #f44336;
+            background: #ff0000 !important;
+            border-color: #ff0000;
+            color: #000000 !important;
+            text-shadow: none !important;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
         }
 
         .custom-color-picker {
@@ -340,7 +425,9 @@
             gap: 15px;
             margin: 20px 0;
             padding: 20px;
-            background: rgba(143, 143, 143, 0.1);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
             font-family: 'Press Start 2P', cursive;
             position: relative;
         }
@@ -354,12 +441,13 @@
         .color-canvas {
             width: 200px;
             height: 200px;
-            border: 3px solid #000000;
+            border: 3px solid #00ff00;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
             cursor: pointer;
             position: relative;
             background: linear-gradient(to right, #fff, #f00);
             flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         }
 
         .color-canvas::before {
@@ -385,7 +473,7 @@
         .hue-slider {
             width: 20px;
             height: 200px;
-            border: 3px solid #000000;
+            border: 3px solid #00ff00;
             background: linear-gradient(to bottom, 
                 #f00 0%, #ff0 16.66%, #0f0 33.33%, 
                 #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
@@ -393,6 +481,7 @@
             cursor: pointer;
             flex-shrink: 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         }
 
         .hue-cursor {
@@ -416,17 +505,18 @@
         .color-preview {
             width: 160px;
             height: 80px;
-            border: 3px solid #000000;
+            border: 3px solid #00ff00;
             margin: 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         }
 
         .hex-display {
             font-size: 12px;
             margin: 10px 0 5px 0;
-            color: inherit;
+            color: #00ff00;
             text-align: center;
-            text-shadow: 2px 2px 0 var(--icon-shadow);
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
 
         .hex-controls {
@@ -437,15 +527,21 @@
         }
 
         .hex-input-field {
-            font-size: 10px;
+            font-size: 8px;
             padding: 5px;
-            border: 1px solid #333;
+            border: 2px solid #00ff00;
             width: 80px;
             text-align: center; 
             text-transform: uppercase;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-family: monospace;
+            background: #000000;
+            color: #00ff00;
+            font-family: 'Press Start 2P', cursive;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .hex-input-field:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
         }
 
         /* style the new copy‐icon button */
@@ -477,22 +573,32 @@
             text-align: center;
             margin: 20px 0;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            font-family: 'Press Start 2P', cursive;
+            color: #00ff00;
         }
 
         .restart-btn {
-            font-size: 18px;
+            font-size: 12px;
             padding: 12px 24px;
             border: none;
-            background: #2196F3;
-            color: white;
+            background: #000000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            font-family: 'Press Start 2P', cursive;
             cursor: pointer;
             margin: 10px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
 
         .restart-btn:hover {
-            background: #1976D2;
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            transform: translateY(-2px);
         }
 
         .timer { /* Removeable? */
@@ -504,16 +610,19 @@
         .timer-bar {
             width: 200px;
             height: 8px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
             overflow: hidden;
             margin: 10px auto;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
         /* the animated “fill” */
         .timer-fill {
             width: 100%;              /* starts full */
             height: 100%;
-            background: #4CAF50;       /* or pick any accent color */
+            background: #00ff00;
             transition: width linear;  /* you’ll set duration in JS */
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
         }
     </style>
 </head>
@@ -671,20 +780,20 @@
     
     <div class="game-info">
         <div>Attempt: <span id="currentAttempt">1</span> / 6</div>
-        <div>Click the square above to see the target color!</div>
+        <div>CLICK SQUARE TO REVEAL TARGET</div>
     </div>
 
     <div class="input-section">
-        <input type="text" id="hexInput" class="hex-input" placeholder="Enter hex (e.g., FF5733)" maxlength="6">
-        <button id="submitBtn" class="submit-btn">Submit Guess</button>
+        <input type="text" id="hexInput" class="hex-input" placeholder="ENTER HEX CODE" maxlength="6">
+        <button id="submitBtn" class="submit-btn">SUBMIT</button>
     </div>
 
     <div class="guesses-container" id="guessesContainer"></div>
 
     <div id="gameOver" class="game-over" style="display: none;">
-        <h2 id="gameResult"></h2>
+        <h3 id="gameResult"></h3>
         <p id="correctAnswer"></p>
-        <button id="restartBtn" class="restart-btn">Play Again</button>
+        <button id="restartBtn" class="restart-btn">PLAY AGAIN</button>
     </div>
 
     <script>
