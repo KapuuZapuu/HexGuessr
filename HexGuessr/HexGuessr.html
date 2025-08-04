@@ -167,7 +167,12 @@
             color: #eee !important;
         }
         body.dark .hex-input-field {
+            color: #fff;
+        }
+        body.dark .hex-input-container {
             background: #333;
+        }
+        body.dark .hex-prefix {
             color: #fff;
         }
 
@@ -412,36 +417,66 @@
 
         .color-preview {
             width: 160px;
-            height: 80px;
+            height: 100px;
             margin: 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
         }
 
-        .hex-display {
-            font-size: 16px;
-            margin: 10px 0 5px 0;
-            color: inherit;
-            text-align: center;
-            text-shadow: 2px 2px 0 var(--icon-shadow);
+        .hex-input-container {
+            display: flex;
+            align-items: center;
+            width: 160px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            position: relative;
+            filter: drop-shadow(3px 3px 0 var(--icon-shadow));
+            margin-top: 10px;
         }
 
-        .hex-controls {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-            justify-content: center;
+        .hex-prefix {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: #333;
+            padding-left: 8px;
+            user-select: none;
+            pointer-events: none;
+            flex-shrink: 0;
         }
 
         .hex-input-field {
             font-size: 12px;
-            padding: 5px;
+            padding: 8px 4px;
             border: none;
-            width: 80px;
-            text-align: center; 
+            flex: 1;
+            background: transparent;
             text-transform: uppercase;
-            background: rgba(255, 255, 255, 0.9);
             color: #333;
             font-family: 'Press Start 2P', cursive;
+            outline: none;
+        }
+
+        .hex-copy-btn {
+            background: none;
+            border: none;
+            padding: 4px 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .hex-copy-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .hex-copy-btn img {
+            width: 16px;
+            height: 16px;
+            image-rendering: pixelated;
+            filter: drop-shadow(1px 1px 0 var(--icon-shadow));
         }
 
         /* style the new copy‐icon button */
@@ -648,10 +683,10 @@
                 <div class="color-controls">
                     <div class="color-preview" id="colorPreview"></div>
                     
-                    <div class="hex-display">Hexcode:</div>
-                    <div class="hex-controls">
+                    <div class="hex-input-container">
+                        <span class="hex-prefix">#</span>
                         <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                        <button id="copyBtn" class="icon-btn" aria-label="Copy hex code">
+                        <button id="copyBtn" class="hex-copy-btn" aria-label="Copy hex code">
                             <img
                                 id="copyIcon"
                                 src="copy-light.png"
@@ -800,21 +835,20 @@
                         const feedback = document.createElement('div');
                         feedback.textContent = 'Copied!';
                         feedback.style.cssText = `
-                            position: absolute;
-                            top: -30px;
+                            position: fixed;
+                            top: 50%;
                             left: 50%;
-                            transform: translateX(-50%);
+                            transform: translate(-50%, -50%);
                             background: #4CAF50;
                             color: white;
-                            padding: 4px 8px;
-                            border-radius: 4px;
+                            padding: 8px 12px;
                             font-size: 10px;
                             font-family: 'Press Start 2P', cursive;
                             pointer-events: none;
                             z-index: 1000;
+                            filter: drop-shadow(2px 2px 0 #2e7d32);
                         `;
-                        this.copyBtn.style.position = 'relative';
-                        this.copyBtn.appendChild(feedback);
+                        document.body.appendChild(feedback);
                         setTimeout(() => {
                             if (feedback.parentNode) {
                                 feedback.parentNode.removeChild(feedback);
@@ -833,21 +867,20 @@
                         const feedback = document.createElement('div');
                         feedback.textContent = 'Copied!';
                         feedback.style.cssText = `
-                            position: absolute;
-                            top: -30px;
+                            position: fixed;
+                            top: 50%;
                             left: 50%;
-                            transform: translateX(-50%);
+                            transform: translate(-50%, -50%);
                             background: #4CAF50;
                             color: white;
-                            padding: 4px 8px;
-                            border-radius: 4px;
+                            padding: 8px 12px;
                             font-size: 10px;
                             font-family: 'Press Start 2P', cursive;
                             pointer-events: none;
                             z-index: 1000;
+                            filter: drop-shadow(2px 2px 0 #2e7d32);
                         `;
-                        this.copyBtn.style.position = 'relative';
-                        this.copyBtn.appendChild(feedback);
+                        document.body.appendChild(feedback);
                         setTimeout(() => {
                             if (feedback.parentNode) {
                                 feedback.parentNode.removeChild(feedback);
