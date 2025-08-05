@@ -13,26 +13,31 @@
             --icon-shadow: #c8c8c8;  /* softer on light backgrounds */
         }
 
-        .game-header {
-            /* make it span the full width, then center its contents */
+        .layout-container {
+            max-width: 600px;
             width: 100%;
-            margin: 0 auto;             /* center the header within the body */
-            padding: 20px 40px;         /* vertical + horizontal gutter */
-            display: flex;
-            align-items: center;        /* vertically align all three items */
-            justify-content: space-between;  /* push left / center / right apart */
+            margin: 0 auto;
             box-sizing: border-box;
+            padding: 20px 30px;
+        }
+
+        .game-header {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
             gap: 30px;
+            padding: 20px 0;
+            width: 100%;
         }
         
         .game-container {
-            padding: 30px;
-            max-width: 600px;
+            padding-top: 30px 0;
             width: 100%;
         }
 
         /* Top-right container for the two buttons */
         .top-controls {
+            grid-column: 3;
             position: static;
             top: auto;
             right: auto;
@@ -41,11 +46,12 @@
             gap: 12px;
             z-index: 1000;
             align-items: center;
-            justify-content: flex-end;    /* make sure everything hugs the right edge */
+            justify-self: end;    /* make sure everything hugs the right edge */
             margin: 0;
         }
 
         .mode-container {
+            grid-column: 1;
             position: static;
             top: auto;             /* same vertical as your old author credit */
             left: auto;            /* same horizontal offset */
@@ -228,14 +234,14 @@
             color: inherit;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            grid-column: 2;
+            justify-self: center;
+            transform: translateY(10px);
+            padding: 30px 20px 20px 20px;
             line-height: 1em;      /* tighten the lines if you like */
             font-size: 1em;        /* adjust so it fits */
             position: relative;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            max-width: fit-content;
             overflow: visible;
         }
 
@@ -593,175 +599,177 @@
     </style>
 </head>
 <body>
-    <header class="game-header">
-        <!-- mode selector buttons -->
-        <div class="mode-container">
-            <button class="mode-btn">Daily</button>
-            <button class="mode-btn">Unlimited</button>
-        </div>
+    <div class="layout-container">
+        <header class="game-header">
+            <!-- mode selector buttons -->
+            <div class="mode-container">
+                <button class="mode-btn">Daily</button>
+                <button class="mode-btn">Unlimited</button>
+            </div>
 
-        <pre class="ascii-title">
+            <pre class="ascii-title">
 ██╗  ██╗███████╗██╗  ██╗ ██████╗ ██╗   ██╗███████╗███████╗███████╗██████╗ 
 ██║  ██║██╔════╝╚██╗██╔╝██╔════╝ ██║   ██║██╔════╝██╔════╝██╔════╝██╔══██╗
 ███████║█████╗   ╚███╔╝ ██║  ███╗██║   ██║█████╗  ███████╗███████╗██████╔╝
 ██╔══██║██╔══╝   ██╔██╗ ██║   ██║██║   ██║██╔══╝  ╚════██║╚════██║██╔══██╗
 ██║  ██║███████╗██╔╝ ██╗╚██████╔╝╚██████╔╝███████╗███████║███████║██║  ██║
 ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝
-        </pre>
+            </pre>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const pre   = document.querySelector(".ascii-title");
-                const lines = pre.textContent.split("\n");
-                pre.innerHTML = "";           // clear out the raw ASCII
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const pre   = document.querySelector(".ascii-title");
+                    const lines = pre.textContent.split("\n");
+                    pre.innerHTML = "";           // clear out the raw ASCII
 
-                const letterWidths = [8, 8, 8, 9, 9, 8, 8, 8, 8];  // <- manual widths for each ASCII letter 
-                                                            // (first char is for the spacing before the "H")
-                // build cumulative edges
-                const boundaries = letterWidths.reduce((acc, w) => {
-                    acc.push(acc[acc.length-1] + w);
-                    return acc;
-                }, [0]);
+                    const letterWidths = [8, 8, 8, 9, 9, 8, 8, 8, 8];  // <- manual widths for each ASCII letter 
+                                                                // (first char is for the spacing before the "H")
+                    // build cumulative edges
+                    const boundaries = letterWidths.reduce((acc, w) => {
+                        acc.push(acc[acc.length-1] + w);
+                        return acc;
+                    }, [0]);
 
-                lines.forEach((line, row) => {
-                    Array.from(line).forEach((ch, col) => {
-                        const span = document.createElement("span");
-                        span.textContent = ch;
-                        // store only the column number, not a running index
-                        span.style.setProperty("--col", col);
-                        // compute which ASCII‑letter this char belongs to
-                        const letterIndex = boundaries.findIndex((b, i) =>
-                            col >= b && col < (boundaries[i+1] || Infinity)
-                        );
-                        span.dataset.letter = letterIndex;
-                        pre.appendChild(span);
+                    lines.forEach((line, row) => {
+                        Array.from(line).forEach((ch, col) => {
+                            const span = document.createElement("span");
+                            span.textContent = ch;
+                            // store only the column number, not a running index
+                            span.style.setProperty("--col", col);
+                            // compute which ASCII‑letter this char belongs to
+                            const letterIndex = boundaries.findIndex((b, i) =>
+                                col >= b && col < (boundaries[i+1] || Infinity)
+                            );
+                            span.dataset.letter = letterIndex;
+                            pre.appendChild(span);
+                        });
+                        // re–insert a newline so your <pre> stays multi‑line
+                        if (row < lines.length - 1) {
+                            pre.appendChild(document.createTextNode("\n"));
+                        }
                     });
-                    // re–insert a newline so your <pre> stays multi‑line
-                    if (row < lines.length - 1) {
-                        pre.appendChild(document.createTextNode("\n"));
-                    }
+
+                    document.querySelectorAll(".ascii-title span").forEach(span => {
+                        span.addEventListener("mouseenter", () => {
+                            const idx = span.dataset.letter;
+                            document
+                                .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
+                                .forEach(s => s.classList.add("hover-group"));
+                        });
+                        span.addEventListener("mouseleave", () => {
+                            const idx = span.dataset.letter;
+                            document
+                                .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
+                                .forEach(s => s.classList.remove("hover-group"));
+                        });
+                    });
                 });
+            </script>
 
-                document.querySelectorAll(".ascii-title span").forEach(span => {
-                    span.addEventListener("mouseenter", () => {
-                        const idx = span.dataset.letter;
-                        document
-                            .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
-                            .forEach(s => s.classList.add("hover-group"));
-                    });
-                    span.addEventListener("mouseleave", () => {
-                        const idx = span.dataset.letter;
-                        document
-                            .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
-                            .forEach(s => s.classList.remove("hover-group"));
-                    });
-                });
-            });
-        </script>
+            <div class="top-controls">
 
-        <div class="top-controls">
+                <!-- Help / Instructions -->
+                <button id="infoButton"        class="icon-btn" aria-label="Show instructions">
+                    <img 
+                        id="infoIcon"
+                        src="question-mark-light.png" 
+                        data-light="question-mark-light.png" 
+                        data-dark="question-mark-dark.png"
+                        alt="Help">
+                </button>
 
-            <!-- Help / Instructions -->
-            <button id="infoButton"        class="icon-btn" aria-label="Show instructions">
-                <img 
-                    id="infoIcon"
-                    src="question-mark-light.png" 
-                    data-light="question-mark-light.png" 
-                    data-dark="question-mark-dark.png"
-                    alt="Help">
-            </button>
+                <!-- Stats (if you have a stats panel) -->
+                <button id="statsButton"       class="icon-btn" aria-label="Show stats">
+                    <img
+                        id="statsIcon"
+                        src="stats-light.png"
+                        data-light="stats-light.png"
+                        data-dark="stats-dark.png"
+                        alt="Stats">
+                </button>
 
-            <!-- Stats (if you have a stats panel) -->
-            <button id="statsButton"       class="icon-btn" aria-label="Show stats">
-                <img
-                    id="statsIcon"
-                    src="stats-light.png"
-                    data-light="stats-light.png"
-                    data-dark="stats-dark.png"
-                    alt="Stats">
-            </button>
+                <!-- Animation toggle -->
+                <button id="toggleAnimations" class="icon-btn" aria-label="Pause animations">
+                    <img
+                        id="animIcon"
+                        src="animation-suspend-light.png"
+                        data-light="animation-suspend-light.png"
+                        data-dark="animation-suspend-dark.png"
+                        alt="Toggle animations">
+                </button>
 
-            <!-- Animation toggle -->
-            <button id="toggleAnimations" class="icon-btn" aria-label="Pause animations">
-                <img
-                    id="animIcon"
-                    src="animation-suspend-light.png"
-                    data-light="animation-suspend-light.png"
-                    data-dark="animation-suspend-dark.png"
-                    alt="Toggle animations">
-            </button>
+                <!-- Dark‑mode toggle -->
+                <button id="darkModeToggle"   class="icon-btn" aria-label="Toggle dark mode">
+                    <img
+                        id="darkModeIcon"
+                        src="dark-mode-light.png"
+                        data-light="dark-mode-light.png"
+                        data-dark="dark-mode-dark.png"
+                        alt="Dark mode">
+                </button>
+            </div>
+        </header>
 
-            <!-- Dark‑mode toggle -->
-            <button id="darkModeToggle"   class="icon-btn" aria-label="Toggle dark mode">
-                <img
-                    id="darkModeIcon"
-                    src="dark-mode-light.png"
-                    data-light="dark-mode-light.png"
-                    data-dark="dark-mode-dark.png"
-                    alt="Dark mode">
-            </button>
-        </div>
-    </header>
-
-    <div class="game-container">   
-        <div class="color-game-section">
-            <div class="custom-color-picker">
-                <div class="color-display hidden" id="colorDisplay">
-                    Click to reveal color!
-                </div>
-            
-                <div class="color-picker-main">                
-                    <div class="color-canvas" id="colorCanvas">
-                        <div class="canvas-cursor" id="canvasCursor"></div>
+        <div class="game-container">   
+            <div class="color-game-section">
+                <div class="custom-color-picker">
+                    <div class="color-display hidden" id="colorDisplay">
+                        Click to reveal color!
                     </div>
                     
-                    <div class="hue-slider" id="hueSlider">
-                        <div class="hue-cursor" id="hueCursor"></div>
-                    </div>
-                    
-                    <div class="color-controls">
-                        <div class="color-preview" id="colorPreview"></div>
+                    <div class="color-picker-main">                
+                        <div class="color-canvas" id="colorCanvas">
+                            <div class="canvas-cursor" id="canvasCursor"></div>
+                        </div>
                         
-                        <div class="hex-input-container">
-                            <span class="hex-prefix">#</span>
-                            <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                            <button id="copyBtn" class="hex-copy-btn" aria-label="Copy hex code">
-                                <img
-                                    id="copyIcon"
-                                    src="copy-light.png"
-                                    data-light="copy-light.png"
-                                    data-dark="copy-dark.png"
-                                    alt="Copy"
-                                />
-                            </button>
+                        <div class="hue-slider" id="hueSlider">
+                            <div class="hue-cursor" id="hueCursor"></div>
+                        </div>
+                        
+                        <div class="color-controls">
+                            <div class="color-preview" id="colorPreview"></div>
+                            
+                            <div class="hex-input-container">
+                                <span class="hex-prefix">#</span>
+                                <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
+                                <button id="copyBtn" class="hex-copy-btn" aria-label="Copy hex code">
+                                    <img
+                                        id="copyIcon"
+                                        src="copy-light.png"
+                                        data-light="copy-light.png"
+                                        data-dark="copy-dark.png"
+                                        alt="Copy"
+                                    />
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="timer-bar" id="timerBar" style="display:none;">
-                    <div class="timer-fill" id="timerFill"></div>
+                    
+                    <div class="timer-bar" id="timerBar" style="display:none;">
+                        <div class="timer-fill" id="timerFill"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    
-        <div class="game-info">
-            <div>Attempt: <span id="currentAttempt">1</span> / 6</div>
-            <div>Click the square above to see the target color!</div>
-        </div>
+            
+            <div class="game-info">
+                <div>Attempt: <span id="currentAttempt">1</span> / 6</div>
+                <div>Click the square above to see the target color!</div>
+            </div>
 
-        <div class="input-section">
-            <input type="text" id="hexInput" class="hex-input" placeholder="Enter hex (e.g., FF5733)" maxlength="6">
-            <button id="submitBtn" class="submit-btn">Submit Guess</button>
-        </div>
+            <div class="input-section">
+                <input type="text" id="hexInput" class="hex-input" placeholder="Enter hex (e.g., FF5733)" maxlength="6">
+                <button id="submitBtn" class="submit-btn">Submit Guess</button>
+            </div>
 
-        <div class="guesses-container" id="guessesContainer"></div>
+            <div class="guesses-container" id="guessesContainer"></div>
 
-        <div id="gameOver" class="game-over" style="display: none;">
-            <h2 id="gameResult"></h2>
-            <p id="correctAnswer"></p>
-            <button id="restartBtn" class="restart-btn">Play Again</button>
+            <div id="gameOver" class="game-over" style="display: none;">
+                <h2 id="gameResult"></h2>
+                <p id="correctAnswer"></p>
+                <button id="restartBtn" class="restart-btn">Play Again</button>
+            </div>
         </div>
-    </div> 
+    </div>
 
     <script>
         class HexColorWordle {
