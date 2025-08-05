@@ -22,10 +22,10 @@
         }
 
         .game-header {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 30px;
+            position: relative;
             padding: 20px 0;
             width: 100%;
         }
@@ -37,26 +37,22 @@
 
         /* Top-right container for the two buttons */
         .top-controls {
-            grid-column: 3;
-            position: static;
-            top: auto;
-            right: auto;
-            left: auto;
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
             display: flex;
             gap: 12px;
             z-index: 1000;
             align-items: center;
-            justify-self: end;    /* make sure everything hugs the right edge */
             margin: 0;
         }
 
         .mode-container {
-            grid-column: 1;
-            justify-self: start;
-            position: static;
-            top: auto;             /* same vertical as your old author credit */
-            left: auto;            /* same horizontal offset */
-            right: auto;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
             display: flex;
             align-items: center;
             gap: 15px;             /* matches your other flex gaps */
@@ -235,8 +231,6 @@
             color: inherit;
             text-align: center;
             margin: 0;
-            grid-column: 2;
-            justify-self: center;
             transform: translateY(10px);
             padding: 30px 20px 20px 20px;
             line-height: 1em;      /* tighten the lines if you like */
