@@ -23,7 +23,7 @@
 
         .game-header {
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
             gap: 30px;
             padding: 20px 0;
@@ -52,6 +52,7 @@
 
         .mode-container {
             grid-column: 1;
+            justify-self: start;
             position: static;
             top: auto;             /* same vertical as your old author credit */
             left: auto;            /* same horizontal offset */
