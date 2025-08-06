@@ -1117,6 +1117,9 @@
                         this.colorDisplay.classList.add('hidden');
                         this.colorDisplay.textContent = 'Click to reveal color!';
                         this.colorVisible = false;
+                        // Keep timer bar empty after color is hidden
+                        this.timerFill.style.transition = '';
+                        this.timerFill.style.width = '0%';
                     }
                 }, duration);
             }
@@ -1150,6 +1153,9 @@
                     return;
                 }
 
+                // Refill timer bar when guess is submitted
+                this.timerFill.style.transition = '';
+                this.timerFill.style.width = '100%';
                 this.processGuess(guess);
                 this.hexInput.value = '';
                 
@@ -1227,6 +1233,10 @@
                 this.hexInput.value = '';
                 this.timer.textContent = '';
                 this.colorDisplay.classList.remove('game-ended');
+                
+                // Reset timer bar to full for new game
+                this.timerFill.style.transition = '';
+                this.timerFill.style.width = '100%';
             }
         }
 
