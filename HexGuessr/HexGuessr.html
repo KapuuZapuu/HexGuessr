@@ -616,6 +616,15 @@
             background: #4CAF50;       /* or pick any accent color */
             transition: width linear;  /* you’ll set duration in JS */
         }
+        
+        .timer-text {
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: inherit;
+            margin: 10px 0 5px 0;
+            min-height: 16px;
+        }
     </style>
 </head>
 <body>
@@ -767,6 +776,7 @@
                 </div>
             </div>
 
+            <div class="timer-text" id="timerText"></div>
             <div class="timer-bar" id="timerBar">
                 <div class="timer-fill" id="timerFill"></div>
             </div>
@@ -829,7 +839,7 @@
                 this.gameResult = document.getElementById('gameResult');
                 this.correctAnswer = document.getElementById('correctAnswer');
                 this.restartBtn = document.getElementById('restartBtn');
-                this.timer = document.getElementById('timer'); // Removeable?
+                this.timerText = document.getElementById('timerText');
                 this.timerBar  = document.getElementById('timerBar');
                 this.timerFill = document.getElementById('timerFill');
                 
@@ -1123,6 +1133,10 @@
                 // Calculate duration: increases with each attempt
                 const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
                 
+                // Show timer text
+                const seconds = (duration / 1000).toFixed(1);
+                this.timerText.textContent = `Color visible for ${seconds}s`;
+                
                 this.startTimer(duration);
                 
                 setTimeout(() => {
@@ -1130,6 +1144,7 @@
                         this.colorDisplay.classList.add('hidden');
                         this.colorDisplay.textContent = 'Submit a guess to reveal again!';
                         this.colorVisible = false;
+                        this.timerText.textContent = '';
                         // Keep timer bar empty after color is hidden
                         this.timerFill.style.transition = '';
                         this.timerFill.style.width = '0%';
@@ -1138,8 +1153,6 @@
             }
 
             startTimer(duration) {
-                // hide any old text‑timer
-                this.timer && (this.timer.textContent = '');
                 // set the CSS transition to match your duration
                 this.timerFill.style.transition = `width ${duration}ms linear`;
                 // trigger the shrink to 0%
@@ -1225,7 +1238,7 @@
                 this.colorDisplay.classList.remove('hidden');
                 this.colorDisplay.textContent = `#${this.targetColor}`;
                 this.colorDisplay.classList.add('game-ended');
-                this.timer.textContent = '';
+                this.timerText.textContent = '';
                 
                 this.gameResult.textContent = won ? '🎉 Congratulations! You won!' : '😔 Game Over!';
                 this.correctAnswer.textContent = `The correct color was: #${this.targetColor}`;
@@ -1254,7 +1267,7 @@
                 this.gameOverDiv.style.display = 'none';
                 this.submitBtn.disabled = false;
                 this.hexInput.value = '';
-                this.timer.textContent = '';
+                this.timerText.textContent = '';
                 this.colorDisplay.classList.remove('game-ended');
                 
                 // Reset timer bar to full for new game
