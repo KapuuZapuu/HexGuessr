@@ -14,19 +14,17 @@
         }
 
         .layout-container {
-            max-width: 600px;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
-            padding: 20px 30px;
+            padding: 5px 30px;
         }
 
         .game-header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             position: relative;
-            padding: 20px 0;
             width: 100%;
         }
         
@@ -38,9 +36,8 @@
         /* Top-right container for the two buttons */
         .top-controls {
             position: absolute;
-            top: 50%;
-            right: 0;
-            transform: translateY(-50%);
+            right: 5px;
+            transform: none;
             display: flex;
             gap: 12px;
             z-index: 1000;
@@ -50,27 +47,25 @@
 
         .mode-container {
             position: absolute;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
+            left: 5px;
+            transform: none;
             display: flex;
             align-items: center;
-            gap: 15px;             /* matches your other flex gaps */
-            padding: 15px;         /* same “cushion” as your color picker */
+            gap: 10px;             /* matches your other flex gaps */
+            padding: 10px;         /* same “cushion” as your color picker */
             background: rgba(143, 143, 143, 0.1);
-            z-index: 1001;
             margin: 0;
         }
         /* Button styling, same aesthetic as your "click to reveal" square */
         .mode-btn {
             width: 130px;             /* wide and rectangular */
-            height: 50px;
+            height: 40px;
             background: #f9f9f9;        /* same blank canvas */
             border: none;
             cursor: pointer;
 
             /* block-pixel look */
-            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
             color: black;
@@ -85,7 +80,7 @@
             transition: transform 0.2s ease;
         }
         .mode-btn:hover {
-            transform: translateY(-6px);
+            transform: translateY(-4px);
         }
 
         .icon-btn {
@@ -132,9 +127,16 @@
           --icon-shadow: #101010;  /* crisper on dark backgrounds */
         }
         body.dark .color-display {           
-            color: #eee;                  /* make sure your placeholder text is still readable */
+            color: #ffffff;                  /* make sure your placeholder text is still readable */
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
-            border-color: #eee
+        }
+        body.dark .mode-container {
+            background: #1d1d1d;
+        }
+        body.dark .mode-btn {
+            background: #2e2e2e;
+            color: #ffffff;
+            text-shadow: 2px 2px 0 var(--icon-shadow);
         }
         body.dark .color-display.hidden {
             /* override the always‑black you had before */
@@ -142,7 +144,7 @@
         }
         body.dark .color-display.game-ended {
             /* reuse the dark‑mode text style */
-            color: #eee;
+            color: #ffffff;
             text-shadow:
                 -1px -1px 0 #000000,
                 1px -1px 0 #000000,
@@ -159,7 +161,7 @@
                 1px  1px 0 #000000;
         }
         body.dark .game-container {
-          background: #000000;
+          background: none;
         }
         body.dark .hex-input {
           background: rgba(0, 0, 0, 0.1);
@@ -230,14 +232,12 @@
             /* Optional styling to match your theme */
             color: inherit;
             text-align: center;
-            margin: 0;
-            transform: translateY(10px);
-            padding: 30px 20px 20px 20px;
+            margin: 0 auto;
+            padding: 30px 20px 20px;
             line-height: 1em;      /* tighten the lines if you like */
             font-size: 1em;        /* adjust so it fits */
-            position: relative;
-            max-width: fit-content;
-            overflow: visible;
+            position: static;
+            min-width: 0;
         }
 
         /* animate every character */
@@ -379,11 +379,14 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            margin: 20px 0;
+            margin: 20px auto;
             padding: 20px;
             background: rgba(143, 143, 143, 0.1);
             font-family: 'Press Start 2P', cursive;
             position: relative;
+            box-sizing: border-box;       /* include padding in the width calculation */
+            width: 100%;                  /* fill up to… */
+            max-width: 665px;             /* …your measured container width */
         }
 
         .color-picker-main {
@@ -395,11 +398,16 @@
         .color-canvas {
             width: 200px;
             height: 200px;
-            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            filter: none;
+            box-shadow: 6px 6px 0 var(--icon-shadow);
             cursor: pointer;
             position: relative;
             background: linear-gradient(to right, #fff, #f00);
             flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+        .color-canvas:hover {
+            transform: translateY(-6px);
         }
 
         .color-canvas::before {
@@ -431,7 +439,12 @@
             position: relative;
             cursor: pointer;
             flex-shrink: 0;
-            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            filter: none;
+            box-shadow: 6px 6px 0 var(--icon-shadow);
+            transition: transform 0.2s ease;
+        }
+        .hue-slider:hover {
+            transform: translateY(-6px);
         }
 
         .hue-cursor {
@@ -439,7 +452,7 @@
             width: 20px;
             height: 16px;
             border: 2px solid white;
-            transform: translateY(-50%);
+            transform: translate(-8%, -50%);
             left: 0px;
             pointer-events: none;
             box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
@@ -450,13 +463,20 @@
             flex-direction: column;
             gap: 15px;
             align-items: center;
+            height: 200px;
+            justify-content: space-between;
         }
 
         .color-preview {
             width: 160px;
+            flex: 1;
             height: 100px;
             margin: 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            transition: transform 0.2s ease;
+        }
+        .color-preview:hover {
+            transform: translateY(-6px);
         }
 
         .hex-input-container {
@@ -468,6 +488,10 @@
             border: none;
             position: relative;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+            transition: transform 0.2s ease;
+        }
+        .hex-input-container:hover {
+            transform: translateY(-6px);
         }
 
         .hex-prefix {
@@ -501,14 +525,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s ease;
             flex-shrink: 0;
             right: 4px;
             position: absolute;
-        }
-
-        .hex-copy-btn:hover {
-            transform: translateY(-2px);
         }
 
         .hex-copy-btn img {
@@ -524,11 +543,6 @@
             border: none;
             padding: 2px;
             cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        #copyBtn:hover {
-            transform: translateY(-3px);
         }
 
         /* size & shadow the copy icon to match everything else */
@@ -578,8 +592,9 @@
             font-weight: bold;
         }
         .timer-bar {
-            width: 200px;
-            height: 8px;
+            width: 100%;
+            max-width: 665px;
+            height: 32px;
             background: rgba(0,0,0,0.1);
             overflow: hidden;
             margin: 10px auto;
@@ -610,56 +625,6 @@
 ██║  ██║███████╗██╔╝ ██╗╚██████╔╝╚██████╔╝███████╗███████║███████║██║  ██║
 ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝
             </pre>
-
-            <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    const pre   = document.querySelector(".ascii-title");
-                    const lines = pre.textContent.split("\n");
-                    pre.innerHTML = "";           // clear out the raw ASCII
-
-                    const letterWidths = [8, 8, 8, 9, 9, 8, 8, 8, 8];  // <- manual widths for each ASCII letter 
-                                                                // (first char is for the spacing before the "H")
-                    // build cumulative edges
-                    const boundaries = letterWidths.reduce((acc, w) => {
-                        acc.push(acc[acc.length-1] + w);
-                        return acc;
-                    }, [0]);
-
-                    lines.forEach((line, row) => {
-                        Array.from(line).forEach((ch, col) => {
-                            const span = document.createElement("span");
-                            span.textContent = ch;
-                            // store only the column number, not a running index
-                            span.style.setProperty("--col", col);
-                            // compute which ASCII‑letter this char belongs to
-                            const letterIndex = boundaries.findIndex((b, i) =>
-                                col >= b && col < (boundaries[i+1] || Infinity)
-                            );
-                            span.dataset.letter = letterIndex;
-                            pre.appendChild(span);
-                        });
-                        // re–insert a newline so your <pre> stays multi‑line
-                        if (row < lines.length - 1) {
-                            pre.appendChild(document.createTextNode("\n"));
-                        }
-                    });
-
-                    document.querySelectorAll(".ascii-title span").forEach(span => {
-                        span.addEventListener("mouseenter", () => {
-                            const idx = span.dataset.letter;
-                            document
-                                .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
-                                .forEach(s => s.classList.add("hover-group"));
-                        });
-                        span.addEventListener("mouseleave", () => {
-                            const idx = span.dataset.letter;
-                            document
-                                .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
-                                .forEach(s => s.classList.remove("hover-group"));
-                        });
-                    });
-                });
-            </script>
 
             <div class="top-controls">
 
@@ -704,6 +669,56 @@
                 </button>
             </div>
         </header>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const pre   = document.querySelector(".ascii-title");
+                const lines = pre.textContent.split("\n");
+                pre.innerHTML = "";           // clear out the raw ASCII
+
+                const letterWidths = [8, 8, 8, 9, 9, 8, 8, 8, 8];  // <- manual widths for each ASCII letter 
+                                                            // (first char is for the spacing before the "H")
+                // build cumulative edges
+                const boundaries = letterWidths.reduce((acc, w) => {
+                    acc.push(acc[acc.length-1] + w);
+                    return acc;
+                }, [0]);
+
+                lines.forEach((line, row) => {
+                    Array.from(line).forEach((ch, col) => {
+                        const span = document.createElement("span");
+                        span.textContent = ch;
+                        // store only the column number, not a running index
+                        span.style.setProperty("--col", col);
+                        // compute which ASCII‑letter this char belongs to
+                        const letterIndex = boundaries.findIndex((b, i) =>
+                            col >= b && col < (boundaries[i+1] || Infinity)
+                        );
+                        span.dataset.letter = letterIndex;
+                        pre.appendChild(span);
+                    });
+                    // re–insert a newline so your <pre> stays multi‑line
+                    if (row < lines.length - 1) {
+                        pre.appendChild(document.createTextNode("\n"));
+                    }
+                });
+
+                document.querySelectorAll(".ascii-title span").forEach(span => {
+                    span.addEventListener("mouseenter", () => {
+                        const idx = span.dataset.letter;
+                        document
+                            .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
+                            .forEach(s => s.classList.add("hover-group"));
+                    });
+                    span.addEventListener("mouseleave", () => {
+                        const idx = span.dataset.letter;
+                        document
+                            .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
+                            .forEach(s => s.classList.remove("hover-group"));
+                    });
+                });
+            });
+        </script>
 
         <div class="game-container">   
             <div class="color-game-section">
@@ -739,13 +754,13 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="timer-bar" id="timerBar" style="display:none;">
-                        <div class="timer-fill" id="timerFill"></div>
-                    </div>
                 </div>
             </div>
-            
+
+            <div class="timer-bar" id="timerBar">
+                <div class="timer-fill" id="timerFill"></div>
+            </div>
+
             <div class="game-info">
                 <div>Attempt: <span id="currentAttempt">1</span> / 6</div>
                 <div>Click the square above to see the target color!</div>
@@ -1109,9 +1124,6 @@
             startTimer(duration) {
                 // hide any old text‑timer
                 this.timer && (this.timer.textContent = '');
-
-                // show & animate the bar
-                this.timerBar.style.display = 'block';
                 // set the CSS transition to match your duration
                 this.timerFill.style.transition = `width ${duration}ms linear`;
                 // trigger the shrink to 0%
@@ -1122,7 +1134,6 @@
 
                 // after time's up, reset
                 setTimeout(() => {
-                    this.timerBar.style.display = 'none';
                     // restore for next round
                     this.timerFill.style.transition = '';
                     this.timerFill.style.width = '100%';
