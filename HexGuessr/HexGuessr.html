@@ -222,6 +222,20 @@
             color: #fff;
         }
 
+        .color-display.disabled {
+            cursor: default !important;
+            color: #787878 !important;
+            text-shadow: none !important;
+        }
+
+        body.dark .color-display.disabled {
+            color: #979797 !important;
+        }
+
+        .color-display.disabled:hover {
+            transform: none !important;
+        }
+
         .ascii-title {
             /* 1) Monospace ensures each character is exactly the same width */
             font-family: monospace;
@@ -789,6 +803,7 @@
                 this.maxAttempts = 6;
                 this.gameOver = false;
                 this.colorVisible = false;
+                this.hasRevealedThisAttempt = false;
                 this.baseDuration = 1000; // 1 second for first attempt
                 
                 this.initializeElements();
@@ -1100,12 +1115,14 @@
             }
 
             showColor() {
-                if (this.colorVisible || this.gameOver) return;
+                if (this.colorVisible || this.gameOver || this.hasRevealedThisAttempt) return;
                 
                 this.colorVisible = true;
+                this.hasRevealedThisAttempt = true;
                 this.colorDisplay.style.background = `#${this.targetColor}`;
                 this.colorDisplay.classList.remove('hidden');
                 this.colorDisplay.textContent = '';
+                this.colorDisplay.classList.add('disabled');
                 
                 // Calculate duration: increases with each attempt
                 const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
@@ -1115,7 +1132,7 @@
                 setTimeout(() => {
                     if (!this.gameOver) {
                         this.colorDisplay.classList.add('hidden');
-                        this.colorDisplay.textContent = 'Click to reveal color!';
+                        this.colorDisplay.textContent = 'Submit a guess to reveal again!';
                         this.colorVisible = false;
                         // Keep timer bar empty after color is hidden
                         this.timerFill.style.transition = '';
@@ -1156,6 +1173,14 @@
                 // Refill timer bar when guess is submitted
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '100%';
+                
+                // Reset reveal ability for next attempt
+                this.hasRevealedThisAttempt = false;
+                this.colorDisplay.classList.remove('disabled');
+                if (!this.colorVisible) {
+                    this.colorDisplay.textContent = 'Click to reveal color!';
+                }
+                
                 this.processGuess(guess);
                 this.hexInput.value = '';
                 
@@ -1223,8 +1248,10 @@
                 this.currentAttempt = 1;
                 this.gameOver = false;
                 this.colorVisible = false;
+                this.hasRevealedThisAttempt = false;
                 
                 this.colorDisplay.classList.add('hidden');
+                this.colorDisplay.classList.remove('disabled');
                 this.colorDisplay.textContent = 'Click to reveal color!';
                 this.currentAttemptSpan.textContent = '1';
                 this.guessesContainer.innerHTML = '';
