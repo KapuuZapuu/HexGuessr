@@ -138,23 +138,20 @@
 
         .guess-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: auto repeat(6, 1fr);
             gap: 8px;
-            max-width: 350px;
+            max-width: 400px;
             margin-bottom: 20px;
-        }
-
-        .guess-row {
-            display: contents;
+            align-items: center;
         }
 
         .hashtag {
             font-size: 28px;
             color: #4CAF50;
-            position: absolute;
-            left: -40px;
-            top: 50%;
-            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
             transition: color 0.3s ease;
         }
 
@@ -163,7 +160,6 @@
         }
 
         .guess-box {
-            position: relative;
             width: 55px;
             height: 50px;
             border: 2px solid #ddd;
@@ -377,6 +373,7 @@
         let isPaused = false;
         let currentGuess = ['', '', '', '', '', ''];
         let currentBoxIndex = 0;
+        let guessedColors = []; // Store colors for completed guesses
 
         // DOM elements
         const colorDisplay = document.getElementById('colorDisplay');
@@ -411,6 +408,26 @@
         function setupGrid() {
             guessGrid.innerHTML = '';
             for (let row = 0; row < maxAttempts; row++) {
+                // Add hashtag for each row
+                const hashtag = document.createElement('div');
+                hashtag.className = 'hashtag';
+                hashtag.textContent = '#';
+                hashtag.id = `hashtag-${row}`;
+                
+                // Only show hashtag for current row or completed rows
+                if (row < currentAttempt) {
+                    // For completed rows, color the hashtag with the guessed color
+                    hashtag.style.color = '#' + (guessedColors[row] || '4CAF50');
+                } else if (row === currentAttempt && !gameOver) {
+                    // Current row - keep default green color
+                    hashtag.style.color = isDarkMode ? '#66BB6A' : '#4CAF50';
+                } else {
+                    // Future rows - hide hashtag
+                    hashtag.style.visibility = 'hidden';
+                }
+                
+                guessGrid.appendChild(hashtag);
+                
                 // Add 6 boxes for each hex character
                 for (let col = 0; col < 6; col++) {
                     const box = document.createElement('div');
@@ -419,16 +436,6 @@
                     box.contentEditable = row === currentAttempt && !gameOver && !isPaused;
                     box.setAttribute('data-row', row);
                     box.setAttribute('data-col', col);
-                    
-                    // Add hashtag to first box of current row
-                    if (col === 0 && row === currentAttempt && !gameOver) {
-                        box.style.position = 'relative';
-                        const hashtag = document.createElement('div');
-                        hashtag.className = 'hashtag';
-                        hashtag.textContent = '#';
-                        hashtag.id = `hashtag-${row}`;
-                        box.appendChild(hashtag);
-                    }
                     
                     // Add event listeners for current row
                     if (row === currentAttempt && !gameOver && !isPaused) {
@@ -572,7 +579,8 @@
                 return;
             }
 
-            // Color the hashtag with the guessed color
+            // Store the guessed color and update hashtag
+            guessedColors[currentAttempt] = guessString;
             const hashtag = document.getElementById(`hashtag-${currentAttempt}`);
             if (hashtag) {
                 hashtag.style.color = '#' + guessString;
