@@ -52,7 +52,7 @@
             display: flex;
             align-items: center;
             gap: 10px;             /* matches your other flex gaps */
-            padding: 10px;         /* same “cushion” as your color picker */
+            padding: 10px;         /* same "cushion" as your color picker */
             background: rgba(143, 143, 143, 0.1);
             margin: 0;
         }
@@ -183,10 +183,13 @@
           background: #0d47a1;
         }
         body.dark .timer-bar {
-            background: rgba(255,255,255,0.1);
+            background: #1d1d1d;
         }
         body.dark .timer-fill {
-            background: #81C784;       /* lighter green, for example */
+            background: #ffffff;
+        }
+        body.dark .timer-text {
+            color: #000000;
         }
         body.dark .color-picker-section {
             background: #222 !important;
@@ -262,7 +265,7 @@
             transform: translateY(-8px);                /* tweak how high it jumps */
         }
 
-        /* “paused” class will freeze all ascii‑title spans */
+        /* "paused" class will freeze all ascii‑title spans */
         .paused .ascii-title span {
             animation-play-state: paused !important;
         }
@@ -595,35 +598,38 @@
             background: #1976D2;
         }
 
-        .timer { /* Removeable? */
-            text-align: center;
-            font-size: 16px;
-            margin: 10px 0;
-            font-weight: bold;
-        }
         .timer-bar {
+            position: relative;
             width: 100%;
-            max-width: 665px;
+            max-width: 625px;
             height: 32px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(143, 143, 143, 0.1);
             overflow: hidden;
             margin: 10px auto;
+            box-shadow: 6px 6px 0 var(--icon-shadow);
+            transition: transform 0.2s ease;
         }
-        /* the animated “fill” */
+        /* the animated "fill" */
         .timer-fill {
             width: 100%;              /* starts full */
             height: 100%;
-            background: #4CAF50;       /* or pick any accent color */
-            transition: width linear;  /* you’ll set duration in JS */
+            background: #000000;       /* or pick any accent color */
+            transition: width linear;  /* you'll set duration in JS */
         }
-        
         .timer-text {
-            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
-            color: inherit;
-            margin: 10px 0 5px 0;
-            min-height: 16px;
+            color: #ffffff;
+            white-space: nowrap;
+            z-index: 1;
+        }
+        .timer-bar:hover {
+            transform: translateY(-6px);
         }
     </style>
 </head>
@@ -776,14 +782,9 @@
                 </div>
             </div>
 
-            <div class="timer-text" id="timerText"></div>
             <div class="timer-bar" id="timerBar">
                 <div class="timer-fill" id="timerFill"></div>
-            </div>
-
-            <div class="game-info">
-                <div>Attempt: <span id="currentAttempt">1</span> / 6</div>
-                <div>Click the square above to see the target color!</div>
+                <div class="timer-text" id="timerText">Color reveal will be visible for 1.0s</div>
             </div>
 
             <div class="input-section">
@@ -815,6 +816,7 @@
                 this.initializeElements();
                 this.setupEventListeners();
                 this.updateColorPicker();
+                this.initializeTimerText(); // Initialize the timer text
 
                 // Info button listener
                 this.infoBtn = document.getElementById('infoButton');
@@ -851,6 +853,13 @@
                 this.colorPreview = document.getElementById('colorPreview');
                 this.hexInputField = document.getElementById('hexInputField');
                 this.copyBtn = document.getElementById('copyBtn');
+            }
+
+            initializeTimerText() {
+                // Set the initial timer text to show the duration for the current attempt
+                const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
+                const seconds = (duration / 1000).toFixed(1);
+                this.timerText.textContent = `Color reveal will be visible for ${seconds}s`;
             }
 
             setupEventListeners() {
@@ -901,7 +910,7 @@
                 this.hexInputField.addEventListener("keydown", e => {
                     // allow navigation / copy-paste etc.
                     if (e.metaKey || e.ctrlKey || e.altKey) return;
-                    // only block single‐char keys that aren’t 0–9 or A–F
+                    // only block single‐char keys that aren't 0–9 or A–F
                     if (e.key.length === 1 && !/^[0-9A-Fa-f]$/.test(e.key)) {
                         e.preventDefault();
                     }
@@ -1133,9 +1142,8 @@
                 // Calculate duration: increases with each attempt
                 const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
                 
-                // Show timer text
-                const seconds = (duration / 1000).toFixed(1);
-                this.timerText.textContent = `Color visible for ${seconds}s`;
+                // Clear timer text after clicking
+                this.timerText.textContent = '';
                 
                 this.startTimer(duration);
                 
@@ -1144,7 +1152,6 @@
                         this.colorDisplay.classList.add('hidden');
                         this.colorDisplay.textContent = 'Submit a guess to reveal again!';
                         this.colorVisible = false;
-                        this.timerText.textContent = '';
                         // Keep timer bar empty after color is hidden
                         this.timerFill.style.transition = '';
                         this.timerFill.style.width = '0%';
@@ -1178,10 +1185,6 @@
                     alert('Please enter a valid 6-digit hex color (0-9, A-F)');
                     return;
                 }
-
-                // Refill timer bar when guess is submitted
-                this.timerFill.style.transition = '';
-                this.timerFill.style.width = '100%';
                 
                 // Reset reveal ability for next attempt
                 this.hasRevealedThisAttempt = false;
@@ -1200,6 +1203,15 @@
                 } else {
                     this.currentAttempt++;
                     this.currentAttemptSpan.textContent = this.currentAttempt;
+                    
+                    // Update timer text for the new attempt
+                    const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
+                    const seconds = (duration / 1000).toFixed(1);
+                    this.timerText.textContent = `Color reveal will be visible for ${seconds}s`;
+                    
+                    // Refill the timer bar for next attempt
+                    this.timerFill.style.transition = '';
+                    this.timerFill.style.width = '100%';
                 }
             }
 
@@ -1267,12 +1279,14 @@
                 this.gameOverDiv.style.display = 'none';
                 this.submitBtn.disabled = false;
                 this.hexInput.value = '';
-                this.timerText.textContent = '';
                 this.colorDisplay.classList.remove('game-ended');
                 
                 // Reset timer bar to full for new game
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '100%';
+                
+                // Initialize timer text for new game
+                this.initializeTimerText();
             }
         }
 
