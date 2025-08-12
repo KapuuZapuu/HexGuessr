@@ -69,7 +69,6 @@
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
             color: black;
-            text-shadow: 2px 2px 0 var(--icon-shadow);
 
             /* center the label */
             display: flex;
@@ -294,7 +293,6 @@
             text-align: center;
             font-size: 18px;
             font-family: 'Press Start 2P', cursive;
-            text-shadow: 3px 3px 0 var(--icon-shadow);
             color: black;
             margin: 0;
         }
@@ -631,6 +629,170 @@
         .timer-bar:hover {
             transform: translateY(-6px);
         }
+    
+        /* === Wordle-style HEX grid === */
+        .hex-grid-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .hex-grid {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            grid-auto-rows: 50px;
+            gap: 12px;
+        }
+        .hex-grid-row {
+            display: grid;
+            grid-template-columns: 32px repeat(6, 50px) 32px;
+            gap: 12px;
+            justify-content: center;
+        }
+        .grid-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            user-select: none;
+            text-transform: uppercase;
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+        }
+        body.dark .grid-cell {
+            background: #424242;
+            color: #eee;
+        }
+        .grid-row-locked .grid-cell {
+            pointer-events: none;
+        }
+        .grid-cell.correct {
+            background: #4CAF50 !important;
+            border-color: #4CAF50 !important;
+            color: #fff !important;
+        }
+        .grid-cell.close {
+            background: #FFC107 !important;
+            border-color: #FFC107 !important;
+            color: #333 !important;
+        }
+        .grid-cell.wrong {
+            background: #f44336 !important;
+            border-color: #f44336 !important;
+            color: #fff !important;
+        }
+        .grid-current {
+            outline: 2px dashed #000;
+            outline-offset: 2px;
+        }
+        
+        /* Row hashtag label (left of each row) */
+        .row-label {
+            width: 32px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            user-select: none;
+            visibility: hidden; /* only current row shows; completed rows stay visible once colored */
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+        }
+        .row-label.visible {
+            visibility: visible;
+        }
+        .row-label.colored {
+            /* outline for readability across backgrounds */
+            text-shadow:
+                -1px -1px 0 #000,
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000;
+        }
+
+        
+        /* Right-side paste action cell */
+        .row-action {
+            width: 32px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden; /* hidden by default; only current row shows */
+        }
+        .row-action.visible { visibility: visible; }
+
+        .paste-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease;
+        }
+        .paste-btn:hover { transform: translateY(-2px); }
+
+        .paste-icon {
+            width: 20px;
+            height: 20px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+        }
+
+        body.dark .grid-current {
+            outline-color: #fff;
+        }
+
+
+        .hex-keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .keyboard-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .key-btn {
+            background: #d3d3d3;
+            border: none;
+            padding: 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            cursor: pointer;
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+        }
+        .key-btn:hover {
+            transform: translateY(-2px);
+        }
+        .wide-key {
+            flex: 1;
+        }
+
+        body.dark .key-btn {
+            background: #2e2e2e;
+            color: #eee;
+        }
+        .key-btn {
+            min-width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            text-transform: uppercase;
+            transition: transform 0.15s ease;
+        }
     </style>
 </head>
 <body>
@@ -787,14 +949,36 @@
                 <div class="timer-text" id="timerText">Color reveal will be visible for 1.0s</div>
             </div>
 
-            <div class="game-info">
-                <div>Attempt: <span id="currentAttempt">1</span> / 6</div>
-                <div>Click the square above to see the target color!</div>
-            </div>
-
             <div class="input-section">
-                <input type="text" id="hexInput" class="hex-input" placeholder="Enter hex (e.g., FF5733)" maxlength="6">
-                <button id="submitBtn" class="submit-btn">Submit Guess</button>
+                <div class="hex-grid-wrapper">
+                    <div id="hexGrid" class="hex-grid" aria-label="Hex guess grid"></div>
+                    <div style="font-family: 'Press Start 2P', cursive; font-size: 12px; opacity: .8;">
+<div id="hexKeyboard" class="hex-keyboard" aria-label="On-screen hex keyboard">
+    <div class="keyboard-row">
+        <button class="key-btn" data-key="0">0</button>
+        <button class="key-btn" data-key="1">1</button>
+        <button class="key-btn" data-key="2">2</button>
+        <button class="key-btn" data-key="3">3</button>
+        <button class="key-btn" data-key="4">4</button>
+        <button class="key-btn" data-key="5">5</button>
+        <button class="key-btn" data-key="6">6</button>
+        <button class="key-btn" data-key="7">7</button>
+        <button class="key-btn" data-key="8">8</button>
+        <button class="key-btn" data-key="9">9</button>
+    </div>
+    <div class="keyboard-row">
+        <button class="key-btn wide-key" data-action="enter">ENTER</button>
+        <button class="key-btn" data-key="A">A</button>
+        <button class="key-btn" data-key="B">B</button>
+        <button class="key-btn" data-key="C">C</button>
+        <button class="key-btn" data-key="D">D</button>
+        <button class="key-btn" data-key="E">E</button>
+        <button class="key-btn" data-key="F">F</button>
+        <button class="key-btn wide-key" data-action="backspace">⌫</button>
+    </div>
+</div>
+</div>
+                </div>
             </div>
 
             <div class="guesses-container" id="guessesContainer"></div>
@@ -822,6 +1006,10 @@
                 this.setupEventListeners();
                 this.updateColorPicker();
                 this.initializeTimerText(); // Initialize the timer text
+                this.buildGrid();
+                this.setupOnScreenKeyboard();
+                // keyboard input
+                document.addEventListener('keydown', this.handleKeydown)
 
                 // Info button listener
                 this.infoBtn = document.getElementById('infoButton');
@@ -838,10 +1026,7 @@
 
             initializeElements() {
                 this.colorDisplay = document.getElementById('colorDisplay');
-                this.hexInput = document.getElementById('hexInput');
-                this.submitBtn = document.getElementById('submitBtn');
-                this.currentAttemptSpan = document.getElementById('currentAttempt');
-                this.guessesContainer = document.getElementById('guessesContainer');
+                                                this.guessesContainer = document.getElementById('guessesContainer');
                 this.gameOverDiv = document.getElementById('gameOver');
                 this.gameResult = document.getElementById('gameResult');
                 this.correctAnswer = document.getElementById('correctAnswer');
@@ -859,6 +1044,181 @@
                 this.hexInputField = document.getElementById('hexInputField');
                 this.copyBtn = document.getElementById('copyBtn');
             }
+            
+            buildGrid() {
+                // build 6x6 grid
+                this.gridRows = 6;
+                this.gridCols = 6;
+                this.currentRow = 0;
+                this.currentCol = 0;
+                this.gridEl = document.getElementById('hexGrid');
+                this.gridEl.innerHTML = '';
+                this.gridCellRefs = [];
+
+                this.rowLabels = [];
+                this.rowActions = [];
+                this.pasteButtons = [];
+                for (let r = 0; r < this.gridRows; r++) {
+                    const rowEl = document.createElement('div');
+                    rowEl.className = 'hex-grid-row';
+                    // left hashtag label
+                    const label = document.createElement('div');
+                    label.className = 'row-label';
+                    label.textContent = '#';
+                    rowEl.appendChild(label);
+                    this.rowLabels.push(label);
+                    const rowCells = [];
+                    for (let c = 0; c < this.gridCols; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'grid-cell';
+                        rowEl.appendChild(cell);
+                        rowCells.push(cell);
+                    }
+
+                    // right-side paste action
+                    const action = document.createElement('div');
+                    action.className = 'row-action';
+                    const pasteBtn = document.createElement('button');
+                    pasteBtn.type = 'button';
+                    pasteBtn.className = 'paste-btn';
+                    const pasteImg = document.createElement('img');
+                    pasteImg.className = 'paste-icon';
+                    pasteImg.setAttribute('data-light', 'paste-light.png');
+                    pasteImg.setAttribute('data-dark', 'paste-dark.png');
+                    const isDarkNow = document.body.classList.contains('dark');
+                    pasteImg.src = isDarkNow ? pasteImg.dataset.dark : pasteImg.dataset.light;
+                    pasteImg.alt = 'Paste hex';
+                    pasteBtn.appendChild(pasteImg);
+                    action.appendChild(pasteBtn);
+                    rowEl.appendChild(action);
+                    this.rowActions.push(action);
+                    this.pasteButtons.push(pasteBtn);
+
+                    this.gridEl.appendChild(rowEl);
+                    this.gridCellRefs.push(rowCells);
+                }
+                this.updateCaret();
+                this.updateRowLabels();
+                this.updatePasteAction();
+                this.updatePasteAction();
+                this.attachPasteHandlers();
+                // focus handling: click grid focuses keyboard capture
+                this.gridEl.tabIndex = 0;
+                this.gridEl.addEventListener('focus', () => { this.gridFocused = true; });
+                this.gridEl.addEventListener('blur',  () => { this.gridFocused = false; });
+                this.gridEl.focus();
+            }
+
+            updateCaret() {
+                // highlight current cell
+                this.gridCellRefs.flat().forEach(cell => cell.classList.remove('grid-current'));
+                if (this.currentRow < this.gridRows && this.currentCol < this.gridCols) {
+                    this.gridCellRefs[this.currentRow][this.currentCol].classList.add('grid-current');
+                }
+            }
+
+            handleKeydown = (e) => {
+                if (this.gameOver) return;
+                // accept input anywhere; if user is typing in another field, ignore
+                const active = document.activeElement;
+                const isTypingInInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+                if (isTypingInInput && active !== this.gridEl) return;
+
+                const key = e.key.toUpperCase();
+                if (/^[0-9A-F]$/.test(key)) {
+                    if (this.currentCol < this.gridCols) {
+                        this.setCell(this.currentRow, this.currentCol, key);
+                        this.currentCol++;
+                        if (this.currentCol >= this.gridCols) this.currentCol = this.gridCols;
+                        this.updateCaret();
+                    }
+                    e.preventDefault();
+                } else if (e.key === 'Backspace') {
+                    if (this.currentCol > 0) {
+                        this.currentCol--;
+                        this.setCell(this.currentRow, this.currentCol, '');
+                        this.updateCaret();
+                    }
+                    e.preventDefault();
+                } else if (e.key === 'Enter') {
+                    this.submitGuess();
+                    e.preventDefault();
+                }
+            }
+
+            setCell(r, c, ch) {
+                const cell = this.gridCellRefs[r][c];
+                cell.textContent = ch;
+                if (ch) cell.classList.add('filled')
+                else cell.classList.remove('filled');
+            }
+
+            getCurrentGuess() {
+                const chars = [];
+                for (let c = 0; c < this.gridCols; c++) {
+                    chars.push(this.gridCellRefs[this.currentRow][c].textContent || '');
+                }
+                return chars.join('');
+            }
+
+            lockCurrentRow() {
+                const rowCells = this.gridCellRefs[this.currentRow];
+                rowCells.forEach(cell => cell.parentElement.classList.add('grid-row-locked'));
+            }
+
+            clearCurrentRowBuffer() {
+                // nothing to clear visually; advance to next row
+                this.currentRow++;
+                this.currentCol = 0;
+                this.updateCaret();
+                this.updateRowLabels();
+                this.updatePasteAction();
+            }
+
+
+            
+            updateRowLabels() {
+                // Hide non-colored labels
+                this.rowLabels.forEach((lbl) => {
+                    if (!lbl.classList.contains('colored')) {
+                        lbl.classList.remove('visible');
+                    }
+                });
+                // Show current row's label
+                if (this.currentRow < this.rowLabels.length) {
+                    const lbl = this.rowLabels[this.currentRow];
+                    lbl.classList.add('visible');
+                    lbl.style.color = ''; // reset to default
+                }
+            }
+            colorizeRowLabel(rowIndex, hex) {
+                if (rowIndex < 0 || rowIndex >= this.rowLabels.length) return;
+                const lbl = this.rowLabels[rowIndex];
+                lbl.classList.add('visible', 'colored');
+                lbl.style.color = `#${hex}`;
+            }
+            updatePasteAction() {
+                this.rowActions.forEach((el, idx) => {
+                    el.classList.toggle('visible', idx === this.currentRow);
+                });
+            }
+            attachPasteHandlers() {
+                this.pasteButtons.forEach((btn, idx) => {
+                    btn.onclick = async () => {
+                        if (this.gameOver || idx !== this.currentRow) return;
+                        try {
+                            const text = await navigator.clipboard.readText();
+                            const hex = (text || '').replace(/[^0-9A-Fa-f]/g, '').toUpperCase().slice(0, 6);
+                            if (!hex) return;
+                            for (let i = 0; i < this.gridCols; i++) {
+                                const ch = hex[i] || ''; this.setCell(this.currentRow, i, ch);
+                            }
+                        } catch (e) {
+                            alert('Clipboard access failed. Try HTTPS and grant permission.');
+                        }
+                    };
+                });
+            }
 
             initializeTimerText() {
                 // Set the initial timer text to show the duration for the current attempt
@@ -867,16 +1227,43 @@
                 this.timerText.textContent = `Color reveal will be visible for ${seconds}s`;
             }
 
+
+            setupOnScreenKeyboard() {
+                this.keyboardEl = document.getElementById('hexKeyboard');
+                if (!this.keyboardEl) return;
+                this.keyboardEl.addEventListener('click', (e) => {
+                    if (this.gameOver) return;
+                    const btn = e.target.closest('.key-btn');
+                    if (!btn) return;
+                    const action = btn.dataset.action || '';
+                    const key = (btn.dataset.key || '').toUpperCase();
+                    
+                    if (action === 'enter') {
+                        this.submitGuess();
+                        return;
+                    }
+                    if (action === 'backspace') {
+                        if (this.currentCol > 0) {
+                            this.currentCol--;
+                            this.setCell(this.currentRow, this.currentCol, '');
+                            this.updateCaret();
+                        }
+                        return;
+                    }
+                    if (/^[0-9A-F]$/.test(key)) {
+                        if (this.currentCol < this.gridCols) {
+                            this.setCell(this.currentRow, this.currentCol, key);
+                            this.currentCol = Math.min(this.currentCol + 1, this.gridCols);
+                            this.updateCaret();
+                        }
+                    }
+                });
+            }
+
             setupEventListeners() {
                 this.colorDisplay.addEventListener('click', () => this.showColor());
-                this.submitBtn.addEventListener('click', () => this.submitGuess());
-                this.hexInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.submitGuess();
-                });
-                this.hexInput.addEventListener('input', (e) => {
-                    e.target.value = e.target.value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
-                });
-                this.restartBtn.addEventListener('click', () => this.restartGame());
+                
+                                this.restartBtn.addEventListener('click', () => this.restartGame());
                 
                 // Custom color picker event listeners
                 this.setupColorPickerListeners();
@@ -1165,31 +1552,24 @@
             }
 
             startTimer(duration) {
-                // set the CSS transition to match your duration
                 this.timerFill.style.transition = `width ${duration}ms linear`;
-                // trigger the shrink to 0%
-                // (must be in next tick so transition applies)
                 requestAnimationFrame(() => {
                     this.timerFill.style.width = '0%';
                 });
-
-                // after time's up, reset
-                setTimeout(() => {
-                    // restore for next round
-                    this.timerFill.style.transition = '';
-                    this.timerFill.style.width = '100%';
-                }, duration);
             }
 
             submitGuess() {
                 if (this.gameOver) return;
                 
-                const guess = this.hexInput.value.trim().toUpperCase();
                 
+                const guess = this.getCurrentGuess();
                 if (guess.length !== 6 || !/^[0-9A-F]{6}$/.test(guess)) {
                     alert('Please enter a valid 6-digit hex color (0-9, A-F)');
                     return;
                 }
+
+                // lock the row UI
+                this.lockCurrentRow();
                 
                 // Reset reveal ability for next attempt
                 this.hasRevealedThisAttempt = false;
@@ -1199,15 +1579,18 @@
                 }
                 
                 this.processGuess(guess);
-                this.hexInput.value = '';
-                
+                this.colorizeRowLabel(this.currentRow, guess);
+                this.clearCurrentRowBuffer();
+
                 if (guess === this.targetColor) {
                     this.endGame(true);
                 } else if (this.currentAttempt >= this.maxAttempts) {
                     this.endGame(false);
                 } else {
                     this.currentAttempt++;
-                    this.currentAttemptSpan.textContent = this.currentAttempt;
+                    if (this.currentAttemptSpan) {
+                        this.currentAttemptSpan.textContent = this.currentAttempt;
+                    }
                     
                     // Update timer text for the new attempt
                     const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
@@ -1221,26 +1604,19 @@
             }
 
             processGuess(guess) {
-                const guessRow = document.createElement('div');
-                guessRow.className = 'guess-row';
-                
+                const rowCells = this.gridCellRefs[this.currentRow];
                 for (let i = 0; i < 6; i++) {
-                    const charDiv = document.createElement('div');
-                    charDiv.className = 'guess-char';
-                    charDiv.textContent = guess[i];
-                    
+                    const cell = rowCells[i];
+                    // clear any old status classes
+                    cell.classList.remove('correct','close','wrong');
                     if (guess[i] === this.targetColor[i]) {
-                        charDiv.classList.add('correct');
+                        cell.classList.add('correct');
                     } else if (this.isClose(guess[i], this.targetColor[i])) {
-                        charDiv.classList.add('close');
+                        cell.classList.add('close');
                     } else {
-                        charDiv.classList.add('wrong');
+                        cell.classList.add('wrong');
                     }
-                    
-                    guessRow.appendChild(charDiv);
                 }
-                
-                this.guessesContainer.appendChild(guessRow);
             }
 
             isClose(guessChar, targetChar) {
@@ -1261,7 +1637,7 @@
                 this.correctAnswer.textContent = `The correct color was: #${this.targetColor}`;
                 this.gameOverDiv.style.display = 'block';
                 
-                this.submitBtn.disabled = true;
+                
             }
 
             updateColorPicker() {
@@ -1279,12 +1655,19 @@
                 this.colorDisplay.classList.add('hidden');
                 this.colorDisplay.classList.remove('disabled');
                 this.colorDisplay.textContent = 'Click to reveal color!';
-                this.currentAttemptSpan.textContent = '1';
+                if (this.currentAttemptSpan) {
+                    this.currentAttemptSpan.textContent = '1';
+                }
                 this.guessesContainer.innerHTML = '';
                 this.gameOverDiv.style.display = 'none';
-                this.submitBtn.disabled = false;
-                this.hexInput.value = '';
+                
                 this.colorDisplay.classList.remove('game-ended');
+                
+                // Rebuild grid
+                this.buildGrid();
+                this.updateRowLabels();
+                this.updatePasteAction();
+                this.setupOnScreenKeyboard();
                 
                 // Reset timer bar to full for new game
                 this.timerFill.style.transition = '';
@@ -1298,6 +1681,8 @@
         // Start the game when the page loads
         window.addEventListener('DOMContentLoaded', () => {
             // 1) Start the game
+            
+
             new HexColorWordle();
 
             // 2) Cache your icon <img> elements
@@ -1317,6 +1702,9 @@
             function refreshIcons(isDark) {
                 [infoIcon, statsIcon, animIcon, darkModeIcon, copyIcon]
                 .forEach(img => updateIconTheme(img, isDark));
+                document.querySelectorAll('.paste-icon').forEach(img => updateIconTheme(img, isDark));
+                // force copy icon mapping: dark mode -> light asset, light mode -> dark asset
+                copyIcon.src = isDark ? copyIcon.dataset.light : copyIcon.dataset.dark;
             }
 
             // 5) Wire up the dark‑mode button to also swap icons
