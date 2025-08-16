@@ -13,3 +13,4 @@ animation pause needs to remove color from title, and stop hover mechanic from a
 - keyboard should be in its own container, and have its keys being a smaller size (both the keys and the font inside) to the actual grid to develop some distinction between the two elements. Color as well maybe?
 - inputting a guess while the hidden color is revealed (and the timer bar is actuated and going) causes for some weird things to happen. gotta figure out how to stop the logic from conflicting with one another
 - For a split second, the cursive backup font is visible before the retro font comes in.
+- Webpage when loads in starts in the middle rather than at the top.
