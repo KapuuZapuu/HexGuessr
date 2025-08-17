@@ -13,6 +13,20 @@
             --icon-shadow: #c8c8c8;  /* softer on light backgrounds */
         }
 
+        .enlarge-hitbox {
+            position: relative;
+        }
+        .enlarge-hitbox::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            transition: inset 0.2s ease;
+        }
+        .enlarge-hitbox:hover::before {
+            inset: -12px;
+        }
+
         .layout-container {
             width: 100%;
             margin: 0 auto;
@@ -250,8 +264,8 @@
             font-size: 1em;        /* adjust so it fits */
             position: static;
             min-width: 0;
+            cursor: default
         }
-
         /* animate every character */
         .ascii-title span {
             display: inline-block;                      /* so animation-delay works per char */
@@ -259,11 +273,9 @@
             animation-delay: calc(var(--col) * 0.1s);   /* stagger by 0.1s per character */
             transition: transform 0.2s ease;
         }
-
         .ascii-title span.hover-group {
             transform: translateY(-8px);                /* tweak how high it jumps */
         }
-
         /* "paused" class will freeze all ascii‑title spans */
         .paused .ascii-title span {
             animation-play-state: paused !important;
@@ -678,7 +690,7 @@
         .grid-cell.close {
             background: #FFC107 !important;
             border-color: #FFC107 !important;
-            color: #333 !important;
+            color: #fff !important;
         }
         .grid-cell.wrong {
             background: #f44336 !important;
@@ -689,6 +701,9 @@
             outline: 2px dashed #000;
             outline-offset: 2px;
         }
+        body.dark .grid-current {
+            outline-color: #fff;
+        }
         
         /* Row hashtag label (left of each row) */
         .row-label {
@@ -698,7 +713,7 @@
             align-items: center;
             justify-content: center;
             font-family: 'Press Start 2P', cursive;
-            font-size: 16px;
+            font-size: 30px;
             user-select: none;
             visibility: hidden; /* only current row shows; completed rows stay visible once colored */
             filter: drop-shadow(4px 4px 0 var(--icon-shadow));
@@ -740,17 +755,12 @@
         .paste-btn:hover { transform: translateY(-2px); }
 
         .paste-icon {
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
-            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+            filter: drop-shadow(3px 3px 0 var(--icon-shadow));
         }
-
-        body.dark .grid-current {
-            outline-color: #fff;
-        }
-
 
         .hex-keyboard {
             display: flex;
@@ -800,8 +810,8 @@
         <header class="game-header">
             <!-- mode selector buttons -->
             <div class="mode-container">
-                <button class="mode-btn">Daily</button>
-                <button class="mode-btn">Unlimited</button>
+                <button class="mode-btn enlarge-hitbox">Daily</button>
+                <button class="mode-btn enlarge-hitbox">Unlimited</button>
             </div>
 
             <pre class="ascii-title">
@@ -816,7 +826,7 @@
             <div class="top-controls">
 
                 <!-- Help / Instructions -->
-                <button id="infoButton"        class="icon-btn" aria-label="Show instructions">
+                <button id="infoButton" class="icon-btn enlarge-hitbox" aria-label="Show instructions">
                     <img 
                         id="infoIcon"
                         src="question-mark-light.png" 
@@ -826,7 +836,7 @@
                 </button>
 
                 <!-- Stats (if you have a stats panel) -->
-                <button id="statsButton"       class="icon-btn" aria-label="Show stats">
+                <button id="statsButton" class="icon-btn enlarge-hitbox" aria-label="Show stats">
                     <img
                         id="statsIcon"
                         src="stats-light.png"
@@ -836,7 +846,7 @@
                 </button>
 
                 <!-- Animation toggle -->
-                <button id="toggleAnimations" class="icon-btn" aria-label="Pause animations">
+                <button id="toggleAnimations" class="icon-btn enlarge-hitbox" aria-label="Pause animations">
                     <img
                         id="animIcon"
                         src="animation-suspend-light.png"
@@ -846,7 +856,7 @@
                 </button>
 
                 <!-- Dark‑mode toggle -->
-                <button id="darkModeToggle"   class="icon-btn" aria-label="Toggle dark mode">
+                <button id="darkModeToggle" class="icon-btn enlarge-hitbox" aria-label="Toggle dark mode">
                     <img
                         id="darkModeIcon"
                         src="dark-mode-light.png"
@@ -874,6 +884,7 @@
                 lines.forEach((line, row) => {
                     Array.from(line).forEach((ch, col) => {
                         const span = document.createElement("span");
+                        span.classList.add('enlarge-hitbox');
                         span.textContent = ch;
                         // store only the column number, not a running index
                         span.style.setProperty("--col", col);
