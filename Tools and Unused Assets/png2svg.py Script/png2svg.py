@@ -1,4 +1,7 @@
 # png2svg.py
+
+# USAGE: "python png2svg.py YOURPNGNAME.png OUTPUTNAMEFORSVG.svg"
+
 from PIL import Image
 import sys
 
