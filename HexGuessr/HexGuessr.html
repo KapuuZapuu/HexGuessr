@@ -10,9 +10,47 @@
     <style>
         /* Define a shadow variable for light mode */
         :root {
+            /* icon shadow mechanic: */
             --icon-shadow: #c8c8c8;  /* softer on light backgrounds */
+            /* icon hover mechanic: */
             --icon-color: #000000;
             --icon-color-hover: #555555;
+            /* tooltip variables: */
+            --tip-bg: #000;
+            --tip-fg: #fff;
+            --tip-offset: 8px;
+        }
+
+        /* Tooltip styling */
+        .has-tooltip {
+            position: relative; /* establish positioning context */
+        }
+        .has-tooltip::after {
+            content: attr(aria-label);
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translate(-50%, var(--tip-offset));
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            line-height: 1.2;
+            white-space: nowrap;
+            padding: 6px 8px;
+            box-shadow: 4px 4px 0 var(--icon-shadow);
+            background: var(--tip-bg);
+            color: var(--tip-fg);
+            border: 1px solid var(--tip-bg);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 1001;
+            transition: opacity 0.12s ease, transform 0.12s ease;
+        }
+        .has-tooltip:hover::after,
+        .has-tooltip:focus-visible::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, calc(var(--tip-offset) + 2px));
         }
 
         .layout-container {
@@ -98,8 +136,10 @@
             cursor: pointer;
             display: flex;
             align-items: center;
+        }
+        .icon-btn .icon {
             filter: drop-shadow(4px 4px 0 var(--icon-shadow));
-        }    
+        }
         .icon {
             width: 45px;
             height: 45px;
@@ -133,9 +173,14 @@
         body.dark {
             background: #262626;
             color: white;
+            /* icon shadow mechanic: */
             --icon-shadow: #101010;  /* crisper on dark backgrounds */
+            /* icon hover mechanic: */
             --icon-color: #fff;
             --icon-color-hover: #c8c8c8;
+            /* tooltip variables: */
+            --tip-bg: #fff;
+            --tip-fg: #000;
         }
 
         body.dark .game-container {
@@ -312,6 +357,7 @@
 
         .custom-color-picker {
             display: flex;
+            background: #e6e6e6 !important;
             align-items: center;
             gap: 15px;
             margin: 20px auto;
@@ -408,11 +454,9 @@
             background: #f9f9f9;
             border: none;
             position: relative;
-            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
-            overflow: hidden;
-        
+            box-shadow: 6px 6px 0 var(--icon-shadow);
+            overflow: visible;
         }
-
         .hex-prefix {
             position: absolute;
             left: 8px;
@@ -425,13 +469,13 @@
             pointer-events: none;
             z-index: 2;
         }
-
         .hex-input-field {
             padding-left: var(--prefix-space) !important;
             font-size: 12px;
             padding: 8px 4px;
             border: none;
             flex: 1;
+            min-width: 0; /* prevent overflow */
             background: transparent;
             text-transform: uppercase;
             color: #000000;
@@ -443,13 +487,15 @@
         .hex-copy-btn {
             background: none;
             border: none;
-            padding: 2px;
+            width: 32px;          /* hitbox width */
+            height: 32px;         /* match your container height */
+            padding: 0;           /* size comes from width/height */
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            right: 4px;
+            right: 0;
             position: absolute;
         }
         .hex-copy-btn:hover .icon {
@@ -727,16 +773,16 @@
             <div class="top-controls">
 
                 <!-- Help / Instructions -->
-                <button id="infoButton" class="icon-btn" aria-label="Show instructions"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-question"></use></svg></button>
+                <button id="infoButton" class="icon-btn has-tooltip" aria-label="How To Play"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-question"></use></svg></button>
 
                 <!-- Stats (if you have a stats panel) -->
-                <button id="statsButton" class="icon-btn" aria-label="Show stats"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-stats"></use></svg></button>
+                <button id="statsButton" class="icon-btn has-tooltip" aria-label="Stats"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-stats"></use></svg></button>
 
                 <!-- Animation toggle -->
-                <button id="toggleAnimations" class="icon-btn" aria-label="Pause animations"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-anim"></use></svg></button>
+                <button id="toggleAnimations" class="icon-btn has-tooltip" aria-label="Pause Animations"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-anim"></use></svg></button>
 
                 <!-- Dark‑mode toggle -->
-                <button id="darkModeToggle" class="icon-btn" aria-label="Toggle dark mode"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-darkmode"></use></svg></button>
+                <button id="darkModeToggle" class="icon-btn has-tooltip" aria-label="Dark Mode"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-darkmode"></use></svg></button>
             </div>
         </header>
         
@@ -784,7 +830,7 @@
                             <div class="hex-input-container">
                                 <span class="hex-prefix">#</span>
                                 <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                                <button id="copyBtn" class="hex-copy-btn" aria-label="Copy hex code"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-copy"></use></svg></button>
+                                <button id="copyBtn" class="hex-copy-btn has-tooltip" aria-label="Copy"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-copy"></use></svg></button>
                             </div>
                         </div>
                     </div>
@@ -927,7 +973,8 @@
                     action.className = 'row-action';
                     const pasteBtn = document.createElement('button');
                     pasteBtn.type = 'button';
-                    pasteBtn.className = 'paste-btn';
+                    pasteBtn.className = 'paste-btn has-tooltip';
+                    pasteBtn.setAttribute('aria-label','Paste');
                     const svgNS = 'http://www.w3.org/2000/svg';
                     const pasteSvg = document.createElementNS(svgNS, 'svg');
                     pasteSvg.setAttribute('class', 'icon icon--sm');
@@ -1061,6 +1108,10 @@
                             for (let i = 0; i < this.gridCols; i++) {
                                 const ch = hex[i] || ''; this.setCell(this.currentRow, i, ch);
                             }
+                            const lastCol = Math.min(hex.length, this.gridCols);
+                            this.currentCol = Math.max(0, lastCol);
+                            this.updateCaret();
+                            this.gridEl.focus();
                         } catch (e) {
                             alert('Clipboard access failed. Try HTTPS and grant permission.');
                         }
@@ -1495,7 +1546,7 @@
                 const isDark = document.body.classList.toggle("dark");
                 darkModeBtn.setAttribute(
                     "aria-label",
-                    isDark ? "Switch to light mode" : "Switch to dark mode"
+                    isDark ? "Light Mode" : "Dark Mode"
                 );
             });
 
@@ -1505,7 +1556,7 @@
                 const isPaused = document.body.classList.toggle("paused");
                 toggleAnimationsBtn.setAttribute(
                     "aria-label",
-                    isPaused ? "Resume animations" : "Pause animations"
+                    isPaused ? "Resume Animations" : "Pause Animations"
                 );
             });
         });
