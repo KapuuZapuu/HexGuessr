@@ -11,20 +11,8 @@
         /* Define a shadow variable for light mode */
         :root {
             --icon-shadow: #c8c8c8;  /* softer on light backgrounds */
-        }
-
-        .enlarge-hitbox {
-            position: relative;
-        }
-        .enlarge-hitbox::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: transparent;
-            transition: inset 0.2s ease;
-        }
-        .enlarge-hitbox:hover::before {
-            inset: -12px;
+            --icon-color: #000000;
+            --icon-color-hover: #555555;
         }
 
         .layout-container {
@@ -88,12 +76,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-
-            /* same hover-lift you already use */
-            transition: transform 0.2s ease;
         }
         .mode-btn:hover {
-            transform: translateY(-4px);
+            background: #f1f1f1
+        }
+        body.dark .mode-container {
+            background: #1d1d1d;
+        }
+        body.dark .mode-btn {
+            background: #2e2e2e;
+            color: #ffffff;
+        }
+        body.dark .mode-btn:hover {
+            background: #373737
         }
 
         .icon-btn {
@@ -103,20 +98,22 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            transition: transform 0.2s ease;
-        }
-
-        .icon-btn:hover {
-            transform: translateY(-6px);
-        }
-
-        .icon-btn img {
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+        }    
+        .icon {
             width: 45px;
             height: 45px;
             display: block;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            filter: drop-shadow(4px 4px 0 var(--icon-shadow)); /* subtle shadow for depth */
+            fill: currentColor;
+            color: var(--icon-color);
+            shape-rendering: crispEdges;
+        }
+        .icon--sm {
+            width: 20px;
+            height: 20px;
+        }
+        .icon-btn:hover .icon {
+            color: var(--icon-color-hover);
         }
 
         /* Light mode style */
@@ -132,47 +129,15 @@
             color: black;
             --icon-shadow: #c8c8c8;
         }
-
         /* Dark-mode overrides */
         body.dark {
-          background: #262626;
-          color: white;
-          --icon-shadow: #101010;  /* crisper on dark backgrounds */
+            background: #262626;
+            color: white;
+            --icon-shadow: #101010;  /* crisper on dark backgrounds */
+            --icon-color: #fff;
+            --icon-color-hover: #c8c8c8;
         }
-        body.dark .color-display {           
-            color: #ffffff;                  /* make sure your placeholder text is still readable */
-            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
-        }
-        body.dark .mode-container {
-            background: #1d1d1d;
-        }
-        body.dark .mode-btn {
-            background: #2e2e2e;
-            color: #ffffff;
-            text-shadow: 2px 2px 0 var(--icon-shadow);
-        }
-        body.dark .color-display.hidden {
-            /* override the always‑black you had before */
-            background: #2e2e2e !important;
-        }
-        body.dark .color-display.game-ended {
-            /* reuse the dark‑mode text style */
-            color: #ffffff;
-            text-shadow:
-                -1px -1px 0 #000000,
-                1px -1px 0 #000000,
-                -1px  1px 0 #000000,
-                1px  1px 0 #000000;
-        }
-        body:not(.dark) .color-display.game-ended {
-            /* reuse the dark‑mode text style */
-            color: #eee;
-            text-shadow:
-                -1px -1px 0 #000000,
-                1px -1px 0 #000000,
-                -1px  1px 0 #000000,
-                1px  1px 0 #000000;
-        }
+
         body.dark .game-container {
           background: none;
         }
@@ -183,17 +148,8 @@
         body.dark .color-preview {
           border-color: #ffffff;
         }
-        body.dark .submit-btn {
-          background: #388e3c;
-        }
-        body.dark .submit-btn:hover {
-          background: #2e7d32;
-        }
         body.dark .restart-btn {
           background: #1565c0;
-        }
-        body.dark .restart-btn:hover {
-          background: #0d47a1;
         }
         body.dark .timer-bar {
             background: #1d1d1d;
@@ -229,24 +185,26 @@
             color: #eee !important;
         }
         body.dark .hex-input-field {
+            padding-left: var(--prefix-space) !important;
             color: #fff;
         }
         body.dark .hex-input-container {
             background: #2e2e2e;
+            position: relative;
         }
         body.dark .hex-prefix {
-            color: #fff;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: #000000;
+            user-select: none;
+            pointer-events: none;
+            z-index: 2;
+            color: #ffffff;
         }
-
-        .color-display.disabled {
-            cursor: default !important;
-            color: #787878 !important;
-        }
-
-        body.dark .color-display.disabled {
-            color: #979797 !important;
-        }
-
 
         .ascii-title {
             /* 1) Monospace ensures each character is exactly the same width */
@@ -271,16 +229,11 @@
             display: inline-block;                      /* so animation-delay works per char */
             animation: wave 6s linear infinite;         /* 6s for a full cycle */
             animation-delay: calc(var(--col) * 0.1s);   /* stagger by 0.1s per character */
-            transition: transform 0.2s ease;
-        }
-        .ascii-title span.hover-group {
-            transform: translateY(-8px);                /* tweak how high it jumps */
         }
         /* "paused" class will freeze all ascii‑title spans */
         .paused .ascii-title span {
             animation-play-state: paused !important;
         }
-
         /* cycle through hues for title */
         @keyframes wave {
             0%   { color: hsl(   0, 100%, 50%); }
@@ -297,7 +250,6 @@
             height: 200px;
             margin: 20px 0;
             cursor: pointer;
-            transition: transform 0.2s;
             display: flex;
             align-items: center;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow)); /* same shadow as icons */
@@ -308,13 +260,48 @@
             color: black;
             margin: 0;
         }
-
-        .color-display:hover {
-            transform: translateY(-6px);
-        }
-
         .color-display.hidden {
             background: #f9f9f9 !important;
+        }
+        body.dark .color-display {           
+            color: #ffffff;                  /* make sure your placeholder text is still readable */
+            filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+        }
+        body.dark .color-display.hidden {
+            /* override the always‑black you had before */
+            background: #2e2e2e !important;
+        }
+        body.dark .color-display.game-ended {
+            /* reuse the dark‑mode text style */
+            color: #ffffff;
+            text-shadow:
+                -1px -1px 0 #000000,
+                1px -1px 0 #000000,
+                -1px  1px 0 #000000,
+                1px  1px 0 #000000;
+        }
+        body:not(.dark) .color-display.game-ended {
+            /* reuse the dark‑mode text style */
+            color: #eee;
+            text-shadow:
+                -1px -1px 0 #000000,
+                1px -1px 0 #000000,
+                -1px  1px 0 #000000,
+                1px  1px 0 #000000;
+        }
+        .color-display.disabled {
+            cursor: default !important;
+            color: #787878 !important;
+            pointer-events: none;
+        }
+        body.dark .color-display.disabled {
+            color: #979797 !important;
+        }
+        .color-display.hidden:hover {
+            background: #f1f1f1 !important; 
+        }
+        body.dark .color-display.hidden:hover {
+            background: #373737 !important;
         }
 
         .game-info {
@@ -323,88 +310,13 @@
             font-size: 18px;
         }
 
-        .input-section {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .hex-input {
-            font-size: 20px;
-            padding: 12px;
-            border: none;
-            width: 200px;
-            text-align: center;
-            text-transform: uppercase;
-            background: #ffffff;
-            color: #333;
-        }
-
-        .submit-btn {
-            font-size: 18px;
-            padding: 12px 24px;
-            margin-left: 10px;
-            border: none;
-            background: #4CAF50;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .submit-btn:hover {
-            background: #45a049;
-        }
-
-        .submit-btn:disabled {
-            background: #666;
-            cursor: not-allowed;
-        }
-
-        .guesses-container {
-            margin: 20px 0;
-        }
-
-        .guess-row {
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
-            gap: 5px;
-        }
-
-        .guess-char {
-            width: 40px;
-            height: 40px;
-            border: 2px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .correct {
-            background: #4CAF50 !important;
-            border-color: #4CAF50;
-        }
-
-        .close {
-            background: #FFC107 !important;
-            border-color: #FFC107;
-            color: #333;
-        }
-
-        .wrong {
-            background: #f44336 !important;
-            border-color: #f44336;
-        }
-
         .custom-color-picker {
             display: flex;
             align-items: center;
             gap: 15px;
             margin: 20px auto;
             padding: 20px;
-            background: rgba(143, 143, 143, 0.1);
+            background: rgba(58, 36, 36, 0.1);
             font-family: 'Press Start 2P', cursive;
             position: relative;
             box-sizing: border-box;       /* include padding in the width calculation */
@@ -427,12 +339,7 @@
             position: relative;
             background: linear-gradient(to right, #fff, #f00);
             flex-shrink: 0;
-            transition: transform 0.2s ease;
         }
-        .color-canvas:hover {
-            transform: translateY(-6px);
-        }
-
         .color-canvas::before {
             content: '';
             position: absolute;
@@ -442,7 +349,6 @@
             bottom: 0;
             background: linear-gradient(to bottom, transparent, #000);
         }
-
         .canvas-cursor {
             position: absolute;
             width: 10px;
@@ -464,12 +370,7 @@
             flex-shrink: 0;
             filter: none;
             box-shadow: 6px 6px 0 var(--icon-shadow);
-            transition: transform 0.2s ease;
         }
-        .hue-slider:hover {
-            transform: translateY(-6px);
-        }
-
         .hue-cursor {
             position: absolute;
             width: 20px;
@@ -496,13 +397,10 @@
             height: 100px;
             margin: 0;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
-            transition: transform 0.2s ease;
-        }
-        .color-preview:hover {
-            transform: translateY(-6px);
         }
 
         .hex-input-container {
+            --prefix-space: 24px;
             display: flex;
             align-items: center;
             width: 160px;
@@ -511,23 +409,25 @@
             border: none;
             position: relative;
             filter: drop-shadow(6px 6px 0 var(--icon-shadow));
-            transition: transform 0.2s ease;
-        }
-        .hex-input-container:hover {
-            transform: translateY(-6px);
+            overflow: hidden;
+        
         }
 
         .hex-prefix {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
             color: #000000;
-            padding-left: 8px;
             user-select: none;
             pointer-events: none;
-            flex-shrink: 0;
+            z-index: 2;
         }
 
         .hex-input-field {
+            padding-left: var(--prefix-space) !important;
             font-size: 12px;
             padding: 8px 4px;
             border: none;
@@ -543,7 +443,7 @@
         .hex-copy-btn {
             background: none;
             border: none;
-            padding: 4px 6px;
+            padding: 2px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -552,29 +452,8 @@
             right: 4px;
             position: absolute;
         }
-
-        .hex-copy-btn img {
-            width: 16px;
-            height: 16px;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-
-        /* style the new copy‐icon button */
-        #copyBtn {
-            background: none;
-            border: none;
-            padding: 2px;
-            cursor: pointer;
-        }
-
-        /* size & shadow the copy icon to match everything else */
-        #copyIcon {
-            width: 20px;
-            height: 20px;
-            image-rendering: pixelated;
-            filter: drop-shadow(0 0 0 transparent);
-            image-rendering: crisp-edges;
+        .hex-copy-btn:hover .icon {
+            color: var(--icon-color-hover);
         }
 
         .color-game-section {
@@ -601,11 +480,6 @@
             color: white;
             cursor: pointer;
             margin: 10px;
-            transition: background 0.3s;
-        }
-
-        .restart-btn:hover {
-            background: #1976D2;
         }
 
         .timer-bar {
@@ -617,7 +491,6 @@
             overflow: hidden;
             margin: 10px auto;
             box-shadow: 6px 6px 0 var(--icon-shadow);
-            transition: transform 0.2s ease;
         }
         /* the animated "fill" */
         .timer-fill {
@@ -637,9 +510,6 @@
             color: #ffffff;
             white-space: nowrap;
             z-index: 1;
-        }
-        .timer-bar:hover {
-            transform: translateY(-6px);
         }
     
         /* === Wordle-style HEX grid === */
@@ -677,7 +547,7 @@
         }
         body.dark .grid-cell {
             background: #424242;
-            color: #eee;
+            color: #ffffff;
         }
         .grid-row-locked .grid-cell {
             pointer-events: none;
@@ -729,8 +599,6 @@
                 -1px  1px 0 #000,
                  1px  1px 0 #000;
         }
-
-        
         /* Right-side paste action cell */
         .row-action {
             width: 32px;
@@ -750,16 +618,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.15s ease;
         }
-        .paste-btn:hover { transform: translateY(-2px); }
-
-        .paste-icon {
+        .paste-btn .icon {
+            filter: drop-shadow(3px 3px 0 var(--icon-shadow));
             width: 30px;
             height: 30px;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            filter: drop-shadow(3px 3px 0 var(--icon-shadow));
+        }
+        .paste-btn:hover .icon {
+            color: var(--icon-color-hover);
         }
 
         .hex-keyboard {
@@ -774,96 +640,103 @@
             justify-content: center;
         }
         .key-btn {
-            background: #d3d3d3;
+            background: #000000;
+            color: #ffffff;
             border: none;
             padding: 12px;
             font-family: 'Press Start 2P', cursive;
             font-size: 14px;
             cursor: pointer;
-            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
-        }
-        .key-btn:hover {
-            transform: translateY(-2px);
-        }
-        .wide-key {
-            flex: 1;
-        }
-
-        body.dark .key-btn {
-            background: #2e2e2e;
-            color: #eee;
-        }
-        .key-btn {
-            min-width: 50px;
+            min-width: 40px;
             height: 50px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             user-select: none;
             text-transform: uppercase;
-            transition: transform 0.15s ease;
+            filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+        }
+        .key-btn:hover {
+            background: #333333
+        }
+        .wide-key {
+            flex: 1;
+        }
+        body.dark .key-btn {
+            background: #ffffff;
+            color: #000000;
+        }
+        body.dark .key-btn:hover {
+            background: #dddddd;
         }
     </style>
 </head>
 <body>
+    <!-- Icon Generation -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <symbol id="icon-anim" viewBox="0 0 15 15">
+            <g fill="currentColor">
+                <rect x="5" y="0" width="5" height="1"/><rect x="3" y="1" width="9" height="1"/><rect x="2" y="2" width="11" height="1"/><rect x="1" y="3" width="13" height="1"/><rect x="1" y="4" width="2" height="1"/><rect x="4" y="4" width="4" height="1"/><rect x="9" y="4" width="2" height="1"/><rect x="12" y="4" width="2" height="1"/><rect x="0" y="5" width="3" height="1"/><rect x="5" y="5" width="3" height="1"/><rect x="9" y="5" width="2" height="1"/><rect x="12" y="5" width="3" height="1"/><rect x="0" y="6" width="3" height="1"/><rect x="6" y="6" width="2" height="1"/><rect x="9" y="6" width="2" height="1"/><rect x="12" y="6" width="3" height="1"/><rect x="0" y="7" width="3" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="9" y="7" width="2" height="1"/><rect x="12" y="7" width="3" height="1"/><rect x="0" y="8" width="3" height="1"/><rect x="6" y="8" width="2" height="1"/><rect x="9" y="8" width="2" height="1"/><rect x="12" y="8" width="3" height="1"/><rect x="0" y="9" width="3" height="1"/><rect x="5" y="9" width="3" height="1"/><rect x="9" y="9" width="2" height="1"/><rect x="12" y="9" width="3" height="1"/><rect x="1" y="10" width="2" height="1"/><rect x="4" y="10" width="4" height="1"/><rect x="9" y="10" width="2" height="1"/><rect x="12" y="10" width="2" height="1"/><rect x="1" y="11" width="13" height="1"/><rect x="2" y="12" width="11" height="1"/><rect x="3" y="13" width="9" height="1"/><rect x="5" y="14" width="5" height="1"/>
+            </g>
+        </symbol>
+        <symbol id="icon-question" viewBox="0 0 15 15">
+            <g fill="currentColor">
+                <rect x="3" y="0" width="9" height="1"/><rect x="2" y="1" width="11" height="1"/><rect x="1" y="2" width="13" height="1"/><rect x="1" y="3" width="13" height="1"/><rect x="1" y="4" width="5" height="1"/><rect x="10" y="4" width="4" height="1"/><rect x="2" y="5" width="3" height="1"/><rect x="10" y="5" width="4" height="1"/><rect x="7" y="6" width="7" height="1"/><rect x="6" y="7" width="7" height="1"/><rect x="5" y="8" width="7" height="1"/><rect x="5" y="9" width="5" height="1"/><rect x="5" y="10" width="5" height="1"/><rect x="5" y="12" width="5" height="1"/><rect x="5" y="13" width="5" height="1"/><rect x="6" y="14" width="3" height="1"/>
+            </g>
+        </symbol>
+        <symbol id="icon-copy" viewBox="0 0 15 15">
+            <g fill="currentColor">
+                <rect x="1" y="1" width="10" height="1"/><rect x="1" y="2" width="10" height="1"/><rect x="1" y="3" width="2" height="1"/><rect x="9" y="3" width="2" height="1"/><rect x="12" y="3" width="2" height="1"/><rect x="1" y="4" width="2" height="1"/><rect x="9" y="4" width="2" height="1"/><rect x="12" y="4" width="2" height="1"/><rect x="1" y="5" width="2" height="1"/><rect x="9" y="5" width="2" height="1"/><rect x="12" y="5" width="2" height="1"/><rect x="1" y="6" width="2" height="1"/><rect x="9" y="6" width="2" height="1"/><rect x="12" y="6" width="2" height="1"/><rect x="1" y="7" width="2" height="1"/><rect x="9" y="7" width="2" height="1"/><rect x="12" y="7" width="2" height="1"/><rect x="1" y="8" width="2" height="1"/><rect x="9" y="8" width="2" height="1"/><rect x="12" y="8" width="2" height="1"/><rect x="1" y="9" width="10" height="1"/><rect x="12" y="9" width="2" height="1"/><rect x="1" y="10" width="10" height="1"/><rect x="12" y="10" width="2" height="1"/><rect x="12" y="11" width="2" height="1"/><rect x="3" y="12" width="11" height="1"/><rect x="3" y="13" width="11" height="1"/>
+            </g>
+        </symbol>
+        <symbol id="icon-paste" viewBox="0 0 15 15">
+            <g fill="currentColor">
+                <rect x="6" y="0" width="3" height="1"/><rect x="5" y="1" width="2" height="1"/><rect x="8" y="1" width="2" height="1"/><rect x="3" y="2" width="9" height="1"/><rect x="2" y="3" width="2" height="1"/><rect x="11" y="3" width="2" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="4" y="5" width="7" height="1"/><rect x="12" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="12" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="7" height="1"/><rect x="12" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="7" height="1"/><rect x="12" y="9" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="4" y="11" width="7" height="1"/><rect x="12" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/><rect x="2" y="13" width="2" height="1"/><rect x="11" y="13" width="2" height="1"/><rect x="3" y="14" width="9" height="1"/>
+            </g>
+        </symbol>
+        <symbol id="icon-stats" viewBox="0 0 15 15">
+            <g fill="currentColor">
+                <rect x="8" y="0" width="3" height="1"/><rect x="8" y="1" width="3" height="1"/><rect x="8" y="2" width="3" height="1"/><rect x="4" y="3" width="3" height="1"/><rect x="8" y="3" width="3" height="1"/><rect x="4" y="4" width="3" height="1"/><rect x="8" y="4" width="3" height="1"/><rect x="4" y="5" width="3" height="1"/><rect x="8" y="5" width="3" height="1"/><rect x="4" y="6" width="3" height="1"/><rect x="8" y="6" width="3" height="1"/><rect x="0" y="7" width="3" height="1"/><rect x="4" y="7" width="3" height="1"/><rect x="8" y="7" width="3" height="1"/><rect x="0" y="8" width="3" height="1"/><rect x="4" y="8" width="3" height="1"/><rect x="8" y="8" width="3" height="1"/><rect x="0" y="9" width="3" height="1"/><rect x="4" y="9" width="3" height="1"/><rect x="8" y="9" width="3" height="1"/><rect x="12" y="9" width="3" height="1"/><rect x="0" y="10" width="3" height="1"/><rect x="4" y="10" width="3" height="1"/><rect x="8" y="10" width="3" height="1"/><rect x="12" y="10" width="3" height="1"/><rect x="0" y="11" width="3" height="1"/><rect x="4" y="11" width="3" height="1"/><rect x="8" y="11" width="3" height="1"/><rect x="12" y="11" width="3" height="1"/><rect x="0" y="12" width="3" height="1"/><rect x="4" y="12" width="3" height="1"/><rect x="8" y="12" width="3" height="1"/><rect x="12" y="12" width="3" height="1"/><rect x="0" y="13" width="3" height="1"/><rect x="4" y="13" width="3" height="1"/><rect x="8" y="13" width="3" height="1"/><rect x="12" y="13" width="3" height="1"/><rect x="0" y="14" width="3" height="1"/><rect x="4" y="14" width="3" height="1"/><rect x="8" y="14" width="3" height="1"/><rect x="12" y="14" width="3" height="1"/>
+            </g>
+        </symbol>
+        <symbol id="icon-darkmode" viewBox="0 0 15 15">
+            <g fill="currentColor">
+                <rect x="5" y="0" width="3" height="1"/><rect x="3" y="1" width="3" height="1"/><rect x="2" y="2" width="3" height="1"/><rect x="1" y="3" width="4" height="1"/><rect x="1" y="4" width="3" height="1"/><rect x="0" y="5" width="4" height="1"/><rect x="0" y="6" width="4" height="1"/><rect x="0" y="7" width="5" height="1"/><rect x="14" y="7" width="1" height="1"/><rect x="0" y="8" width="5" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="0" y="9" width="6" height="1"/><rect x="13" y="9" width="2" height="1"/><rect x="1" y="10" width="7" height="1"/><rect x="11" y="10" width="3" height="1"/><rect x="1" y="11" width="13" height="1"/><rect x="2" y="12" width="11" height="1"/><rect x="3" y="13" width="9" height="1"/><rect x="5" y="14" width="5" height="1"/>
+            </g>
+        </symbol>
+    </svg>
+    <!-- /Icon Generation -->
+
     <div class="layout-container">
         <header class="game-header">
             <!-- mode selector buttons -->
             <div class="mode-container">
-                <button class="mode-btn enlarge-hitbox">Daily</button>
-                <button class="mode-btn enlarge-hitbox">Unlimited</button>
+                <button class="mode-btn">Daily</button>
+                <button class="mode-btn">Unlimited</button>
             </div>
 
-            <pre class="ascii-title">
+<pre class="ascii-title">
 ██╗  ██╗███████╗██╗  ██╗ ██████╗ ██╗   ██╗███████╗███████╗███████╗██████╗ 
 ██║  ██║██╔════╝╚██╗██╔╝██╔════╝ ██║   ██║██╔════╝██╔════╝██╔════╝██╔══██╗
 ███████║█████╗   ╚███╔╝ ██║  ███╗██║   ██║█████╗  ███████╗███████╗██████╔╝
 ██╔══██║██╔══╝   ██╔██╗ ██║   ██║██║   ██║██╔══╝  ╚════██║╚════██║██╔══██╗
 ██║  ██║███████╗██╔╝ ██╗╚██████╔╝╚██████╔╝███████╗███████║███████║██║  ██║
 ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝
-            </pre>
+</pre>
 
             <div class="top-controls">
 
                 <!-- Help / Instructions -->
-                <button id="infoButton" class="icon-btn enlarge-hitbox" aria-label="Show instructions">
-                    <img 
-                        id="infoIcon"
-                        src="question-mark-light.png" 
-                        data-light="question-mark-light.png" 
-                        data-dark="question-mark-dark.png"
-                        alt="Help">
-                </button>
+                <button id="infoButton" class="icon-btn" aria-label="Show instructions"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-question"></use></svg></button>
 
                 <!-- Stats (if you have a stats panel) -->
-                <button id="statsButton" class="icon-btn enlarge-hitbox" aria-label="Show stats">
-                    <img
-                        id="statsIcon"
-                        src="stats-light.png"
-                        data-light="stats-light.png"
-                        data-dark="stats-dark.png"
-                        alt="Stats">
-                </button>
+                <button id="statsButton" class="icon-btn" aria-label="Show stats"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-stats"></use></svg></button>
 
                 <!-- Animation toggle -->
-                <button id="toggleAnimations" class="icon-btn enlarge-hitbox" aria-label="Pause animations">
-                    <img
-                        id="animIcon"
-                        src="animation-suspend-light.png"
-                        data-light="animation-suspend-light.png"
-                        data-dark="animation-suspend-dark.png"
-                        alt="Toggle animations">
-                </button>
+                <button id="toggleAnimations" class="icon-btn" aria-label="Pause animations"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-anim"></use></svg></button>
 
                 <!-- Dark‑mode toggle -->
-                <button id="darkModeToggle" class="icon-btn enlarge-hitbox" aria-label="Toggle dark mode">
-                    <img
-                        id="darkModeIcon"
-                        src="dark-mode-light.png"
-                        data-light="dark-mode-light.png"
-                        data-dark="dark-mode-dark.png"
-                        alt="Dark mode">
-                </button>
+                <button id="darkModeToggle" class="icon-btn" aria-label="Toggle dark mode"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-darkmode"></use></svg></button>
             </div>
         </header>
         
@@ -871,49 +744,20 @@
             document.addEventListener("DOMContentLoaded", () => {
                 const pre   = document.querySelector(".ascii-title");
                 const lines = pre.textContent.split("\n");
-                pre.innerHTML = "";           // clear out the raw ASCII
-
-                const letterWidths = [8, 8, 8, 9, 9, 8, 8, 8, 8];  // <- manual widths for each ASCII letter 
-                                                            // (first char is for the spacing before the "H")
-                // build cumulative edges
-                const boundaries = letterWidths.reduce((acc, w) => {
-                    acc.push(acc[acc.length-1] + w);
-                    return acc;
-                }, [0]);
+                pre.innerHTML = ""; // clear out the raw ASCII
 
                 lines.forEach((line, row) => {
                     Array.from(line).forEach((ch, col) => {
                         const span = document.createElement("span");
-                        span.classList.add('enlarge-hitbox');
                         span.textContent = ch;
-                        // store only the column number, not a running index
+                        // keep only the column index for the RGB wave
                         span.style.setProperty("--col", col);
-                        // compute which ASCII‑letter this char belongs to
-                        const letterIndex = boundaries.findIndex((b, i) =>
-                            col >= b && col < (boundaries[i+1] || Infinity)
-                        );
-                        span.dataset.letter = letterIndex;
                         pre.appendChild(span);
                     });
-                    // re–insert a newline so your <pre> stays multi‑line
+                    // re–insert a newline so your <pre> stays multi-line
                     if (row < lines.length - 1) {
                         pre.appendChild(document.createTextNode("\n"));
                     }
-                });
-
-                document.querySelectorAll(".ascii-title span").forEach(span => {
-                    span.addEventListener("mouseenter", () => {
-                        const idx = span.dataset.letter;
-                        document
-                            .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
-                            .forEach(s => s.classList.add("hover-group"));
-                    });
-                    span.addEventListener("mouseleave", () => {
-                        const idx = span.dataset.letter;
-                        document
-                            .querySelectorAll(`.ascii-title span[data-letter="${idx}"]`)
-                            .forEach(s => s.classList.remove("hover-group"));
-                    });
                 });
             });
         </script>
@@ -940,15 +784,7 @@
                             <div class="hex-input-container">
                                 <span class="hex-prefix">#</span>
                                 <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                                <button id="copyBtn" class="hex-copy-btn" aria-label="Copy hex code">
-                                    <img
-                                        id="copyIcon"
-                                        src="copy-light.png"
-                                        data-light="copy-light.png"
-                                        data-dark="copy-dark.png"
-                                        alt="Copy"
-                                    />
-                                </button>
+                                <button id="copyBtn" class="hex-copy-btn" aria-label="Copy hex code"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-copy"></use></svg></button>
                             </div>
                         </div>
                     </div>
@@ -963,32 +799,32 @@
             <div class="input-section">
                 <div class="hex-grid-wrapper">
                     <div id="hexGrid" class="hex-grid" aria-label="Hex guess grid"></div>
-                    <div style="font-family: 'Press Start 2P', cursive; font-size: 12px; opacity: .8;">
-<div id="hexKeyboard" class="hex-keyboard" aria-label="On-screen hex keyboard">
-    <div class="keyboard-row">
-        <button class="key-btn" data-key="0">0</button>
-        <button class="key-btn" data-key="1">1</button>
-        <button class="key-btn" data-key="2">2</button>
-        <button class="key-btn" data-key="3">3</button>
-        <button class="key-btn" data-key="4">4</button>
-        <button class="key-btn" data-key="5">5</button>
-        <button class="key-btn" data-key="6">6</button>
-        <button class="key-btn" data-key="7">7</button>
-        <button class="key-btn" data-key="8">8</button>
-        <button class="key-btn" data-key="9">9</button>
-    </div>
-    <div class="keyboard-row">
-        <button class="key-btn wide-key" data-action="enter">ENTER</button>
-        <button class="key-btn" data-key="A">A</button>
-        <button class="key-btn" data-key="B">B</button>
-        <button class="key-btn" data-key="C">C</button>
-        <button class="key-btn" data-key="D">D</button>
-        <button class="key-btn" data-key="E">E</button>
-        <button class="key-btn" data-key="F">F</button>
-        <button class="key-btn wide-key" data-action="backspace">⌫</button>
-    </div>
-</div>
-</div>
+                    <div style="font-family: 'Press Start 2P', cursive; font-size: 12px;">
+                        <div id="hexKeyboard" class="hex-keyboard" aria-label="On-screen hex keyboard">
+                            <div class="keyboard-row">
+                                <button class="key-btn" data-key="0">0</button>
+                                <button class="key-btn" data-key="1">1</button>
+                                <button class="key-btn" data-key="2">2</button>
+                                <button class="key-btn" data-key="3">3</button>
+                                <button class="key-btn" data-key="4">4</button>
+                                <button class="key-btn" data-key="5">5</button>
+                                <button class="key-btn" data-key="6">6</button>
+                                <button class="key-btn" data-key="7">7</button>
+                                <button class="key-btn" data-key="8">8</button>
+                                <button class="key-btn" data-key="9">9</button>
+                            </div>
+                            <div class="keyboard-row">
+                                <button class="key-btn wide-key" data-action="enter">ENTER</button>
+                                <button class="key-btn" data-key="A">A</button>
+                                <button class="key-btn" data-key="B">B</button>
+                                <button class="key-btn" data-key="C">C</button>
+                                <button class="key-btn" data-key="D">D</button>
+                                <button class="key-btn" data-key="E">E</button>
+                                <button class="key-btn" data-key="F">F</button>
+                                <button class="key-btn wide-key" data-action="backspace">DEL</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1092,14 +928,14 @@
                     const pasteBtn = document.createElement('button');
                     pasteBtn.type = 'button';
                     pasteBtn.className = 'paste-btn';
-                    const pasteImg = document.createElement('img');
-                    pasteImg.className = 'paste-icon';
-                    pasteImg.setAttribute('data-light', 'paste-light.png');
-                    pasteImg.setAttribute('data-dark', 'paste-dark.png');
-                    const isDarkNow = document.body.classList.contains('dark');
-                    pasteImg.src = isDarkNow ? pasteImg.dataset.dark : pasteImg.dataset.light;
-                    pasteImg.alt = 'Paste hex';
-                    pasteBtn.appendChild(pasteImg);
+                    const svgNS = 'http://www.w3.org/2000/svg';
+                    const pasteSvg = document.createElementNS(svgNS, 'svg');
+                    pasteSvg.setAttribute('class', 'icon icon--sm');
+                    pasteSvg.setAttribute('viewBox', '0 0 15 15');
+                    const use = document.createElementNS(svgNS, 'use');
+                    use.setAttribute('href', '#icon-paste');
+                    pasteSvg.appendChild(use);
+                    pasteBtn.appendChild(pasteSvg);
                     action.appendChild(pasteBtn);
                     rowEl.appendChild(action);
                     this.rowActions.push(action);
@@ -1110,7 +946,6 @@
                 }
                 this.updateCaret();
                 this.updateRowLabels();
-                this.updatePasteAction();
                 this.updatePasteAction();
                 this.attachPasteHandlers();
                 // focus handling: click grid focuses keyboard capture
@@ -1152,6 +987,8 @@
                     }
                     e.preventDefault();
                 } else if (e.key === 'Enter') {
+                    // Block submitting while the color is revealed & timer is running
+                    if (this.colorVisible) { e.preventDefault(); return; }
                     this.submitGuess();
                     e.preventDefault();
                 }
@@ -1250,6 +1087,8 @@
                     const key = (btn.dataset.key || '').toUpperCase();
                     
                     if (action === 'enter') {
+                        // Block submitting while the color is revealed & timer is running
+                        if (this.colorVisible) return;
                         this.submitGuess();
                         return;
                     }
@@ -1339,63 +1178,19 @@
                 
                 // Copy button
                 this.copyBtn.addEventListener('click', () => {
-                    const hexValue = '#' + this.hexInputField.value;
-                    navigator.clipboard.writeText(hexValue).then(() => {
-                        // Create a temporary tooltip-like feedback
-                        const feedback = document.createElement('div');
-                        feedback.textContent = 'Copied!';
-                        feedback.style.cssText = `
-                            position: fixed;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            background: #4CAF50;
-                            color: white;
-                            padding: 8px 12px;
-                            font-size: 10px;
-                            font-family: 'Press Start 2P', cursive;
-                            pointer-events: none;
-                            z-index: 1000;
-                            filter: drop-shadow(2px 2px 0 #2e7d32);
-                        `;
-                        document.body.appendChild(feedback);
-                        setTimeout(() => {
-                            if (feedback.parentNode) {
-                                feedback.parentNode.removeChild(feedback);
-                            }
-                        }, 1000);
-                    }).catch(() => {
-                        // Fallback for older browsers
-                        const textArea = document.createElement('textarea');
-                        textArea.value = hexValue;
-                        document.body.appendChild(textArea);
-                        textArea.select();
+                    const hexValue = (this.hexInputField.value || '')
+                    .toUpperCase()
+                    .replace(/[^0-9A-F]/g, '')
+                    .slice(0, 6);
+
+                    navigator.clipboard.writeText(hexValue).catch(() => {
+                        // Fallback for older browsers (execCommand is deprecated but works on old Safari)
+                        const ta = document.createElement('textarea');
+                        ta.value = hexValue;
+                        document.body.appendChild(ta);
+                        ta.select();
                         document.execCommand('copy');
-                        document.body.removeChild(textArea);
-                        
-                        // Create a temporary tooltip-like feedback for fallback too
-                        const feedback = document.createElement('div');
-                        feedback.textContent = 'Copied!';
-                        feedback.style.cssText = `
-                            position: fixed;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            background: #4CAF50;
-                            color: white;
-                            padding: 8px 12px;
-                            font-size: 10px;
-                            font-family: 'Press Start 2P', cursive;
-                            pointer-events: none;
-                            z-index: 1000;
-                            filter: drop-shadow(2px 2px 0 #2e7d32);
-                        `;
-                        document.body.appendChild(feedback);
-                        setTimeout(() => {
-                            if (feedback.parentNode) {
-                                feedback.parentNode.removeChild(feedback);
-                            }
-                        }, 1000);
+                        document.body.removeChild(ta);
                     });
                 });
                 
@@ -1571,8 +1366,8 @@
 
             submitGuess() {
                 if (this.gameOver) return;
-                
-                
+                // Do not allow guesses while the reveal timer is active
+                if (this.colorVisible) return;
                 const guess = this.getCurrentGuess();
                 if (guess.length !== 6 || !/^[0-9A-F]{6}$/.test(guess)) {
                     alert('Please enter a valid 6-digit hex color (0-9, A-F)');
@@ -1692,49 +1487,20 @@
         // Start the game when the page loads
         window.addEventListener('DOMContentLoaded', () => {
             // 1) Start the game
-            
-
             new HexColorWordle();
 
-            // 2) Cache your icon <img> elements
-            const infoIcon     = document.getElementById("infoIcon");
-            const statsIcon    = document.getElementById("statsIcon");
-            const animIcon     = document.getElementById("animIcon");
-            const darkModeIcon = document.getElementById("darkModeIcon");
+            // Dark mode toggle (no icon swapping needed with SVG)
             const darkModeBtn  = document.getElementById("darkModeToggle");
-            const copyIcon     = document.getElementById("copyIcon");
-
-            // 3) Helper to swap src between data-light / data-dark
-            function updateIconTheme(img, isDark) {
-                img.src = isDark ? img.dataset.light : img.dataset.dark;
-            }
-
-            // 4) Refresh all icons at once
-            function refreshIcons(isDark) {
-                [infoIcon, statsIcon, animIcon, darkModeIcon, copyIcon]
-                .forEach(img => updateIconTheme(img, isDark));
-                document.querySelectorAll('.paste-icon').forEach(img => updateIconTheme(img, isDark));
-                // force copy icon mapping: dark mode -> light asset, light mode -> dark asset
-                copyIcon.src = isDark ? copyIcon.dataset.light : copyIcon.dataset.dark;
-            }
-
-            // 5) Wire up the dark‑mode button to also swap icons
             darkModeBtn.addEventListener("click", () => {
                 const isDark = document.body.classList.toggle("dark");
-                // swap the moon/sun icon itself
-                updateIconTheme(darkModeIcon, isDark);
-                // refresh the rest
-                refreshIcons(isDark);
-                // update its aria‐label
                 darkModeBtn.setAttribute(
                     "aria-label",
                     isDark ? "Switch to light mode" : "Switch to dark mode"
                 );
             });
 
-            // 6) Wire up the info/stats buttons to swap icons
+            // Animation pause/resume
             const toggleAnimationsBtn = document.getElementById("toggleAnimations");
-
             toggleAnimationsBtn.addEventListener("click", () => {
                 const isPaused = document.body.classList.toggle("paused");
                 toggleAnimationsBtn.setAttribute(
@@ -1742,10 +1508,6 @@
                     isPaused ? "Resume animations" : "Pause animations"
                 );
             });
-
-
-            // 7) Initialize to the correct theme on load
-            refreshIcons(document.body.classList.contains("dark"));
         });
     </script>
 </body>
