@@ -113,6 +113,7 @@ button, input, select, textarea {
     /* block-pixel look */
     filter: drop-shadow(4px 4px 0 var(--icon-shadow));
     font-size: 12px;
+    text-decoration: none;
     color: black;
 
     /* center the label */
@@ -132,15 +133,6 @@ body.dark .mode-btn {
 }
 body.dark .mode-btn:hover {
     background: #373737
-}
-a.mode-btn,
-a.mode-btn:link,
-a.mode-btn:visited,
-a.mode-btn:hover,
-a.mode-btn:active,
-a.mode-btn:focus {
-  text-decoration: none !important;
-  color: inherit; /* avoids purple/visited color changes */
 }
 
 .icon-btn {
