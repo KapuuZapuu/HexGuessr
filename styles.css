@@ -15,7 +15,7 @@
 }
 
 button, input, select, textarea {
-  font: inherit;          /* grabs font-family/size/weight from parent */
+    font: inherit;          /* grabs font-family/size/weight from parent */
 }
 
 /* Tooltip styling */
