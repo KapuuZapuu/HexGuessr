@@ -113,7 +113,6 @@ button, input, select, textarea {
     /* block-pixel look */
     filter: drop-shadow(4px 4px 0 var(--icon-shadow));
     font-size: 12px;
-    text-decoration: none;
     color: black;
 
     /* center the label */
