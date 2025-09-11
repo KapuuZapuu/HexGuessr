@@ -666,26 +666,60 @@ class HexColorWordle {
 
 // Start the game when the page loads
 window.addEventListener('DOMContentLoaded', () => {
-    // Start the game
-    new HexColorWordle();
+    // --- Decide mode (Vercel path vs local file query) ---
+    const isFile = location.protocol === 'file:';
+    const pathIsUnlimited  = /\/unlimited\/?$/.test(location.pathname);
+    const queryIsUnlimited = new URLSearchParams(location.search).get('mode') === 'unlimited';
 
-    // Dark mode toggle (no icon swapping needed with SVG)
+    // Hosted (Vercel): path controls the mode. Local file://: fallback to ?mode=unlimited.
+    const MODE = isFile ? (queryIsUnlimited ? 'unlimited' : 'daily')
+                        : (pathIsUnlimited ? 'unlimited' : 'daily');
+
+    // --- Boot only in unlimited ---
+    if (MODE === 'unlimited') {
+        new HexColorWordle();
+    } 
+    else {
+        // daily placeholder
+        const container = document.querySelector('.game-container');
+        if (container) {
+            const note = document.createElement('div');
+            note.style.fontFamily = "'Press Start 2P', cursive";
+            note.style.fontSize = '12px';
+            note.style.margin = '10px 0';
+            note.textContent = 'Daily mode coming soon — mode switch is live.';
+            container.prepend(note);
+        }
+    }
+
+    // --- Mode buttons: navigate correctly in both environments ---
+    const modeBtns = document.querySelectorAll('.mode-container .mode-btn');
+    const [dailyBtn, unlimitedBtn] = [modeBtns[0], modeBtns[1]];
+    if (dailyBtn && unlimitedBtn) {
+        const toDaily = isFile ? 'index.html' : '/';
+        const toUnlim = isFile ? 'unlimited/index.html' : '/unlimited';
+        dailyBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toDaily; });
+        unlimitedBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toUnlim; });
+
+        dailyBtn.classList.toggle('active', MODE === 'daily');
+        unlimitedBtn.classList.toggle('active', MODE === 'unlimited');
+    }
+
+    // --- Dark mode toggle ---
     const darkModeBtn  = document.getElementById("darkModeToggle");
-    darkModeBtn.addEventListener("click", () => {
-        const isDark = document.body.classList.toggle("dark");
-        darkModeBtn.setAttribute(
-            "aria-label",
-            isDark ? "Light Mode" : "Dark Mode"
-        );
-    });
+    if (darkModeBtn) {
+        darkModeBtn.addEventListener("click", () => {
+            const isDark = document.body.classList.toggle("dark");
+            darkModeBtn.setAttribute("aria-label", isDark ? "Light Mode" : "Dark Mode");
+        });
+    }
 
-    // Animation pause/resume
+    // --- Animation pause/resume ---
     const toggleAnimationsBtn = document.getElementById("toggleAnimations");
-    toggleAnimationsBtn.addEventListener("click", () => {
-        const isPaused = document.body.classList.toggle("paused");
-        toggleAnimationsBtn.setAttribute(
-            "aria-label",
-            isPaused ? "Resume Animations" : "Pause Animations"
-        );
-    });
+    if (toggleAnimationsBtn) {
+        toggleAnimationsBtn.addEventListener("click", () => {
+            const isPaused = document.body.classList.toggle("paused");
+            toggleAnimationsBtn.setAttribute("aria-label", isPaused ? "Resume Animations" : "Pause Animations");
+        });
+    }
 });

@@ -1,0 +1,6 @@
+{
+    "rewrites": [
+        { "source": "/unlimited",  "destination": "/" },
+        { "source": "/unlimited/", "destination": "/" }
+    ]
+}
