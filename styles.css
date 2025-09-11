@@ -120,9 +120,6 @@ button, input, select, textarea {
     align-items: center;
     justify-content: center;
 }
-.mode-container a { 
-    text-decoration: none; 
-}
 .mode-btn:hover {
     background: #f1f1f1
 }
@@ -135,6 +132,15 @@ body.dark .mode-btn {
 }
 body.dark .mode-btn:hover {
     background: #373737
+}
+a.mode-btn,
+a.mode-btn:link,
+a.mode-btn:visited,
+a.mode-btn:hover,
+a.mode-btn:active,
+a.mode-btn:focus {
+  text-decoration: none !important;
+  color: inherit; /* avoids purple/visited color changes */
 }
 
 .icon-btn {
