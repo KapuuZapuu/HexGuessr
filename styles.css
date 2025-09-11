@@ -9,6 +9,9 @@
     --tip-bg: #000;
     --tip-fg: #fff;
     --tip-offset: 8px;
+    /* Monospace fallbacks reduce the visual jump before the webfont loads */
+    --ps2p-stack:   'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco,
+                    Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 /* Tooltip styling */
@@ -21,7 +24,6 @@
     left: 50%;
     top: 100%;
     transform: translate(-50%, var(--tip-offset));
-    font-family: 'Press Start 2P', cursive;
     font-size: 10px;
     line-height: 1.2;
     white-space: nowrap;
@@ -106,7 +108,6 @@
 
     /* block-pixel look */
     filter: drop-shadow(4px 4px 0 var(--icon-shadow));
-    font-family: 'Press Start 2P', cursive;
     font-size: 12px;
     color: black;
 
@@ -158,7 +159,7 @@ body.dark .mode-btn:hover {
 
 /* Light mode style */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: var(--ps2p-stack);
     margin: 0;
     padding: 20px;
     background: #f0f0f0;
@@ -242,7 +243,6 @@ body.dark .hex-prefix {
     left: 8px;
     top: 50%;
     transform: translateY(-50%);
-    font-family: 'Press Start 2P', cursive;
     font-size: 12px;
     color: #000000;
     user-select: none;
@@ -301,7 +301,6 @@ body.dark .hex-prefix {
     justify-content: center;
     text-align: center;
     font-size: 18px;
-    font-family: 'Press Start 2P', cursive;
     color: black;
     margin: 0;
 }
@@ -363,7 +362,6 @@ body.dark .color-display.hidden:hover {
     margin: 20px auto;
     padding: 20px;
     background: rgba(58, 36, 36, 0.1);
-    font-family: 'Press Start 2P', cursive;
     position: relative;
     box-sizing: border-box;       /* include padding in the width calculation */
     width: 100%;                  /* fill up to… */
@@ -462,7 +460,6 @@ body.dark .color-display.hidden:hover {
     left: 8px;
     top: 50%;
     transform: translateY(-50%);
-    font-family: 'Press Start 2P', cursive;
     font-size: 12px;
     color: #000000;
     user-select: none;
@@ -479,7 +476,6 @@ body.dark .color-display.hidden:hover {
     background: transparent;
     text-transform: uppercase;
     color: #000000;
-    font-family: 'Press Start 2P', cursive;
     outline: none;
     padding-right: 32px;
 }
@@ -551,7 +547,6 @@ body.dark .color-display.hidden:hover {
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    font-family: 'Press Start 2P', cursive;
     font-size: 12px;
     color: #ffffff;
     white-space: nowrap;
@@ -585,7 +580,6 @@ body.dark .color-display.hidden:hover {
     align-items: center;
     justify-content: center;
     background: #fff;
-    font-family: 'Press Start 2P', cursive;
     font-size: 16px;
     user-select: none;
     text-transform: uppercase;
@@ -628,7 +622,6 @@ body.dark .grid-current {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Press Start 2P', cursive;
     font-size: 30px;
     user-select: none;
     visibility: hidden; /* only current row shows; completed rows stay visible once colored */
@@ -690,7 +683,6 @@ body.dark .grid-current {
     color: #ffffff;
     border: none;
     padding: 12px;
-    font-family: 'Press Start 2P', cursive;
     font-size: 14px;
     cursor: pointer;
     min-width: 40px;

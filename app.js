@@ -684,7 +684,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const container = document.querySelector('.game-container');
         if (container) {
             const note = document.createElement('div');
-            note.style.fontFamily = "'Press Start 2P', cursive";
+            note.style.fontFamily = "var(--ps2p-stack)";
             note.style.fontSize = '12px';
             note.style.margin = '10px 0';
             note.textContent = 'Daily mode coming soon — mode switch is live.';
