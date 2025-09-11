@@ -109,8 +109,6 @@ button, input, select, textarea {
     background: #f9f9f9;        /* same blank canvas */
     border: none;
     cursor: pointer;
-    text-decoration: none;
-    color: inherit;
 
     /* block-pixel look */
     filter: drop-shadow(4px 4px 0 var(--icon-shadow));
@@ -121,6 +119,9 @@ button, input, select, textarea {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.mode-container a { 
+    text-decoration: none; 
 }
 .mode-btn:hover {
     background: #f1f1f1
