@@ -664,25 +664,22 @@ class HexColorWordle {
     }
 }
 
-// Helper to figure out mode from URL
-function getModeFromURL() {
-    // Back-compat with old Vercel query style
-    const qp = new URLSearchParams(location.search).get('mode');
-    if (qp === 'unlimited' || qp === 'daily') return qp;
-
-    // New Cloudflare path style
-    const path = location.pathname.replace(/\/+$/, ''); // strip trailing slash
-    return path === '/unlimited' ? 'unlimited' : 'daily';
-}
-
 // Start the game when the page loads
 window.addEventListener('DOMContentLoaded', () => {
-    const MODE = getModeFromURL();
+    // --- Decide mode (Vercel path vs local file query) ---
+    const isFile = location.protocol === 'file:';
+    const pathIsUnlimited  = /\/unlimited\/?$/.test(location.pathname);
+    const queryIsUnlimited = new URLSearchParams(location.search).get('mode') === 'unlimited';
 
-    // --- Boot game depending on mode ---
+    // Hosted (Vercel): path controls the mode. Local file://: fallback to ?mode=unlimited.
+    const MODE = isFile ? (queryIsUnlimited ? 'unlimited' : 'daily')
+                        : (pathIsUnlimited ? 'unlimited' : 'daily');
+
+    // --- Boot only in unlimited ---
     if (MODE === 'unlimited') {
         new HexColorWordle();
-    } else {
+    } 
+    else {
         // daily placeholder
         const container = document.querySelector('.game-container');
         if (container) {
@@ -695,17 +692,14 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Mode buttons ---
-    const [dailyBtn, unlimitedBtn] = document.querySelectorAll('.mode-container .mode-btn') || [];
+    // --- Mode buttons: navigate correctly in both environments ---
+    const modeBtns = document.querySelectorAll('.mode-container .mode-btn');
+    const [dailyBtn, unlimitedBtn] = [modeBtns[0], modeBtns[1]];
     if (dailyBtn && unlimitedBtn) {
-        const isFile = location.protocol === 'file:'; // true for local file:// testing
-
-        if (isFile) {
-            // Intercept clicks locally to navigate to the right file paths
-            dailyBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = 'index.html'; });
-            unlimitedBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = 'unlimited/index.html'; });
-        }
-        // On hosted http/https, let the <a href="/"> and <a href="/unlimited"> links work normally
+        const toDaily = isFile ? 'index.html' : '/';
+        const toUnlim = isFile ? 'unlimited/index.html' : '/unlimited';
+        dailyBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toDaily; });
+        unlimitedBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toUnlim; });
 
         dailyBtn.classList.toggle('active', MODE === 'daily');
         unlimitedBtn.classList.toggle('active', MODE === 'unlimited');
