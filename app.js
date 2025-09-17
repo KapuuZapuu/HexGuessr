@@ -666,21 +666,26 @@ class HexColorWordle {
 
 // Start the game when the page loads
 window.addEventListener('DOMContentLoaded', () => {
-    // --- Decide mode (Vercel path vs local file query) ---
     const isFile = location.protocol === 'file:';
-    const pathIsUnlimited  = /\/unlimited\/?$/.test(location.pathname);
+
+    // Decide mode (path or query param both count).
+    const pathIsUnlimited  = /^\/unlimited\/?$/.test(location.pathname);
     const queryIsUnlimited = new URLSearchParams(location.search).get('mode') === 'unlimited';
 
-    // Hosted (Vercel): path controls the mode. Local file://: fallback to ?mode=unlimited.
-    const MODE = isFile ? (queryIsUnlimited ? 'unlimited' : 'daily')
-                        : (pathIsUnlimited ? 'unlimited' : 'daily');
+    // Accept query param in hosted too (for old shared links).
+    const isUnlimited = pathIsUnlimited || queryIsUnlimited;
+    const MODE = isUnlimited ? 'unlimited' : 'daily';
+
+    // If someone hits ?mode=unlimited on the hosted site,
+    // canonically show /unlimited in the URL without reloading the page.
+    if (!isFile && queryIsUnlimited && !pathIsUnlimited) {
+        history.replaceState(null, '', '/unlimited');
+    }
 
     // --- Boot only in unlimited ---
     if (MODE === 'unlimited') {
         new HexColorWordle();
-    } 
-    else {
-        // daily placeholder
+    } else {
         const container = document.querySelector('.game-container');
         if (container) {
             const note = document.createElement('div');
@@ -696,8 +701,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const modeBtns = document.querySelectorAll('.mode-container .mode-btn');
     const [dailyBtn, unlimitedBtn] = [modeBtns[0], modeBtns[1]];
     if (dailyBtn && unlimitedBtn) {
+        // keep local file behavior; use clean paths in production
         const toDaily = isFile ? 'index.html' : '/';
         const toUnlim = isFile ? 'unlimited/index.html' : '/unlimited';
+
         dailyBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toDaily; });
         unlimitedBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toUnlim; });
 
