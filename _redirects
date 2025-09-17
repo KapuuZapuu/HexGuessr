@@ -1,0 +1,4 @@
+/unlimited      /index.html   200
+/unlimited/     /index.html   200
+# If you later add more client-side routes, switch to a full SPA fallback: <- ChatGPT wrote this <3
+# /*             /index.html   200
