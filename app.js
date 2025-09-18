@@ -666,19 +666,23 @@ class HexColorWordle {
 
 // Start the game when the page loads
 window.addEventListener('DOMContentLoaded', () => {
-  const isFile = location.protocol === 'file:';
+  // --- Robust route detection + logging ---
+const url  = new URL(location.href);
+const path = url.pathname.replace(/\/+$/, '').toLowerCase(); // strip trailing slash
+const pathIsUnlimited   = path === '/unlimited';
+const queryIsUnlimited  = (url.searchParams.get('mode') || '').toLowerCase() === 'unlimited';
 
-  // --- NEW: robust route detection (replaces the regex version) ---
-  const path = location.pathname.replace(/\/+$/, ''); // strip trailing slash
-  const pathIsUnlimited  = path === '/unlimited';
-  const queryIsUnlimited = new URLSearchParams(location.search).get('mode') === 'unlimited';
-  const MODE = (pathIsUnlimited || queryIsUnlimited) ? 'unlimited' : 'daily';
+// (Optional) allow hash-based forcing while testing: /#unlimited
+const hashIsUnlimited   = (url.hash || '').toLowerCase().includes('unlimited');
 
-  // If someone hits ?mode=unlimited on the hosted site,
-  // canonically show /unlimited in the URL without reloading the page.
-  if (!isFile && queryIsUnlimited && !pathIsUnlimited) {
-    history.replaceState(null, '', '/unlimited');
-  }
+const MODE = (pathIsUnlimited || queryIsUnlimited || hashIsUnlimited) ? 'unlimited' : 'daily';
+console.log('[HexGuessr] path=', url.pathname, 'search=', url.search, 'hash=', url.hash, 'MODE=', MODE);
+
+// Canonicalize ?mode=unlimited to /unlimited (no reload) only when we’re hosted (not file://)
+const isFile = location.protocol === 'file:';
+if (!isFile && queryIsUnlimited && !pathIsUnlimited) {
+  history.replaceState(null, '', '/unlimited');
+}
 
   // --- Boot only in unlimited ---
   if (MODE === 'unlimited') {
