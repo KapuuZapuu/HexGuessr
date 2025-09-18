@@ -697,17 +697,18 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Mode buttons: navigate correctly in both environments ---
+    // --- Mode buttons: use normal links in production; adjust hrefs only for file:// local viewing ---
     const modeBtns = document.querySelectorAll('.mode-container .mode-btn');
     const [dailyBtn, unlimitedBtn] = [modeBtns[0], modeBtns[1]];
     if (dailyBtn && unlimitedBtn) {
-        // keep local file behavior; use clean paths in production
-        const toDaily = isFile ? 'index.html' : '/';
-        const toUnlim = isFile ? 'unlimited/index.html' : '/unlimited';
+        // In production (http/https), do nothing — let <a href="/"> and <a href="/unlimited"> navigate.
+        // For local file:// testing, rewrite hrefs so clicking works from your filesystem.
+        if (isFile) {
+            dailyBtn.setAttribute('href', 'index.html');
+            unlimitedBtn.setAttribute('href', 'unlimited/index.html');
+        }
 
-        dailyBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toDaily; });
-        unlimitedBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toUnlim; });
-
+        // Just reflect active state; no click handlers.
         dailyBtn.classList.toggle('active', MODE === 'daily');
         unlimitedBtn.classList.toggle('active', MODE === 'unlimited');
     }
