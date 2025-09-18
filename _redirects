@@ -1,3 +1,6 @@
-/unlimited      /index.html   200
-/unlimited/*    /index.html   200
-/*              /index.html   200
+# Specific routes first - these must come before the catch-all
+/unlimited              /index.html   200
+/unlimited/*            /index.html   200
+
+# Catch-all rule last
+/*                      /index.html   200
