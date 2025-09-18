@@ -666,66 +666,60 @@ class HexColorWordle {
 
 // Start the game when the page loads
 window.addEventListener('DOMContentLoaded', () => {
-  // --- Robust route detection + logging ---
-const url  = new URL(location.href);
-const path = url.pathname.replace(/\/+$/, '').toLowerCase(); // strip trailing slash
-const pathIsUnlimited   = path === '/unlimited';
-const queryIsUnlimited  = (url.searchParams.get('mode') || '').toLowerCase() === 'unlimited';
+    // --- Decide mode (Vercel path vs local file query) ---
+    const isFile = location.protocol === 'file:';
+    const pathIsUnlimited  = /\/unlimited\/?$/.test(location.pathname);
+    const queryIsUnlimited = new URLSearchParams(location.search).get('mode') === 'unlimited';
 
-// (Optional) allow hash-based forcing while testing: /#unlimited
-const hashIsUnlimited   = (url.hash || '').toLowerCase().includes('unlimited');
+    // Hosted (Vercel): path controls the mode. Local file://: fallback to ?mode=unlimited.
+    const MODE = isFile ? (queryIsUnlimited ? 'unlimited' : 'daily')
+                        : (pathIsUnlimited ? 'unlimited' : 'daily');
 
-const MODE = (pathIsUnlimited || queryIsUnlimited || hashIsUnlimited) ? 'unlimited' : 'daily';
-console.log('[HexGuessr] path=', url.pathname, 'search=', url.search, 'hash=', url.hash, 'MODE=', MODE);
-
-// Canonicalize ?mode=unlimited to /unlimited (no reload) only when we’re hosted (not file://)
-const isFile = location.protocol === 'file:';
-if (!isFile && queryIsUnlimited && !pathIsUnlimited) {
-  history.replaceState(null, '', '/unlimited');
-}
-
-  // --- Boot only in unlimited ---
-  if (MODE === 'unlimited') {
-    new HexColorWordle();
-  } else {
-    const container = document.querySelector('.game-container');
-    if (container) {
-      const note = document.createElement('div');
-      note.style.fontFamily = "var(--ps2p-stack)";
-      note.style.fontSize = '12px';
-      note.style.margin = '10px 0';
-      note.textContent = 'Daily mode coming soon — mode switch is live.';
-      container.prepend(note);
+    // --- Boot only in unlimited ---
+    if (MODE === 'unlimited') {
+        new HexColorWordle();
+    } 
+    else {
+        // daily placeholder
+        const container = document.querySelector('.game-container');
+        if (container) {
+            const note = document.createElement('div');
+            note.style.fontFamily = "var(--ps2p-stack)";
+            note.style.fontSize = '12px';
+            note.style.margin = '10px 0';
+            note.textContent = 'Daily mode coming soon — mode switch is live.';
+            container.prepend(note);
+        }
     }
-  }
 
-  // --- Mode buttons: use normal links in production; adjust hrefs only for file:// local viewing ---
-  const modeBtns = document.querySelectorAll('.mode-container .mode-btn');
-  const [dailyBtn, unlimitedBtn] = [modeBtns[0], modeBtns[1]];
-  if (dailyBtn && unlimitedBtn) {
-    if (isFile) {
-      dailyBtn.setAttribute('href', 'index.html');
-      unlimitedBtn.setAttribute('href', 'unlimited/index.html');
+    // --- Mode buttons: navigate correctly in both environments ---
+    const modeBtns = document.querySelectorAll('.mode-container .mode-btn');
+    const [dailyBtn, unlimitedBtn] = [modeBtns[0], modeBtns[1]];
+    if (dailyBtn && unlimitedBtn) {
+        const toDaily = isFile ? 'index.html' : '/';
+        const toUnlim = isFile ? 'unlimited/index.html' : '/unlimited';
+        dailyBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toDaily; });
+        unlimitedBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toUnlim; });
+
+        dailyBtn.classList.toggle('active', MODE === 'daily');
+        unlimitedBtn.classList.toggle('active', MODE === 'unlimited');
     }
-    dailyBtn.classList.toggle('active', MODE === 'daily');
-    unlimitedBtn.classList.toggle('active', MODE === 'unlimited');
-  }
 
-  // --- Dark mode toggle ---
-  const darkModeBtn = document.getElementById("darkModeToggle");
-  if (darkModeBtn) {
-    darkModeBtn.addEventListener("click", () => {
-      const isDark = document.body.classList.toggle("dark");
-      darkModeBtn.setAttribute("aria-label", isDark ? "Light Mode" : "Dark Mode");
-    });
-  }
+    // --- Dark mode toggle ---
+    const darkModeBtn  = document.getElementById("darkModeToggle");
+    if (darkModeBtn) {
+        darkModeBtn.addEventListener("click", () => {
+            const isDark = document.body.classList.toggle("dark");
+            darkModeBtn.setAttribute("aria-label", isDark ? "Light Mode" : "Dark Mode");
+        });
+    }
 
-  // --- Animation pause/resume ---
-  const toggleAnimationsBtn = document.getElementById("toggleAnimations");
-  if (toggleAnimationsBtn) {
-    toggleAnimationsBtn.addEventListener("click", () => {
-      const isPaused = document.body.classList.toggle("paused");
-      toggleAnimationsBtn.setAttribute("aria-label", isPaused ? "Resume Animations" : "Pause Animations");
-    });
-  }
+    // --- Animation pause/resume ---
+    const toggleAnimationsBtn = document.getElementById("toggleAnimations");
+    if (toggleAnimationsBtn) {
+        toggleAnimationsBtn.addEventListener("click", () => {
+            const isPaused = document.body.classList.toggle("paused");
+            toggleAnimationsBtn.setAttribute("aria-label", isPaused ? "Resume Animations" : "Pause Animations");
+        });
+    }
 });
