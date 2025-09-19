@@ -18,9 +18,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// --- Global Daily helpers (UTC) ---
+function utcDayIndex() {
+  return Math.floor(Date.now() / 86400000);
+}
+function mulberry32(a) {
+  return function () {
+    let t = (a += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function dailyHexForDay(dayIndex) {
+  const rng = mulberry32(dayIndex >>> 0);
+  const r = Math.floor(rng() * 256);
+  const g = Math.floor(rng() * 256);
+  const b = Math.floor(rng() * 256);
+  return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+}
+// --- End helpers ---
 class HexColorWordle {
-    constructor() {
-        this.targetColor = this.generateRandomColor();
+    constructor(opts = {}) {
+        this.mode = opts.mode || 'unlimited';
+        this.targetColor = (opts.targetColor || this.generateRandomColor());
         this.currentAttempt = 1;
         this.maxAttempts = 6;
         this.gameOver = false;
@@ -633,7 +654,10 @@ class HexColorWordle {
     }
 
     restartGame() {
-        this.targetColor = this.generateRandomColor();
+        // In daily mode, keep the same daily color; in unlimited pick a new one
+        if (this.mode === 'unlimited') {
+            this.targetColor = this.generateRandomColor();
+        }
         this.currentAttempt = 1;
         this.gameOver = false;
         this.colorVisible = false;
@@ -675,21 +699,13 @@ window.addEventListener('DOMContentLoaded', () => {
     const MODE = isFile ? (queryIsUnlimited ? 'unlimited' : 'daily')
                         : (pathIsUnlimited ? 'unlimited' : 'daily');
 
-    // --- Boot only in unlimited ---
+    // --- Boot mode ---
     if (MODE === 'unlimited') {
-        new HexColorWordle();
-    } 
-    else {
-        // daily placeholder
-        const container = document.querySelector('.game-container');
-        if (container) {
-            const note = document.createElement('div');
-            note.style.fontFamily = "var(--ps2p-stack)";
-            note.style.fontSize = '12px';
-            note.style.margin = '10px 0';
-            note.textContent = 'Daily mode coming soon — mode switch is live.';
-            container.prepend(note);
-        }
+        new HexColorWordle({ mode: 'unlimited' });
+    } else {
+        const day = utcDayIndex();
+        const dailyHex = dailyHexForDay(day);
+        new HexColorWordle({ mode: 'daily', targetColor: dailyHex });
     }
 
     // --- Mode buttons: navigate correctly in both environments ---
