@@ -134,6 +134,24 @@ body.dark .mode-btn {
 body.dark .mode-btn:hover {
     background: #373737
 }
+/* Selected (active) mode button styles */
+.mode-btn.active {
+  background: #000;   /* light mode: black */
+  color: #fff;        /* light mode: white text */
+}
+.mode-btn.active:hover {
+  background: #333333;
+}
+/* Dark mode: invert selected */
+body.dark .mode-btn.active {
+  background: #fff;   /* dark mode: white */
+  color: #000;        /* dark mode: black text */
+}
+body.dark .mode-btn.active:hover {
+  background: #dddddd;
+}
+/* (optional) ensure visited links don't change color */
+.mode-btn.active:visited { color: inherit; }
 
 .icon-btn {
     background: none;

@@ -720,6 +720,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
         dailyBtn.classList.toggle('active', MODE === 'daily');
         unlimitedBtn.classList.toggle('active', MODE === 'unlimited');
+
+        // ARIA hint for screen readers
+        if (MODE === 'daily') {
+            dailyBtn.setAttribute('aria-current', 'page');
+            unlimitedBtn.removeAttribute('aria-current');
+        } else {
+            unlimitedBtn.setAttribute('aria-current', 'page');
+            dailyBtn.removeAttribute('aria-current');
+        }
     }
 
     // --- Dark mode toggle ---
