@@ -605,6 +605,7 @@ body.dark .color-display.hidden:hover {
     user-select: none;
     text-transform: uppercase;
     filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+    position: relative;
 }
 body.dark .grid-cell {
     background: #424242;
@@ -628,12 +629,23 @@ body.dark .grid-cell {
     border-color: #f44336 !important;
     color: #fff !important;
 }
-.grid-current {
-    outline: 2px dashed #000;
-    outline-offset: 2px;
+/* Caret blink animation */
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%,100% { opacity: 0; }
 }
-body.dark .grid-current {
-    outline-color: #fff;
+/* Centered caret on the active (current) cell */
+.grid-current::after {
+  content: "";
+  position: absolute;
+  width: 3px;                 /* caret thickness */
+  height: 60%;                /* caret length */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: currentColor;   /* adapts to dark/light */
+  animation: caret-blink 1s steps(1, end) infinite;
+  pointer-events: none;
 }
         
 /* Row hashtag label (left of each row) */
