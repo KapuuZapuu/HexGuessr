@@ -18,26 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// --- Global Daily helpers (UTC) ---
-function utcDayIndex() {
-  return Math.floor(Date.now() / 86400000);
+// --- Daily color: fetch from server (no client algorithm) ---
+async function fetchDailyHex() {
+  const res = await fetch('/api/daily-color', { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch daily color');
+  const { hex } = await res.json();
+  return hex;
 }
-function mulberry32(a) {
-  return function () {
-    let t = (a += 0x6D2B79F5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function dailyHexForDay(dayIndex) {
-  const rng = mulberry32(dayIndex >>> 0);
-  const r = Math.floor(rng() * 256);
-  const g = Math.floor(rng() * 256);
-  const b = Math.floor(rng() * 256);
-  return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-}
-// --- End helpers ---
+
+// --- End of helper functions ---
 
 class HexColorWordle {
     constructor(opts = {}) {
@@ -616,18 +605,54 @@ class HexColorWordle {
 
     processGuess(guess) {
         const rowCells = this.gridCellRefs[this.currentRow];
+
+        // 1) Compute statuses up front, but don't apply yet
+        const statuses = [];
         for (let i = 0; i < 6; i++) {
-            const cell = rowCells[i];
-            // clear any old status classes
-            cell.classList.remove('correct','close','wrong');
-            if (guess[i] === this.targetColor[i]) {
-                cell.classList.add('correct');
-            } else if (this.isClose(guess[i], this.targetColor[i])) {
-                cell.classList.add('close');
-            } else {
-                cell.classList.add('wrong');
-            }
+            const isCorrect = (guess[i] === this.targetColor[i]);
+            const isClose   = this.isClose(guess[i], this.targetColor[i]);
+            statuses.push(isCorrect ? 'correct' : (isClose ? 'close' : 'wrong'));
         }
+
+        // 2) Ensure each cell's character is wrapped for crisp control (doesn't change visuals)
+        rowCells.forEach((cell) => {
+            const ch = cell.textContent || '';
+            if (!cell.querySelector('.char')) {
+                cell.textContent = '';
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = ch;
+                cell.appendChild(span);
+            }
+        });
+
+        // 3) Staggered jump + mid-air color swap
+        const perCellDelay = 140;    // ms between tiles (retro snappiness)
+        const animDuration = 360;    // must match CSS jump-8bit duration
+        const swapAt       = Math.floor(animDuration * 0.5); // “coming down”
+
+        rowCells.forEach((cell, i) => {
+            // clean previous state classes
+            cell.classList.remove('correct', 'close', 'wrong', 'reveal-jump', 'land-pop');
+
+            setTimeout(() => {
+                // start jump
+                cell.classList.add('reveal-jump');
+
+                // halfway down: apply status color
+                setTimeout(() => {
+                    cell.classList.remove('correct', 'close', 'wrong'); // safety
+                    cell.classList.add(statuses[i]);
+                }, swapAt);
+
+                // end: clear jump, add a tiny landing pop (optional)
+                setTimeout(() => {
+                    cell.classList.remove('reveal-jump');
+                    cell.classList.add('land-pop');
+                    setTimeout(() => cell.classList.remove('land-pop'), 140); // clean up
+                }, animDuration);
+            }, i * perCellDelay);
+        });
     }
 
     isClose(guessChar, targetChar) {
@@ -689,24 +714,28 @@ class HexColorWordle {
     }
 }
 
-// Start the game when the page loads
-window.addEventListener('DOMContentLoaded', () => {
-    // --- Decide mode (Vercel path vs local file query) ---
+// Start the app when the page loads (server-driven daily color)
+window.addEventListener('DOMContentLoaded', async () => {
+    // --- Decide mode (path vs local file query) ---
     const isFile = location.protocol === 'file:';
     const pathIsUnlimited  = /\/unlimited\/?$/.test(location.pathname);
     const queryIsUnlimited = new URLSearchParams(location.search).get('mode') === 'unlimited';
-
-    // Hosted (Vercel): path controls the mode. Local file://: fallback to ?mode=unlimited.
     const MODE = isFile ? (queryIsUnlimited ? 'unlimited' : 'daily')
                         : (pathIsUnlimited ? 'unlimited' : 'daily');
 
     // --- Boot mode ---
     if (MODE === 'unlimited') {
         new HexColorWordle({ mode: 'unlimited' });
-    } else {
-        const day = utcDayIndex();
-        const dailyHex = dailyHexForDay(day);
-        new HexColorWordle({ mode: 'daily', targetColor: dailyHex });
+    } 
+    else {
+        try {
+            const dailyHex = await fetchDailyHex();
+            new HexColorWordle({ mode: 'daily', targetColor: dailyHex });
+        } 
+        catch {
+            // graceful fallback if the API isn't reachable in dev
+            new HexColorWordle({ mode: 'unlimited' });
+        }
     }
 
     // --- Mode buttons: navigate correctly in both environments ---
@@ -715,17 +744,18 @@ window.addEventListener('DOMContentLoaded', () => {
     if (dailyBtn && unlimitedBtn) {
         const toDaily = isFile ? 'index.html' : '/';
         const toUnlim = isFile ? 'unlimited/index.html' : '/unlimited';
+
         dailyBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toDaily; });
         unlimitedBtn.addEventListener('click', (e) => { e.preventDefault(); location.href = toUnlim; });
 
         dailyBtn.classList.toggle('active', MODE === 'daily');
         unlimitedBtn.classList.toggle('active', MODE === 'unlimited');
 
-        // ARIA hint for screen readers
         if (MODE === 'daily') {
             dailyBtn.setAttribute('aria-current', 'page');
             unlimitedBtn.removeAttribute('aria-current');
-        } else {
+        } 
+        else {
             unlimitedBtn.setAttribute('aria-current', 'page');
             dailyBtn.removeAttribute('aria-current');
         }

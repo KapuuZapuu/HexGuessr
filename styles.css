@@ -177,6 +177,12 @@ body.dark .mode-btn.active:hover {
 .icon-btn:hover .icon {
     color: var(--icon-color-hover);
 }
+/* Default (light mode): show moon, hide sun */
+#darkModeToggle .icon--sun  { display: none; }
+#darkModeToggle .icon--moon { display: block; }
+/* Dark mode: swap */
+body.dark #darkModeToggle .icon--moon { display: none; }
+body.dark #darkModeToggle .icon--sun  { display: block; }
 
 /* Light mode style */
 body {
@@ -646,6 +652,30 @@ body.dark .grid-cell {
   background: currentColor;   /* adapts to dark/light */
   animation: caret-blink 1s steps(1, end) infinite;
   pointer-events: none;
+}
+/* === Retro per-cell jump reveal === */
+.grid-cell.reveal-jump {
+  animation: jump-8bit 360ms steps(3, end);
+  transform-origin: center bottom;        /* jump from the “floor” */
+  will-change: transform;
+}
+/* tiny landing pop (optional) */
+.grid-cell.land-pop {
+  animation: land-pop-8bit 120ms steps(2, end);
+}
+@keyframes jump-8bit {
+  0%   { transform: translateY(0); }
+  40%  { transform: translateY(-10px); }  /* apex */
+  100% { transform: translateY(0); }      /* land */
+}
+@keyframes land-pop-8bit {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+/* (Optional) make character a span we can keep crisp if you want to toggle visibility later */
+.grid-cell > .char {
+  display: inline-block;
 }
         
 /* Row hashtag label (left of each row) */
