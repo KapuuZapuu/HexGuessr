@@ -1,3 +1,6 @@
+// --- Start of helper functions ---
+
+// ASCII title animation
 document.addEventListener("DOMContentLoaded", () => {
     const pre   = document.querySelector(".ascii-title");
     const lines = pre.textContent.split("\n");
@@ -18,7 +21,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// --- Daily color: fetch from server (no client algorithm) ---
+// Prevent focusing on element from scrolling the page
+function safeFocus(el) {
+  if (!el || !el.focus) return;
+  try { el.focus({ preventScroll: true }); }  // modern browsers
+  catch { el.focus(); }                        // older Safari
+}
+
+// Re-triggerable "pop" (uses existing .land-pop CSS)
+function triggerPop(cell) {
+  if (!cell) return;
+
+  // Respect reduced motion
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Restart the animation if it's already running
+  cell.classList.remove('land-pop');
+  void cell.offsetWidth; // force reflow to re-trigger
+  cell.classList.add('land-pop');
+
+  // Clean up after the animation (~120ms)
+  clearTimeout(cell._popTO);
+  cell._popTO = setTimeout(() => {
+    cell.classList.remove('land-pop');
+  }, 140);
+}
+
+// Daily color: fetch from server (no client algorithm)
 async function fetchDailyHex() {
   const res = await fetch('/api/daily-color', { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch daily color');
@@ -143,7 +172,7 @@ class HexColorWordle {
         this.gridEl.tabIndex = 0;
         this.gridEl.addEventListener('focus', () => { this.gridFocused = true; });
         this.gridEl.addEventListener('blur',  () => { this.gridFocused = false; });
-        this.gridEl.focus();
+        safeFocus(this.gridEl);
     }
 
     updateCaret() {
@@ -189,9 +218,33 @@ class HexColorWordle {
 
     setCell(r, c, ch) {
         const cell = this.gridCellRefs[r][c];
-        cell.textContent = ch;
-        if (ch) cell.classList.add('filled')
-        else cell.classList.remove('filled');
+
+        // Ensure there is a <span class="char"> inside the cell
+        let span = cell.querySelector('.char');
+        if (!span) {
+            span = document.createElement('span');
+            span.className = 'char';
+            // keep existing text if any
+            const existing = cell.textContent || '';
+            cell.textContent = '';
+            span.textContent = existing;
+            cell.appendChild(span);
+        }
+
+        const prev = span.textContent || '';
+        span.textContent = ch || '';
+
+        if (ch) {
+            cell.classList.add('filled');
+        } 
+        else {
+            cell.classList.remove('filled');
+        }
+
+        // Pop only when typing/pasting a NEW non-empty char
+        if (ch && ch !== prev) {
+            triggerPop(cell);
+        }
     }
 
     getCurrentGuess() {
@@ -256,7 +309,7 @@ class HexColorWordle {
                     const lastCol = Math.min(hex.length, this.gridCols);
                     this.currentCol = Math.max(0, lastCol);
                     this.updateCaret();
-                    this.gridEl.focus();
+                    safeFocus(this.gridEl);
                 } catch (e) {
                     alert('Clipboard access failed. Try HTTPS and grant permission.');
                 }
@@ -371,22 +424,61 @@ class HexColorWordle {
         });
                 
         // Copy button
-        this.copyBtn.addEventListener('click', () => {
-            const hexValue = (this.hexInputField.value || '')
-            .toUpperCase()
-            .replace(/[^0-9A-F]/g, '')
-            .slice(0, 6);
+        // --- helpers for tooltip text swap ---
+        function setCopied(btn, text = "Copied!") {
+            // remember prior label so we can restore it later
+            if (!btn.dataset.prevLabel) {
+                btn.dataset.prevLabel = btn.getAttribute("aria-label") || "Copy";
+            }
+            btn.setAttribute("aria-label", text);
 
-            navigator.clipboard.writeText(hexValue).catch(() => {
-                // Fallback for older browsers (execCommand is deprecated but works on old Safari)
-                const ta = document.createElement('textarea');
-                ta.value = hexValue;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-            });
+            // show tooltip even if the user isn't hovering (keyboard click)
+            btn.classList.add("show-tooltip");
+        }
+        function restoreLabel(btn) {
+            btn.classList.remove("show-tooltip");
+            btn.setAttribute("aria-label", btn.dataset.prevLabel || "Copy");
+            delete btn.dataset.prevLabel;
+        }
+        // --- inside setupColorPickerListeners ---
+        this.copyBtn.addEventListener('click', async () => {
+            const hexValue = (this.hexInputField.value || '')
+                .toUpperCase()
+                .replace(/[^0-9A-F]/g, '')
+                .slice(0, 6);
+            const text = hexValue.startsWith('#') ? hexValue : ('#' + hexValue);
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    setCopied(this.copyBtn, "Copied!");
+                    return;
+                }
+                throw new Error('Clipboard API unavailable');
+            } 
+            catch {
+                // Fallback only if needed (may be deprecated, but still works today)
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    // Avoid scroll jump on focus
+                    try { ta.focus({ preventScroll: true }); } catch { ta.focus(); }
+                    ta.select();
+                    // eslint-disable-next-line deprecation/deprecation
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    setCopied(this.copyBtn, "Copied!");
+                } 
+                catch {
+                    setCopied(this.copyBtn, "Press ⌘C / Ctrl+C");
+                }
+            }
         });
+        // Revert only when the user stops hovering or the button loses focus
+        this.copyBtn.addEventListener("pointerleave", () => restoreLabel(this.copyBtn));
+        this.copyBtn.addEventListener("blur", () => restoreLabel(this.copyBtn));
                 
         // Initialize color picker
         this.currentHue = 0;

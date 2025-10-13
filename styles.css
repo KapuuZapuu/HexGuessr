@@ -58,6 +58,13 @@ button, input, select, textarea {
 .paste-btn.has-tooltip:focus-visible::after {
     transform: translate(calc(var(--tip-offset) + 2px), -50%);
 }
+/* Let JS force the tooltip open (for keyboard users, or right after click-- "Copied!") */
+.has-tooltip.show-tooltip::after {
+  opacity: 1;
+  visibility: visible;
+  /* match your hover offset nudge */
+  transform: translate(-50%, calc(var(--tip-offset) + 2px));
+}
 
 .layout-container {
     width: 100%;
