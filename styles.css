@@ -26,7 +26,11 @@
 }
 
 /* Prevent FOUC: hide body until fonts load */
-html,
+html {
+    background: #f0f0f0;  /* Light mode background - prevents white flash */
+    opacity: 0;
+    transition: opacity 0.1s ease-in;
+}
 body {
     opacity: 0;
     transition: opacity 0.1s ease-in;
@@ -153,17 +157,14 @@ button, input, select, textarea {
 .mode-btn:hover {
     background: #f1f1f1
 }
-html.dark .mode-container,
-body.dark .mode-container {
+html.dark .mode-container {
     background: #1d1d1d;
 }
-html.dark .mode-btn,
-body.dark .mode-btn {
+html.dark .mode-btn {
     background: #2e2e2e;
     color: #ffffff;
 }
-html.dark .mode-btn:hover,
-body.dark .mode-btn:hover {
+html.dark .mode-btn:hover {
     background: #373737
 }
 /* Selected (active) mode button styles */
@@ -175,13 +176,11 @@ body.dark .mode-btn:hover {
   background: #333333;
 }
 /* Dark mode: invert selected */
-html.dark .mode-btn.active,
-body.dark .mode-btn.active {
+html.dark .mode-btn.active {
   background: #fff;   /* dark mode: white */
   color: #000;        /* dark mode: black text */
 }
-html.dark .mode-btn.active:hover,
-body.dark .mode-btn.active:hover {
+html.dark .mode-btn.active:hover {
   background: #dddddd;
 }
 
@@ -215,17 +214,14 @@ body.dark .mode-btn.active:hover {
 #darkModeToggle .icon--sun  { display: none; }
 #darkModeToggle .icon--moon { display: block; }
 /* Dark mode: swap */
-html.dark #darkModeToggle .icon--moon,
-body.dark #darkModeToggle .icon--moon { display: none; }
-html.dark #darkModeToggle .icon--sun,
-body.dark #darkModeToggle .icon--sun  { display: block; }
+html.dark #darkModeToggle .icon--moon { display: none; }
+html.dark #darkModeToggle .icon--sun { display: block; }
 
 /* Light mode style */
 body {
     font-family: var(--ps2p-stack);
     margin: 0;
     padding: 20px;
-    background: #f0f0f0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -235,10 +231,10 @@ body {
     /* Override FOUC prevention for immediate display */
 }
 /* Dark-mode overrides */
-html.dark,
-html.dark body,
-body.dark {
+html.dark {
     background: #262626;
+}
+html.dark body {
     color: white;
     /* icon shadow mechanic: */
     --icon-shadow: #101010;  /* crisper on dark backgrounds */
@@ -250,79 +246,61 @@ body.dark {
     --tip-fg: #000;
 }
 
-html.dark .game-container,
-body.dark .game-container {
+html.dark .game-container {
     background: none;
 }
-html.dark .hex-input,
-body.dark .hex-input {
+html.dark .hex-input {
     background: rgba(0, 0, 0, 0.1);
     color: #000000;
 }
-html.dark .color-preview,
-body.dark .color-preview {
+html.dark .color-preview {
     border-color: #ffffff;
 }
-html.dark .restart-btn,
-body.dark .restart-btn {
+html.dark .restart-btn {
     background: #1565c0;
 }
-html.dark .timer-bar,
-body.dark .timer-bar {
+html.dark .timer-bar {
     background: #1d1d1d;
 }
-html.dark .timer-fill,
-body.dark .timer-fill {
+html.dark .timer-fill {
     background: #ffffff;
 }
-html.dark .timer-text,
-body.dark .timer-text {
+html.dark .timer-text {
     color: #000000;
 }
-html.dark .color-picker-section,
-body.dark .color-picker-section {
+html.dark .color-picker-section {
     background: #222 !important;
 }
-html.dark .color-canvas,
-body.dark .color-canvas {
+html.dark .color-canvas {
     border-color: #ffffff
 }
-html.dark .hue-slider,
-body.dark .hue-slider {
+html.dark .hue-slider {
     border-color: #ffffff;
 }
-html.dark .color-picker-section h3,
-body.dark .color-picker-section h3 {
+html.dark .color-picker-section h3 {
     color: #eee !important;
 }
-html.dark .selected-color-info,
-body.dark .selected-color-info {
+html.dark .selected-color-info {
     color: #eee !important;
 }
-html.dark .custom-color-picker,
-body.dark .custom-color-picker {
+html.dark .custom-color-picker {
     background: #1d1d1d !important;
 }
-html.dark .color-picker-title,
-body.dark .color-picker-title {
+html.dark .color-picker-title {
     color: #eee !important;
 }
-html.dark .hex-display,
-body.dark .hex-display {
+html.dark .hex-display {
     color: #eee !important;
 }
-html.dark .hex-input-field,
-body.dark .hex-input-field {
+html.dark .hex-input-field {
     padding-left: var(--prefix-space) !important;
     color: #fff;
 }
-html.dark .hex-input-container,
-body.dark .hex-input-container {
+html.dark .hex-input-container {
     background: #2e2e2e;
     position: relative;
 }
-html.dark .hex-prefix,
-body.dark .hex-prefix {
+html.dark .hex-prefix {
     position: absolute;
     left: 8px;
     top: 50%;
@@ -358,8 +336,7 @@ body.dark .hex-prefix {
 .ascii-title:hover {
     color: #333333;
 }
-html.dark .ascii-title:hover,
-body.dark .ascii-title:hover {
+html.dark .ascii-title:hover {
     color: #dddddd;
 }
 /* animate every character - but only when active */
@@ -403,18 +380,15 @@ body.dark .ascii-title:hover {
 .color-display.hidden {
     background: #f9f9f9 !important;
 }
-html.dark .color-display,
-body.dark .color-display {           
+html.dark .color-display {           
     color: #ffffff;                  /* make sure your placeholder text is still readable */
     filter: drop-shadow(6px 6px 0 var(--icon-shadow));
 }
-html.dark .color-display.hidden,
-body.dark .color-display.hidden {
+html.dark .color-display.hidden {
     /* override the always‑black you had before */
     background: #2e2e2e !important;
 }
-html.dark .color-display.game-ended,
-body.dark .color-display.game-ended {
+html.dark .color-display.game-ended {
     /* reuse the dark‑mode text style */
     color: #ffffff;
     text-shadow:
@@ -437,15 +411,13 @@ body:not(.dark) .color-display.game-ended {
     color: #787878 !important;
     pointer-events: none;
 }
-html.dark .color-display.disabled,
-body.dark .color-display.disabled {
+html.dark .color-display.disabled {
     color: #979797 !important;
 }
 .color-display.hidden:hover {
     background: #f1f1f1 !important; 
 }
-html.dark .color-display.hidden:hover,
-body.dark .color-display.hidden:hover {
+html.dark .color-display.hidden:hover {
     background: #373737 !important;
 }
 
@@ -691,8 +663,7 @@ body.dark .color-display.hidden:hover {
     filter: drop-shadow(4px 4px 0 var(--icon-shadow));
     position: relative;
 }
-html.dark .grid-cell,
-body.dark .grid-cell {
+html.dark .grid-cell {
     background: #424242;
     color: #ffffff;
 }
@@ -842,12 +813,10 @@ body.dark .grid-cell {
 .wide-key {
     flex: 1;
 }
-html.dark .key-btn,
-body.dark .key-btn {
+html.dark .key-btn {
     background: #ffffff;
     color: #000000;
 }
-html.dark .key-btn:hover,
-body.dark .key-btn:hover {
+html.dark .key-btn:hover {
     background: #dddddd;
 }
