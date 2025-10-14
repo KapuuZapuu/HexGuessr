@@ -4,11 +4,13 @@
 (function() {
     if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => {
+            document.documentElement.classList.add('fonts-loaded');
             document.body.classList.add('fonts-loaded');
         });
     } else {
         // Fallback for browsers without Font Loading API
         window.addEventListener('load', () => {
+            document.documentElement.classList.add('fonts-loaded');
             document.body.classList.add('fonts-loaded');
         });
     }
@@ -16,12 +18,13 @@
     // Timeout fallback: show content after 1s regardless of font status
     setTimeout(() => {
         if (!document.body.classList.contains('fonts-loaded')) {
+            document.documentElement.classList.add('fonts-loaded');
             document.body.classList.add('fonts-loaded');
         }
     }, 1000);
 })();
 
-// ASCII title animation
+// ASCII title animation - toggle on click
 document.addEventListener("DOMContentLoaded", () => {
     const pre   = document.querySelector(".ascii-title");
     const lines = pre.textContent.split("\n");
@@ -39,6 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (row < lines.length - 1) {
             pre.appendChild(document.createTextNode("\n"));
         }
+    });
+
+    // Toggle animation on click
+    pre.addEventListener("click", () => {
+        pre.classList.toggle("animating");
     });
 });
 
@@ -877,8 +885,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     // --- Dark mode toggle ---
     const darkModeBtn  = document.getElementById("darkModeToggle");
     if (darkModeBtn) {
+        // Sync body with html on page load (in case html already has dark class from inline script)
+        const htmlIsDark = document.documentElement.classList.contains('dark');
+        if (htmlIsDark) {
+            document.body.classList.add('dark');
+            darkModeBtn.setAttribute("aria-label", "Light Mode");
+        } else {
+            darkModeBtn.setAttribute("aria-label", "Dark Mode");
+        }
+
         darkModeBtn.addEventListener("click", () => {
-            const isDark = document.body.classList.toggle("dark");
+            // Toggle both html and body
+            const isDark = document.documentElement.classList.toggle("dark");
+            document.body.classList.toggle("dark", isDark);
+            
+            // Save preference to localStorage
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            
+            // Update aria-label
             darkModeBtn.setAttribute("aria-label", isDark ? "Light Mode" : "Dark Mode");
         });
     }

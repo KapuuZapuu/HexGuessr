@@ -6,6 +6,32 @@
     
     <title>HexGuessr</title>
     
+    <!-- Dark mode init: runs immediately to prevent flash -->
+    <script>
+        (function() {
+            // Check localStorage first
+            const savedTheme = localStorage.getItem('theme');
+            
+            let shouldBeDark = false;
+            
+            if (savedTheme === 'dark') {
+                shouldBeDark = true;
+            } else if (savedTheme === 'light') {
+                shouldBeDark = false;
+            } else {
+                // No saved preference, check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    shouldBeDark = true;
+                }
+                // If can't detect or is light, shouldBeDark stays false (default light)
+            }
+            
+            if (shouldBeDark) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    
     <!-- Favicons -->
     <link rel="icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
@@ -13,7 +39,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="app.js" defer></script>
 </head>
-<body>
+<body class="">
     <!-- Icon Generation -->
     <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
         <symbol id="icon-anim" viewBox="0 0 15 15">
