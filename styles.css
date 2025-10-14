@@ -232,6 +232,7 @@ html.dark {
     background: #262626;
 }
 html.dark body {
+    background: #262626;
     color: white;
     /* icon shadow mechanic: */
     --icon-shadow: #101010;  /* crisper on dark backgrounds */
