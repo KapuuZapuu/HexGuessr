@@ -1,3 +1,14 @@
+/* Self-hosted font for instant loading */
+@font-face {
+    font-family: 'Press Start 2P';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('assets/fonts/Press_Start_2P/PressStart2P-Regular.woff2') format('woff2'),
+         url('assets/fonts/Press_Start_2P/PressStart2P-Regular.woff') format('woff'),
+         url('assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf') format('truetype');
+}
+
 /* Define a shadow variable for light mode */
 :root {
     /* icon shadow mechanic: */
@@ -12,6 +23,15 @@
     /* Monospace fallbacks reduce the visual jump before the webfont loads */
     --ps2p-stack:   'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco,
                     Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* Prevent FOUC: hide body until fonts load */
+body {
+    opacity: 0;
+    transition: opacity 0.1s ease-in;
+}
+body.fonts-loaded {
+    opacity: 1;
 }
 
 button, input, select, textarea {
@@ -203,6 +223,7 @@ body {
     align-items: center;
     color: black;
     --icon-shadow: #c8c8c8;
+    /* Override FOUC prevention for immediate display */
 }
 /* Dark-mode overrides */
 body.dark {

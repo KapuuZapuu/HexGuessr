@@ -1,5 +1,26 @@
 // --- Start of helper functions ---
 
+// Prevent FOUC: Show body only after fonts load
+(function() {
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            document.body.classList.add('fonts-loaded');
+        });
+    } else {
+        // Fallback for browsers without Font Loading API
+        window.addEventListener('load', () => {
+            document.body.classList.add('fonts-loaded');
+        });
+    }
+    
+    // Timeout fallback: show content after 1s regardless of font status
+    setTimeout(() => {
+        if (!document.body.classList.contains('fonts-loaded')) {
+            document.body.classList.add('fonts-loaded');
+        }
+    }, 1000);
+})();
+
 // ASCII title animation
 document.addEventListener("DOMContentLoaded", () => {
     const pre   = document.querySelector(".ascii-title");
