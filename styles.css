@@ -26,11 +26,7 @@
 }
 
 /* Prevent FOUC: hide body until fonts load */
-html {
-    background: #f0f0f0;  /* Light mode background - prevents white flash */
-    opacity: 0;
-    transition: opacity 0.1s ease-in;
-}
+html,
 body {
     opacity: 0;
     transition: opacity 0.1s ease-in;
@@ -222,6 +218,7 @@ body {
     font-family: var(--ps2p-stack);
     margin: 0;
     padding: 20px;
+    background: #f0f0f0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
