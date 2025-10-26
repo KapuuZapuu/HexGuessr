@@ -77,6 +77,11 @@
                 <rect x="7" y="0" width="1" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="13" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="12" y="2" width="1" height="1"/><rect x="6" y="3" width="3" height="1"/><rect x="4" y="4" width="7" height="1"/><rect x="4" y="5" width="7" height="1"/><rect x="3" y="6" width="9" height="1"/><rect x="0" y="7" width="2" height="1"/><rect x="3" y="7" width="9" height="1"/><rect x="13" y="7" width="2" height="1"/><rect x="3" y="8" width="9" height="1"/><rect x="4" y="9" width="7" height="1"/><rect x="4" y="10" width="7" height="1"/><rect x="6" y="11" width="3" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/><rect x="1" y="13" width="1" height="1"/><rect x="7" y="13" width="1" height="1"/><rect x="13" y="13" width="1" height="1"/><rect x="7" y="14" width="1" height="1"/>
             </g>
         </symbol>
+        <symbol id="icon-cancel" viewBox="0 0 15 15">
+            <g fill="currentColor">
+                <rect x="1" y="1" width="2" height="1"/><rect x="12" y="1" width="2" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="11" y="2" width="3" height="1"/><rect x="2" y="3" width="3" height="1"/><rect x="10" y="3" width="3" height="1"/><rect x="3" y="4" width="3" height="1"/><rect x="9" y="4" width="3" height="1"/><rect x="4" y="5" width="3" height="1"/><rect x="8" y="5" width="3" height="1"/><rect x="5" y="6" width="5" height="1"/><rect x="6" y="7" width="3" height="1"/> <rect x="5" y="8" width="5" height="1"/><rect x="4" y="9" width="3" height="1"/><rect x="8" y="9" width="3" height="1"/><rect x="3" y="10" width="3" height="1"/><rect x="9" y="10" width="3" height="1"/><rect x="2" y="11" width="3" height="1"/><rect x="10" y="11" width="3" height="1"/><rect x="1" y="12" width="3" height="1"/><rect x="11" y="12" width="3" height="1"/><rect x="1" y="13" width="2" height="1"/><rect x="12" y="13" width="2" height="1"/>
+            </g>
+        </symbol>
     </svg>
     <!-- /Icon Generation -->
 
@@ -189,6 +194,24 @@
         </div>
     </div>
 
+    <!-- Reusable Modal -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div id="modalBody" class="modal-body">
+                <!-- Dynamic content with close button will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <img src="favicon.png" alt="HexGuessr Logo" class="footer-logo">
+        <span class="footer-text">A game by <a href="https://github.com/kapuuzapuu/" target="_blank" rel="noopener noreferrer">KapuuZapuu</a></span>
+    </footer>
     
 </body>
 </html>

@@ -106,17 +106,7 @@ class HexColorWordle {
         // keyboard input
         document.addEventListener('keydown', this.handleKeydown)
 
-        // Info button listener
-        this.infoBtn = document.getElementById('infoButton');
-        this.infoBtn.addEventListener('click', () => {
-            alert(
-                '🎨 Hex Color Wordle Instructions:\n\n' +
-                '1) Click the square to briefly reveal the target color.\n' +
-                '2) Enter your 6‑digit HEX guess and press Submit.\n' +
-                '3) Green = correct digit, Yellow = off by 1, Red = wrong.\n' +
-                '4) You have 6 attempts – good luck!'
-            );
-        });
+        // Info button listener will be handled by modal system
     }
 
     initializeElements() {
@@ -340,7 +330,9 @@ class HexColorWordle {
                     this.updateCaret();
                     safeFocus(this.gridEl);
                 } catch (e) {
-                    alert('Clipboard access failed. Try HTTPS and grant permission.');
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Clipboard access failed');
+                    }
                 }
             };
         });
@@ -684,8 +676,42 @@ class HexColorWordle {
         // Do not allow guesses while the reveal timer is active
         if (this.colorVisible) return;
         const guess = this.getCurrentGuess();
-        if (guess.length !== 6 || !/^[0-9A-F]{6}$/.test(guess)) {
-            alert('Please enter a valid 6-digit hex color (0-9, A-F)');
+        
+        // Validation with toast notification and shake animation
+        if (guess.length < 6) {
+            // Show toast notification
+            if (typeof window.showToast === 'function') {
+                window.showToast('Hexcode is too short');
+            }
+            // Shake the current row
+            const currentRowEl = this.gridCellRefs[this.currentRow][0]?.parentElement;
+            if (currentRowEl) {
+                currentRowEl.classList.remove('shake');
+                // Force reflow to restart animation
+                void currentRowEl.offsetWidth;
+                currentRowEl.classList.add('shake');
+                // Remove shake class after animation completes
+                setTimeout(() => {
+                    currentRowEl.classList.remove('shake');
+                }, 500);
+            }
+            return;
+        }
+        
+        if (!/^[0-9A-F]{6}$/.test(guess)) {
+            if (typeof window.showToast === 'function') {
+                window.showToast('Invalid characters in hexcode');
+            }
+            // Shake the current row
+            const currentRowEl = this.gridCellRefs[this.currentRow][0]?.parentElement;
+            if (currentRowEl) {
+                currentRowEl.classList.remove('shake');
+                void currentRowEl.offsetWidth;
+                currentRowEl.classList.add('shake');
+                setTimeout(() => {
+                    currentRowEl.classList.remove('shake');
+                }, 500);
+            }
             return;
         }
 
@@ -913,6 +939,131 @@ window.addEventListener('DOMContentLoaded', async () => {
         toggleAnimationsBtn.addEventListener("click", () => {
             const isPaused = document.body.classList.toggle("paused");
             toggleAnimationsBtn.setAttribute("aria-label", isPaused ? "Resume Animations" : "Pause Animations");
+        });
+    }
+
+    // --- Toast Notification System ---
+    const toastContainer = document.getElementById('toastContainer');
+    
+    function showToast(message, duration = 2000) {
+        if (!toastContainer) return;
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        
+        toastContainer.appendChild(toast);
+        
+        // Trigger show animation
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+        });
+        
+        // Auto-hide after duration
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+                toast.remove();
+            }, 200);
+        }, duration);
+    }
+    
+    // Make showToast globally accessible
+    window.showToast = showToast;
+
+    // --- Reusable Modal System ---
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modalBody');
+    const modalOverlay = modal?.querySelector('.modal-overlay');
+
+    function openModal(content) {
+        if (!modal || !modalBody) return;
+        modalBody.innerHTML = content;
+        modal.style.display = 'flex';
+        
+        // Attach close button handler (now inside modal content)
+        const modalClose = modalBody.querySelector('.modal-close');
+        if (modalClose) {
+            modalClose.addEventListener('click', closeModal);
+        }
+        
+        // Trigger animation on next frame
+        requestAnimationFrame(() => {
+            modal.classList.add('open');
+        });
+    }
+
+    function closeModal() {
+        if (!modal) return;
+        modal.classList.remove('open');
+        // Wait for animation to finish before hiding
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 200); // matches transition duration
+    }
+
+    // Overlay click handler
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', closeModal);
+    }
+
+    // ESC key handler
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal?.style.display === 'flex') {
+            closeModal();
+        }
+    });
+
+    // Info/Help button
+    const infoBtn = document.getElementById('infoButton');
+    if (infoBtn) {
+        infoBtn.addEventListener('click', () => {
+            const helpContent = `
+                <div class="title">
+                    HOW TO PLAY
+                    <button class="modal-close" id="modalClose" aria-label="Close">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="#icon-cancel"></use>
+                        </svg>
+                    </button>
+                </div>
+                <div style="font-size: 12px; line-height: 1.8;">
+                    <p style="margin-bottom: 15px;"><strong>HexGuessr</strong> is a color guessing game based on Wordle using hexcodes.</p>
+                    <p style="margin-bottom: 10px;"><span class="number-box">1</span> Click the square to briefly reveal the target color.</p>
+                    <p style="margin-bottom: 10px;"><span class="number-box">2</span> Enter your 6-digit hexcode guess and press Enter.</p>
+                    <p style="margin-bottom: 10px;"><span class="number-box">3</span> Color feedback:</p>
+                    <ul class="color-list">
+                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #4CAF50; vertical-align: middle; margin-right: 8px;"></span> = Correct digit in correct position</li>
+                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #FFC107; vertical-align: middle; margin-right: 8px;"></span> = Digit is off by 1 (e.g., B when answer is A or C)</li>
+                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #f44336; vertical-align: middle; margin-right: 8px;"></span> = Wrong digit</li>
+                    </ul>
+                    <p style="margin-bottom: 10px;"><span class="number-box">4</span> You have 6 attempts – good luck!</p>
+                    <p style="margin-top: 20px; font-size: 10px; opacity: 0.7;">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" style="color: inherit; text-decoration: underline;">here</a>.</p>
+                </div>
+            `;
+            openModal(helpContent);
+        });
+    }
+
+    // Stats button
+    const statsBtn = document.getElementById('statsButton');
+    if (statsBtn) {
+        statsBtn.addEventListener('click', () => {
+            const statsContent = `
+                <div class="title">
+                    STATISTICS
+                    <button class="modal-close" id="modalClose" aria-label="Close">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="#icon-cancel"></use>
+                        </svg>
+                    </button>
+                </div>
+                <p style="text-align: center; opacity: 0.7; font-size: 12px;">Statistics feature coming soon!</p>
+            `;
+            openModal(statsContent);
         });
     }
 });

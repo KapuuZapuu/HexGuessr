@@ -818,3 +818,211 @@ html.dark .key-btn {
 html.dark .key-btn:hover {
     background: #dddddd;
 }
+
+/* === Reusable Modal === */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.modal.open .modal-overlay {
+    background: rgba(0, 0, 0, 0.7);
+}
+.modal-content {
+    position: relative;
+    z-index: 1001;
+    background: #ffffff;
+    padding: 40px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    filter: drop-shadow(8px 8px 0 var(--icon-shadow));
+    min-width: 500px;
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.modal.open .modal-content {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+html.dark .modal-content {
+    background: #2e2e2e;
+    color: #ffffff;
+}
+.modal-close {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-close .icon {
+    width: 32px;
+    height: 32px;
+    color: #ffffff;
+}
+html.dark .modal-close .icon {
+    color: #000000;
+}
+.modal-close:hover .icon {
+    opacity: 0.7;
+}
+.modal-body {
+    font-family: var(--ps2p-stack);
+    font-size: 14px;
+    line-height: 1.6;
+}
+.modal-body .title {
+    background: #000000;
+    color: #ffffff;
+    padding: 15px 20px;
+    border: 3px solid #000000;
+    filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    text-align: center;
+    letter-spacing: 2px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+html.dark .modal-body .title {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+.modal-body .number-box {
+    display: inline-block;
+    background: #000000;
+    color: #ffffff;
+    padding: 4px 8px;
+    border: 2px solid #000000;
+    filter: drop-shadow(2px 2px 0 var(--icon-shadow));
+    font-weight: bold;
+    margin-right: 8px;
+}
+html.dark .modal-body .number-box {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+.modal-body ul.color-list {
+    list-style: none;
+    padding-left: 20px;
+    margin: 10px 0 10px 20px;
+}
+@media (max-width: 768px) {
+    .modal-content {
+        min-width: 0;
+        width: 95vw;
+        padding: 30px 20px;
+    }
+}
+
+/* === Toast Notification System === */
+.toast-container {
+    position: fixed;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast {
+    background: #000000;
+    color: #ffffff;
+    padding: 12px 20px;
+    font-family: var(--ps2p-stack);
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid #ffffff;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: auto;
+}
+html.dark .toast {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.toast.hide {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+/* === Shake Animation === */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* === Footer === */
+.site-footer {
+    background: #000000;
+    color: #ffffff;
+    padding: 20px;
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: var(--ps2p-stack);
+    font-size: 10px;
+    width: 100%;
+}
+html.dark .site-footer {
+    background: #ffffff;
+    color: #000000;
+}
+.footer-logo {
+    width: 20px;
+    height: 20px;
+    image-rendering: pixelated;
+}
+.footer-text {
+    letter-spacing: 1px;
+}
+.footer-text a {
+    color: inherit;
+    text-decoration: underline;
+}
+.footer-text a:hover {
+    opacity: 0.7;
+}
