@@ -346,10 +346,6 @@ html.dark .ascii-title:hover {
     animation: wave 6s linear infinite;         /* 6s for a full cycle */
     animation-delay: calc(var(--col) * 0.1s);   /* stagger by 0.1s per character */
 }
-/* "paused" class will freeze all ascii‑title spans */
-.paused .ascii-title.animating span {
-    animation-play-state: paused !important;
-}
 /* cycle through hues for title */
 @keyframes wave {
     0%   { color: hsl(   0, 100%, 50%); }
@@ -749,6 +745,13 @@ html.dark .grid-cell {
         -1px  1px 0 #000,
         1px  1px 0 #000;
 }
+html.dark .row-label.colored {
+    text-shadow:
+        -1px -1px 0 #fff,
+        1px -1px 0 #fff,
+        -1px  1px 0 #fff,
+        1px  1px 0 #fff;
+}
 /* Right-side paste action cell */
 .row-action {
     width: 32px;
@@ -935,6 +938,78 @@ html.dark .modal-body .number-box {
     padding-left: 20px;
     margin: 10px 0 10px 20px;
 }
+
+/* === Stats Grid === */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+.stat-cell {
+    background: #e6e6e6;
+    padding: 15px;
+    text-align: center;
+    border: 2px solid #000000;
+}
+html.dark .stat-cell {
+    background: #1d1d1d;
+    border-color: #ffffff;
+}
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+.stat-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+}
+.stats-button {
+    background: #000000;
+    color: #ffffff;
+    border: 3px solid #000000;
+    padding: 12px 30px;
+    font-family: var(--ps2p-stack);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    filter: drop-shadow(3px 3px 0 var(--icon-shadow));
+    margin: 20px auto;
+    display: block;
+    letter-spacing: 1px;
+}
+html.dark .stats-button {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+.stats-button:hover {
+    opacity: 0.8;
+}
+.stats-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.stats-note {
+    font-size: 10px;
+    opacity: 0.7;
+    text-align: center;
+    margin-top: 20px;
+}
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .stat-cell:last-child {
+        grid-column: 1 / -1;
+    }
+}
 @media (max-width: 768px) {
     .modal-content {
         min-width: 0;
@@ -986,8 +1061,8 @@ html.dark .toast {
 /* === Shake Animation === */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
-    20%, 40%, 60%, 80% { transform: translateX(8px); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
 }
 .shake {
     animation: shake 0.5s ease-in-out;

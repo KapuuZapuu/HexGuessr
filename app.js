@@ -228,8 +228,6 @@ class HexColorWordle {
             e.preventDefault();
         } 
         else if (e.key === 'Enter') {
-            // Block submitting while the color is revealed & timer is running
-            if (this.colorVisible) { e.preventDefault(); return; }
             this.submitGuess();
             e.preventDefault();
         }
@@ -356,8 +354,6 @@ class HexColorWordle {
             const key = (btn.dataset.key || '').toUpperCase();
             
             if (action === 'enter') {
-                // Block submitting while the color is revealed & timer is running
-                if (this.colorVisible) return;
                 this.submitGuess();
                 return;
             }
@@ -674,7 +670,22 @@ class HexColorWordle {
     submitGuess() {
         if (this.gameOver) return;
         // Do not allow guesses while the reveal timer is active
-        if (this.colorVisible) return;
+        if (this.colorVisible) {
+            if (typeof window.showToast === 'function') {
+                window.showToast('Wait for color reveal to complete');
+            }
+            // Shake the current row
+            const currentRowEl = this.gridCellRefs[this.currentRow][0]?.parentElement;
+            if (currentRowEl) {
+                currentRowEl.classList.remove('shake');
+                void currentRowEl.offsetWidth;
+                currentRowEl.classList.add('shake');
+                setTimeout(() => {
+                    currentRowEl.classList.remove('shake');
+                }, 500);
+            }
+            return;
+        }
         const guess = this.getCurrentGuess();
         
         // Validation with toast notification and shake animation
@@ -810,15 +821,123 @@ class HexColorWordle {
 
     endGame(won) {
         this.gameOver = true;
-        this.colorDisplay.style.background = `#${this.targetColor}`;
-        this.colorDisplay.classList.remove('hidden');
-        this.colorDisplay.textContent = `#${this.targetColor}`;
-        this.colorDisplay.classList.add('game-ended');
         this.timerText.textContent = '';
-                
-        this.gameResult.textContent = won ? '🎉 Congratulations! You won!' : '😔 Game Over!';
-        this.correctAnswer.textContent = `The correct color was: #${this.targetColor}`;
-        this.gameOverDiv.style.display = 'block';        
+        
+        // Calculate animation completion time
+        // 6 cells × 140ms delay + 360ms animation = ~1200ms total
+        const animationDelay = (6 * 140) + 360 + 100; // Add 100ms buffer
+        
+        // Delay color reveal until animations complete
+        setTimeout(() => {
+            this.colorDisplay.style.background = `#${this.targetColor}`;
+            this.colorDisplay.classList.remove('hidden');
+            this.colorDisplay.textContent = `#${this.targetColor}`;
+            this.colorDisplay.classList.add('game-ended');
+            
+            this.gameResult.textContent = won ? '🎉 Congratulations! You won!' : '😔 Game Over!';
+            this.correctAnswer.textContent = `The correct color was: #${this.targetColor}`;
+            this.gameOverDiv.style.display = 'block';
+            
+            // Show random win/loss message
+            if (typeof window.showToast === 'function') {
+                const message = this.getRandomGameMessage(won, this.currentAttempt);
+                window.showToast(message, 3000);
+            }
+        }, animationDelay);
+        
+        // Update statistics
+        this.updateGameStats(won);
+    }
+
+    getRandomGameMessage(won, attempts) {
+        if (won) {
+            const winMessages = [
+                'Genius!',
+                'Magnificent!',
+                'Impressive!',
+                'Splendid!',
+                'Great job!',
+                'Well done!',
+                'Perfect!',
+                'Brilliant!',
+                'Outstanding!',
+                'Excellent!'
+            ];
+            
+            // Special messages for attempts
+            if (attempts === 1) return 'Unbelievable!';
+            if (attempts === 2) return 'Incredible!';
+            if (attempts === 6) return 'Phew! Close one!';
+            
+            return winMessages[Math.floor(Math.random() * winMessages.length)];
+        } else {
+            const lossMessages = [
+                'Better luck next time!',
+                'So close!',
+                'Nice try!',
+                "Don't give up!",
+                'Almost!',
+                'Practice makes perfect!',
+                'Keep at it!',
+                "You'll get it next time!"
+            ];
+            return lossMessages[Math.floor(Math.random() * lossMessages.length)];
+        }
+    }
+
+    updateGameStats(won) {
+        const savedStats = localStorage.getItem('gameStats');
+        let stats = savedStats ? JSON.parse(savedStats) : {
+            gamesPlayed: 0,
+            gamesWon: 0,
+            gamesLost: 0,
+            currentStreak: 0,
+            maxStreak: 0,
+            totalGuesses: 0,
+            totalColorError: 0,
+            totalErrorReduction: 0
+        };
+
+        stats.gamesPlayed++;
+        
+        if (won) {
+            stats.gamesWon++;
+            stats.currentStreak++;
+            stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+            stats.totalGuesses += this.currentAttempt;
+        } else {
+            stats.gamesLost++;
+            stats.currentStreak = 0;
+        }
+
+        // Calculate color error (simple RGB distance for now)
+        const lastGuess = this.getCurrentGuess() || this.targetColor;
+        const colorError = this.calculateColorError(lastGuess, this.targetColor);
+        stats.totalColorError += colorError;
+
+        // Track error reduction per guess (simplified)
+        if (this.currentAttempt > 0) {
+            stats.totalErrorReduction += (255 / this.currentAttempt); // Simplified metric
+        }
+
+        localStorage.setItem('gameStats', JSON.stringify(stats));
+    }
+
+    calculateColorError(guess, target) {
+        // Simple RGB distance calculation
+        const r1 = parseInt(guess.substr(0, 2), 16);
+        const g1 = parseInt(guess.substr(2, 2), 16);
+        const b1 = parseInt(guess.substr(4, 2), 16);
+        
+        const r2 = parseInt(target.substr(0, 2), 16);
+        const g2 = parseInt(target.substr(2, 2), 16);
+        const b2 = parseInt(target.substr(4, 2), 16);
+        
+        return Math.sqrt(
+            Math.pow(r2 - r1, 2) +
+            Math.pow(g2 - g1, 2) +
+            Math.pow(b2 - b1, 2)
+        );
     }
 
     updateColorPicker() {
@@ -933,15 +1052,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- Animation pause/resume ---
-    const toggleAnimationsBtn = document.getElementById("toggleAnimations");
-    if (toggleAnimationsBtn) {
-        toggleAnimationsBtn.addEventListener("click", () => {
-            const isPaused = document.body.classList.toggle("paused");
-            toggleAnimationsBtn.setAttribute("aria-label", isPaused ? "Resume Animations" : "Pause Animations");
-        });
-    }
-
     // --- Toast Notification System ---
     const toastContainer = document.getElementById('toastContainer');
     
@@ -953,6 +1063,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         toast.textContent = message;
         
         toastContainer.appendChild(toast);
+        
+        // Force reflow to ensure initial state is rendered
+        void toast.offsetWidth;
         
         // Trigger show animation
         requestAnimationFrame(() => {
@@ -1037,8 +1150,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                     <p style="margin-bottom: 10px;"><span class="number-box">3</span> Color feedback:</p>
                     <ul class="color-list">
                         <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #4CAF50; vertical-align: middle; margin-right: 8px;"></span> = Correct digit in correct position</li>
-                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #FFC107; vertical-align: middle; margin-right: 8px;"></span> = Digit is off by 1 (e.g., B when answer is A or C)</li>
-                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #f44336; vertical-align: middle; margin-right: 8px;"></span> = Wrong digit</li>
+                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #FFC107; vertical-align: middle; margin-right: 8px;"></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
+                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #f44336; vertical-align: middle; margin-right: 8px;"></span> = Digit is off by more than 1</li>
                     </ul>
                     <p style="margin-bottom: 10px;"><span class="number-box">4</span> You have 6 attempts – good luck!</p>
                     <p style="margin-top: 20px; font-size: 10px; opacity: 0.7;">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" style="color: inherit; text-decoration: underline;">here</a>.</p>
@@ -1052,18 +1165,99 @@ window.addEventListener('DOMContentLoaded', async () => {
     const statsBtn = document.getElementById('statsButton');
     if (statsBtn) {
         statsBtn.addEventListener('click', () => {
-            const statsContent = `
-                <div class="title">
-                    STATISTICS
-                    <button class="modal-close" id="modalClose" aria-label="Close">
-                        <svg class="icon" aria-hidden="true">
-                            <use href="#icon-cancel"></use>
-                        </svg>
-                    </button>
-                </div>
-                <p style="text-align: center; opacity: 0.7; font-size: 12px;">Statistics feature coming soon!</p>
-            `;
-            openModal(statsContent);
+            showStatsModal();
         });
     }
+
+    function showStatsModal() {
+        const stats = getStats();
+        const mode = 'daily'; // TODO: detect actual mode
+        
+        const statsContent = `
+            <div class="title">
+                STATISTICS
+                <button class="modal-close" id="modalClose" aria-label="Close">
+                    <svg class="icon" aria-hidden="true">
+                        <use href="#icon-cancel"></use>
+                    </svg>
+                </button>
+            </div>
+            <div style="padding: 10px;">
+                <div class="stats-grid">
+                    ${createStatCell(stats.gamesPlayed, 'Games Played')}
+                    ${createStatCell(stats.gamesWon, 'Games Won')}
+                    ${createStatCell(stats.gamesLost, 'Games Lost')}
+                    ${createStatCell(stats.winPercentage + '%', 'Win %')}
+                    ${createStatCell(stats.currentStreak, 'Current Streak')}
+                    ${createStatCell(stats.maxStreak, 'Max Streak')}
+                    ${createStatCell(stats.avgGuesses, 'Avg Guesses')}
+                    ${createStatCell(stats.avgColorError, 'Avg Color Error')}
+                    ${createStatCell(stats.guessEfficiency, 'Guess Efficiency')}
+                </div>
+                <button class="stats-button" onclick="window.closeModalAndPlay()">PLAY NOW</button>
+                <p class="stats-note">* Statistics shown for ${mode} mode</p>
+            </div>
+        `;
+        openModal(statsContent);
+    }
+
+    function createStatCell(value, label) {
+        return `
+            <div class="stat-cell">
+                <span class="stat-value">${value}</span>
+                <span class="stat-label">${label}</span>
+            </div>
+        `;
+    }
+
+    function getStats() {
+        const savedStats = localStorage.getItem('gameStats');
+        const defaultStats = {
+            gamesPlayed: 0,
+            gamesWon: 0,
+            gamesLost: 0,
+            winPercentage: 0,
+            currentStreak: 0,
+            maxStreak: 0,
+            avgGuesses: '--',
+            avgColorError: '--',
+            guessEfficiency: '--'
+        };
+        
+        if (!savedStats) return defaultStats;
+        
+        try {
+            const stats = JSON.parse(savedStats);
+            // Calculate derived stats
+            stats.winPercentage = stats.gamesPlayed > 0 
+                ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) 
+                : 0;
+            stats.avgGuesses = stats.gamesWon > 0 
+                ? (stats.totalGuesses / stats.gamesWon).toFixed(1)
+                : '--';
+            stats.avgColorError = stats.gamesPlayed > 0
+                ? Math.round(stats.totalColorError / stats.gamesPlayed)
+                : '--';
+            stats.guessEfficiency = stats.totalGuesses > 0
+                ? (stats.totalErrorReduction / stats.totalGuesses).toFixed(1)
+                : '--';
+            return stats;
+        } catch (e) {
+            return defaultStats;
+        }
+    }
+
+    function saveStats(stats) {
+        localStorage.setItem('gameStats', JSON.stringify(stats));
+    }
+
+    window.closeModalAndPlay = function() {
+        closeModal();
+        // Optionally start a new game or focus on the game
+    };
+
+    // Make stats functions globally accessible
+    window.showStatsModal = showStatsModal;
+    window.getStats = getStats;
+    window.saveStats = saveStats;
 });
