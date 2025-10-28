@@ -254,9 +254,6 @@ html.dark .hex-input {
 html.dark .color-preview {
     border-color: #ffffff;
 }
-html.dark .restart-btn {
-    background: #1565c0;
-}
 html.dark .timer-bar {
     background: #1d1d1d;
 }
@@ -572,23 +569,6 @@ html.dark .color-display.hidden:hover {
     gap: 30px;
     margin: 20px 0;
     flex-wrap: wrap;
-}
-
-.game-over {
-    text-align: center;
-    margin: 20px 0;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.restart-btn {
-    font-size: 18px;
-    padding: 12px 24px;
-    border: none;
-    background: #2196F3;
-    color: white;
-    cursor: pointer;
-    margin: 10px;
 }
 
 .timer-bar {
@@ -950,11 +930,9 @@ html.dark .modal-body .number-box {
     background: #e6e6e6;
     padding: 15px;
     text-align: center;
-    border: 2px solid #000000;
 }
 html.dark .stat-cell {
     background: #1d1d1d;
-    border-color: #ffffff;
 }
 .stat-value {
     font-size: 24px;

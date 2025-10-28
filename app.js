@@ -91,11 +91,22 @@ class HexColorWordle {
         this.mode = opts.mode || 'unlimited';
         this.targetColor = (opts.targetColor || this.generateRandomColor());
         this.currentAttempt = 1;
+        
         this.maxAttempts = 6;
         this.gameOver = false;
         this.colorVisible = false;
         this.hasRevealedThisAttempt = false;
         this.baseDuration = 1000; // 1 second for first attempt
+        
+        // Check if daily puzzle is already completed
+        if (this.mode === 'daily') {
+            const completionData = this.checkDailyCompletion();
+            if (completionData.completed) {
+                this.gameOver = true;
+                this.dailyAlreadyCompleted = true;
+                // Will show stats modal after initialization
+            }
+        }
                 
         this.initializeElements();
         this.setupEventListeners();
@@ -107,15 +118,20 @@ class HexColorWordle {
         document.addEventListener('keydown', this.handleKeydown)
 
         // Info button listener will be handled by modal system
+        
+        // Show stats modal if daily puzzle already completed
+        if (this.dailyAlreadyCompleted) {
+            setTimeout(() => {
+                if (typeof window.showStatsModal === 'function') {
+                    window.showStatsModal(true); // true = already completed
+                }
+            }, 500); // Small delay for page load
+        }
     }
 
     initializeElements() {
         this.colorDisplay = document.getElementById('colorDisplay');
         this.guessesContainer = document.getElementById('guessesContainer');
-        this.gameOverDiv = document.getElementById('gameOver');
-        this.gameResult = document.getElementById('gameResult');
-        this.correctAnswer = document.getElementById('correctAnswer');
-        this.restartBtn = document.getElementById('restartBtn');
         this.timerText = document.getElementById('timerText');
         this.timerBar  = document.getElementById('timerBar');
         this.timerFill = document.getElementById('timerFill');
@@ -377,7 +393,6 @@ class HexColorWordle {
 
     setupEventListeners() {
         this.colorDisplay.addEventListener('click', () => this.showColor());
-        this.restartBtn.addEventListener('click', () => this.restartGame());
                 
         // Custom color picker event listeners
         this.setupColorPickerListeners();
@@ -834,19 +849,27 @@ class HexColorWordle {
             this.colorDisplay.textContent = `#${this.targetColor}`;
             this.colorDisplay.classList.add('game-ended');
             
-            this.gameResult.textContent = won ? '🎉 Congratulations! You won!' : '😔 Game Over!';
-            this.correctAnswer.textContent = `The correct color was: #${this.targetColor}`;
-            this.gameOverDiv.style.display = 'block';
-            
             // Show random win/loss message
             if (typeof window.showToast === 'function') {
                 const message = this.getRandomGameMessage(won, this.currentAttempt);
                 window.showToast(message, 3000);
             }
+            
+            // Show stats modal after a short delay
+            setTimeout(() => {
+                if (typeof window.showStatsModal === 'function') {
+                    window.showStatsModal();
+                }
+            }, 2500); // 2.5 second delay to see color and toast
         }, animationDelay);
         
         // Update statistics
         this.updateGameStats(won);
+        
+        // Save daily completion if in daily mode
+        if (this.mode === 'daily') {
+            this.saveDailyCompletion(won);
+        }
     }
 
     getRandomGameMessage(won, attempts) {
@@ -886,7 +909,8 @@ class HexColorWordle {
     }
 
     updateGameStats(won) {
-        const savedStats = localStorage.getItem('gameStats');
+        const storageKey = `gameStats_${this.mode}`;
+        const savedStats = localStorage.getItem(storageKey);
         let stats = savedStats ? JSON.parse(savedStats) : {
             gamesPlayed: 0,
             gamesWon: 0,
@@ -920,7 +944,7 @@ class HexColorWordle {
             stats.totalErrorReduction += (255 / this.currentAttempt); // Simplified metric
         }
 
-        localStorage.setItem('gameStats', JSON.stringify(stats));
+        localStorage.setItem(storageKey, JSON.stringify(stats));
     }
 
     calculateColorError(guess, target) {
@@ -946,7 +970,12 @@ class HexColorWordle {
     }
 
     restartGame() {
-        // In daily mode, keep the same daily color; in unlimited pick a new one
+        // In daily mode, don't allow restart if already completed today
+        if (this.mode === 'daily' && this.dailyAlreadyCompleted) {
+            return; // Already completed today, can't play again
+        }
+        
+        // In unlimited mode, pick a new color
         if (this.mode === 'unlimited') {
             this.targetColor = this.generateRandomColor();
         }
@@ -962,7 +991,6 @@ class HexColorWordle {
             this.currentAttemptSpan.textContent = '1';
         }
         this.guessesContainer.innerHTML = '';
-        this.gameOverDiv.style.display = 'none';
         this.colorDisplay.classList.remove('game-ended');
                 
         // Rebuild grid
@@ -978,6 +1006,31 @@ class HexColorWordle {
         // Initialize timer text for new game
         this.initializeTimerText();
     }
+
+    checkDailyCompletion() {
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const saved = localStorage.getItem('dailyCompletion');
+        
+        if (!saved) return { completed: false };
+        
+        try {
+            const data = JSON.parse(saved);
+            return {
+                completed: data.date === today,
+                won: data.won || false
+            };
+        } catch (e) {
+            return { completed: false };
+        }
+    }
+
+    saveDailyCompletion(won) {
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        localStorage.setItem('dailyCompletion', JSON.stringify({
+            date: today,
+            won: won
+        }));
+    }
 }
 
 // Start the app when the page loads (server-driven daily color)
@@ -990,19 +1043,23 @@ window.addEventListener('DOMContentLoaded', async () => {
                         : (pathIsUnlimited ? 'unlimited' : 'daily');
 
     // --- Boot mode ---
+    let gameInstance;
     if (MODE === 'unlimited') {
-        new HexColorWordle({ mode: 'unlimited' });
+        gameInstance = new HexColorWordle({ mode: 'unlimited' });
     } 
     else {
         try {
             const dailyHex = await fetchDailyHex();
-            new HexColorWordle({ mode: 'daily', targetColor: dailyHex });
+            gameInstance = new HexColorWordle({ mode: 'daily', targetColor: dailyHex });
         } 
         catch {
             // graceful fallback if the API isn't reachable in dev
-            new HexColorWordle({ mode: 'unlimited' });
+            gameInstance = new HexColorWordle({ mode: 'unlimited' });
         }
     }
+    
+    // Make game instance globally accessible for restart
+    window.gameInstance = gameInstance;
 
     // --- Mode buttons: navigate correctly in both environments ---
     const modeBtns = document.querySelectorAll('.mode-container .mode-btn');
@@ -1103,6 +1160,9 @@ window.addEventListener('DOMContentLoaded', async () => {
             modalClose.addEventListener('click', closeModal);
         }
         
+        // Force reflow to ensure initial state is rendered
+        void modal.offsetWidth;
+        
         // Trigger animation on next frame
         requestAnimationFrame(() => {
             modal.classList.add('open');
@@ -1169,9 +1229,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    function showStatsModal() {
-        const stats = getStats();
-        const mode = 'daily'; // TODO: detect actual mode
+    function showStatsModal(dailyAlreadyCompleted = false) {
+        const mode = window.gameInstance?.mode || 'daily';
+        const stats = getStats(mode);
+        
+        // Determine button content
+        let buttonContent;
+        if (dailyAlreadyCompleted && mode === 'daily') {
+            // Show countdown timer for next daily color
+            buttonContent = '<div id="nextColorTimer" class="stats-button" style="cursor: default;">Next Color: <span id="timerDisplay">--:--:--</span></div>';
+        } else {
+            buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY NOW</button>';
+        }
         
         const statsContent = `
             <div class="title">
@@ -1187,18 +1256,56 @@ window.addEventListener('DOMContentLoaded', async () => {
                     ${createStatCell(stats.gamesPlayed, 'Games Played')}
                     ${createStatCell(stats.gamesWon, 'Games Won')}
                     ${createStatCell(stats.gamesLost, 'Games Lost')}
-                    ${createStatCell(stats.winPercentage + '%', 'Win %')}
+                    ${createStatCell(stats.winPercentage + '%', 'Win Pct.')}
                     ${createStatCell(stats.currentStreak, 'Current Streak')}
                     ${createStatCell(stats.maxStreak, 'Max Streak')}
-                    ${createStatCell(stats.avgGuesses, 'Avg Guesses')}
-                    ${createStatCell(stats.avgColorError, 'Avg Color Error')}
+                    ${createStatCell(stats.avgGuesses, 'Avg. Guesses')}
+                    ${createStatCell(stats.avgColorError, 'Avg. Color Error')}
                     ${createStatCell(stats.guessEfficiency, 'Guess Efficiency')}
                 </div>
-                <button class="stats-button" onclick="window.closeModalAndPlay()">PLAY NOW</button>
+                ${buttonContent}
                 <p class="stats-note">* Statistics shown for ${mode} mode</p>
             </div>
         `;
         openModal(statsContent);
+        
+        // Start countdown timer if daily already completed
+        if (dailyAlreadyCompleted && mode === 'daily') {
+            startNextColorTimer();
+        }
+    }
+    
+    function startNextColorTimer() {
+        const timerDisplay = document.getElementById('timerDisplay');
+        if (!timerDisplay) return;
+        
+        function updateTimer() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setUTCHours(24, 0, 0, 0); // Next midnight UTC
+            
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            timerDisplay.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        
+        // Clear interval when modal is closed
+        const modal = document.getElementById('modal');
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'style' && modal.style.display === 'none') {
+                    clearInterval(interval);
+                    observer.disconnect();
+                }
+            });
+        });
+        observer.observe(modal, { attributes: true });
     }
 
     function createStatCell(value, label) {
@@ -1210,8 +1317,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         `;
     }
 
-    function getStats() {
-        const savedStats = localStorage.getItem('gameStats');
+    function getStats(mode = 'daily') {
+        const storageKey = `gameStats_${mode}`;
+        const savedStats = localStorage.getItem(storageKey);
         const defaultStats = {
             gamesPlayed: 0,
             gamesWon: 0,
@@ -1247,13 +1355,17 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function saveStats(stats) {
-        localStorage.setItem('gameStats', JSON.stringify(stats));
+    function saveStats(stats, mode = 'daily') {
+        const storageKey = `gameStats_${mode}`;
+        localStorage.setItem(storageKey, JSON.stringify(stats));
     }
 
     window.closeModalAndPlay = function() {
         closeModal();
-        // Optionally start a new game or focus on the game
+        // Restart the game
+        if (window.gameInstance && typeof window.gameInstance.restartGame === 'function') {
+            window.gameInstance.restartGame();
+        }
     };
 
     // Make stats functions globally accessible
