@@ -684,7 +684,8 @@ html.dark .grid-cell {
   will-change: transform;
 }
 /* tiny landing pop (optional) */
-.grid-cell.land-pop {
+.grid-cell.land-pop,
+.stat-cell.land-pop {
   animation: land-pop-8bit 120ms steps(2, end);
 }
 @keyframes jump-8bit {
@@ -930,9 +931,26 @@ html.dark .modal-body .number-box {
     background: #e6e6e6;
     padding: 15px;
     text-align: center;
+    position: relative;
+    transform-origin: center center;
+}
+.stat-cell:hover {
+    background: #d4d4d4;
 }
 html.dark .stat-cell {
     background: #1d1d1d;
+}
+html.dark .stat-cell:hover {
+    background: #252525;
+}
+.stat-cell.easter-egg-active .stat-value,
+.stat-cell.easter-egg-active .stat-label {
+    color: #ffffff;
+    text-shadow: 
+        -1px -1px 0 #000000,
+        1px -1px 0 #000000,
+        -1px 1px 0 #000000,
+        1px 1px 0 #000000;
 }
 .stat-value {
     font-size: 24px;

@@ -98,6 +98,9 @@ class HexColorWordle {
         this.hasRevealedThisAttempt = false;
         this.baseDuration = 1000; // 1 second for first attempt
         
+        // Track all guesses and their errors for statistics
+        this.guessHistory = []; // Array of {hex, colorError}
+        
         // Check if daily puzzle is already completed
         if (this.mode === 'daily') {
             const completionData = this.checkDailyCompletion();
@@ -686,19 +689,7 @@ class HexColorWordle {
         if (this.gameOver) return;
         // Do not allow guesses while the reveal timer is active
         if (this.colorVisible) {
-            if (typeof window.showToast === 'function') {
-                window.showToast('Wait for color reveal to complete');
-            }
-            // Shake the current row
-            const currentRowEl = this.gridCellRefs[this.currentRow][0]?.parentElement;
-            if (currentRowEl) {
-                currentRowEl.classList.remove('shake');
-                void currentRowEl.offsetWidth;
-                currentRowEl.classList.add('shake');
-                setTimeout(() => {
-                    currentRowEl.classList.remove('shake');
-                }, 500);
-            }
+            this.showWaitForRevealNotification();
             return;
         }
         const guess = this.getCurrentGuess();
@@ -740,6 +731,13 @@ class HexColorWordle {
             }
             return;
         }
+        
+        // Calculate and store color error for this guess (after validation passes)
+        const colorError = this.calculateColorError(guess, this.targetColor);
+        this.guessHistory.push({
+            hex: guess,
+            colorError: colorError
+        });
 
         // lock the row UI
         this.lockCurrentRow();
@@ -917,8 +915,8 @@ class HexColorWordle {
             gamesLost: 0,
             currentStreak: 0,
             maxStreak: 0,
-            totalGuesses: 0,
-            totalColorError: 0,
+            totalGuessesAllGames: 0,
+            totalColorErrorAllGuesses: 0,
             totalErrorReduction: 0
         };
 
@@ -928,20 +926,25 @@ class HexColorWordle {
             stats.gamesWon++;
             stats.currentStreak++;
             stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-            stats.totalGuesses += this.currentAttempt;
         } else {
             stats.gamesLost++;
             stats.currentStreak = 0;
         }
 
-        // Calculate color error (simple RGB distance for now)
-        const lastGuess = this.getCurrentGuess() || this.targetColor;
-        const colorError = this.calculateColorError(lastGuess, this.targetColor);
-        stats.totalColorError += colorError;
+        // Process all guesses from this game
+        stats.totalGuessesAllGames += this.guessHistory.length;
+        
+        // Add up color error for every guess
+        this.guessHistory.forEach(guess => {
+            stats.totalColorErrorAllGuesses += guess.colorError;
+        });
 
-        // Track error reduction per guess (simplified)
-        if (this.currentAttempt > 0) {
-            stats.totalErrorReduction += (255 / this.currentAttempt); // Simplified metric
+        // Calculate error reduction (improvement) between consecutive guesses
+        for (let i = 1; i < this.guessHistory.length; i++) {
+            const previousError = this.guessHistory[i - 1].colorError;
+            const currentError = this.guessHistory[i].colorError;
+            const reduction = previousError - currentError; // Positive = improvement, negative = getting worse
+            stats.totalErrorReduction += reduction; // Allow negative values
         }
 
         localStorage.setItem(storageKey, JSON.stringify(stats));
@@ -983,6 +986,7 @@ class HexColorWordle {
         this.gameOver = false;
         this.colorVisible = false;
         this.hasRevealedThisAttempt = false;
+        this.guessHistory = []; // Reset guess history for new game
                 
         this.colorDisplay.classList.add('hidden');
         this.colorDisplay.classList.remove('disabled');
@@ -1225,7 +1229,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     const statsBtn = document.getElementById('statsButton');
     if (statsBtn) {
         statsBtn.addEventListener('click', () => {
-            showStatsModal();
+            // Check if daily is already completed for timer display
+            const isDailyCompleted = window.gameInstance?.dailyAlreadyCompleted || false;
+            showStatsModal(isDailyCompleted);
         });
     }
 
@@ -1252,16 +1258,16 @@ window.addEventListener('DOMContentLoaded', async () => {
                 </button>
             </div>
             <div style="padding: 10px;">
-                <div class="stats-grid">
-                    ${createStatCell(stats.gamesPlayed, 'Games Played')}
-                    ${createStatCell(stats.gamesWon, 'Games Won')}
-                    ${createStatCell(stats.gamesLost, 'Games Lost')}
-                    ${createStatCell(stats.winPercentage + '%', 'Win Pct.')}
-                    ${createStatCell(stats.currentStreak, 'Current Streak')}
-                    ${createStatCell(stats.maxStreak, 'Max Streak')}
-                    ${createStatCell(stats.avgGuesses, 'Avg. Guesses')}
-                    ${createStatCell(stats.avgColorError, 'Avg. Color Error')}
-                    ${createStatCell(stats.guessEfficiency, 'Guess Efficiency')}
+                <div class="stats-grid" id="statsGrid">
+                    ${createStatCell(stats.gamesPlayed, 'Games Played', 0)}
+                    ${createStatCell(stats.gamesWon, 'Games Won', 1)}
+                    ${createStatCell(stats.gamesLost, 'Games Lost', 2)}
+                    ${createStatCell(stats.winPercentage + '%', 'Win Pct.', 3)}
+                    ${createStatCell(stats.currentStreak, 'Current Streak', 4)}
+                    ${createStatCell(stats.maxStreak, 'Max Streak', 5)}
+                    ${createStatCell(stats.avgGuesses, 'Avg. Guesses', 6)}
+                    ${createStatCell(stats.avgColorAccuracy, 'Guess Accuracy', 7)}
+                    ${createStatCell(stats.guessEfficiency, 'Guess Efficiency', 8)}
                 </div>
                 ${buttonContent}
                 <p class="stats-note">* Statistics shown for ${mode} mode</p>
@@ -1273,6 +1279,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (dailyAlreadyCompleted && mode === 'daily') {
             startNextColorTimer();
         }
+        
+        // Initialize easter egg
+        initStatsGridEasterEgg();
     }
     
     function startNextColorTimer() {
@@ -1308,13 +1317,120 @@ window.addEventListener('DOMContentLoaded', async () => {
         observer.observe(modal, { attributes: true });
     }
 
-    function createStatCell(value, label) {
+    function createStatCell(value, label, index) {
         return `
-            <div class="stat-cell">
+            <div class="stat-cell" data-index="${index}">
                 <span class="stat-value">${value}</span>
                 <span class="stat-label">${label}</span>
             </div>
         `;
+    }
+    
+    function initStatsGridEasterEgg() {
+        const grid = document.getElementById('statsGrid');
+        if (!grid) return;
+        
+        const cells = grid.querySelectorAll('.stat-cell');
+        if (cells.length !== 9) return;
+        
+        // Easter egg colors
+        const colors = [
+            '#F33800', // red
+            '#FF8200', // orange
+            '#FFC500', // yellow
+            '#72CA00', // lime
+            '#009442', // green
+            '#00BFBD', // cyan
+            '#006CAD', // blue
+            '#5E2AA6', // indigo
+            '#B40075'  // violet
+        ];
+        
+        let usedColors = new Set();
+        let isAnimating = false;
+        
+        cells.forEach((cell, idx) => {
+            cell.style.cursor = 'pointer';
+            
+            cell.addEventListener('click', () => {
+                if (isAnimating) return;
+                isAnimating = true;
+                usedColors.clear();
+                
+                // Start cascade from clicked cell and reset flag when done
+                cascadeColors(idx, cells, colors, usedColors, () => {
+                    isAnimating = false;
+                });
+            });
+        });
+    }
+    
+    function cascadeColors(startIndex, cells, colors, usedColors, onComplete) {
+        const visited = new Set();
+        const queue = [startIndex];
+        visited.add(startIndex);
+        
+        function getAdjacentIndices(index) {
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const adjacent = [];
+            
+            // Up, down, left, right
+            if (row > 0) adjacent.push(index - 3);
+            if (row < 2) adjacent.push(index + 3);
+            if (col > 0) adjacent.push(index - 1);
+            if (col < 2) adjacent.push(index + 1);
+            
+            return adjacent;
+        }
+        
+        // Build the full queue first using BFS
+        let queueIndex = 0;
+        while (queueIndex < queue.length) {
+            const currentIndex = queue[queueIndex];
+            const adjacent = getAdjacentIndices(currentIndex);
+            
+            adjacent.forEach(adjIndex => {
+                if (!visited.has(adjIndex)) {
+                    visited.add(adjIndex);
+                    queue.push(adjIndex);
+                }
+            });
+            
+            queueIndex++;
+        }
+        
+        // Now animate each cell in order with delays
+        queue.forEach((index, i) => {
+            const delay = i * 150;
+            
+            setTimeout(() => {
+                const cell = cells[index];
+                
+                // Get available colors
+                const availableColors = colors.filter(c => !usedColors.has(c));
+                if (availableColors.length === 0) return;
+                
+                // Pick random color from available
+                const color = availableColors[Math.floor(Math.random() * availableColors.length)];
+                usedColors.add(color);
+                
+                // Change background color and add active class FIRST (instant)
+                cell.style.background = color;
+                cell.classList.add('easter-egg-active');
+                
+                // Then apply pop animation
+                cell.classList.add('land-pop');
+                setTimeout(() => cell.classList.remove('land-pop'), 120);
+                
+                // Call completion callback after last cell
+                if (i === queue.length - 1) {
+                    setTimeout(() => {
+                        if (onComplete) onComplete();
+                    }, 300);
+                }
+            }, delay);
+        });
     }
 
     function getStats(mode = 'daily') {
@@ -1328,8 +1444,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             currentStreak: 0,
             maxStreak: 0,
             avgGuesses: '--',
-            avgColorError: '--',
-            guessEfficiency: '--'
+            avgColorAccuracy: '--',
+            accuracyLabel: '',
+            guessEfficiency: '--',
+            efficiencyLabel: ''
         };
         
         if (!savedStats) return defaultStats;
@@ -1340,15 +1458,48 @@ window.addEventListener('DOMContentLoaded', async () => {
             stats.winPercentage = stats.gamesPlayed > 0 
                 ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) 
                 : 0;
-            stats.avgGuesses = stats.gamesWon > 0 
-                ? (stats.totalGuesses / stats.gamesWon).toFixed(1)
+            // Count all guesses across all games (wins and losses)
+            stats.avgGuesses = stats.gamesPlayed > 0 
+                ? (stats.totalGuessesAllGames / stats.gamesPlayed).toFixed(1)
                 : '--';
-            stats.avgColorError = stats.gamesPlayed > 0
-                ? Math.round(stats.totalColorError / stats.gamesPlayed)
-                : '--';
-            stats.guessEfficiency = stats.totalGuesses > 0
-                ? (stats.totalErrorReduction / stats.totalGuesses).toFixed(1)
-                : '--';
+            
+            // Convert color error to accuracy percentage
+            const maxColorDistance = 441.67; // sqrt(255^2 * 3)
+            if (stats.totalGuessesAllGames > 0) {
+                const avgError = stats.totalColorErrorAllGuesses / stats.totalGuessesAllGames;
+                const accuracyPercent = ((1 - (avgError / maxColorDistance)) * 100);
+                stats.avgColorAccuracy = accuracyPercent.toFixed(1) + '%';
+                
+                // Add descriptor
+                if (accuracyPercent >= 95) stats.accuracyLabel = 'Extremely Accurate';
+                else if (accuracyPercent >= 90) stats.accuracyLabel = 'Very Accurate';
+                else if (accuracyPercent >= 80) stats.accuracyLabel = 'Accurate';
+                else if (accuracyPercent >= 70) stats.accuracyLabel = 'Pretty Good';
+                else if (accuracyPercent >= 60) stats.accuracyLabel = 'Decent';
+                else stats.accuracyLabel = 'Needs Work';
+            } else {
+                stats.avgColorAccuracy = '--';
+                stats.accuracyLabel = '';
+            }
+            
+            // Convert error reduction to percentage improvement
+            if (stats.totalGuessesAllGames > 1) {
+                const avgReduction = stats.totalErrorReduction / (stats.totalGuessesAllGames - stats.gamesPlayed);
+                const improvementPercent = ((avgReduction / maxColorDistance) * 100);
+                const sign = improvementPercent > 0 ? '+' : '';
+                stats.guessEfficiency = sign + improvementPercent.toFixed(1) + '%';
+                
+                // Add descriptor
+                if (improvementPercent >= 5) stats.efficiencyLabel = 'Excellent Progress';
+                else if (improvementPercent >= 3) stats.efficiencyLabel = 'Great Progress';
+                else if (improvementPercent >= 2) stats.efficiencyLabel = 'Good Progress';
+                else if (improvementPercent >= 1) stats.efficiencyLabel = 'Steady Progress';
+                else if (improvementPercent > 0) stats.efficiencyLabel = 'Slow Progress';
+                else stats.efficiencyLabel = 'Inconsistent';
+            } else {
+                stats.guessEfficiency = '--';
+                stats.efficiencyLabel = '';
+            }
             return stats;
         } catch (e) {
             return defaultStats;
