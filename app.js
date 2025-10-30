@@ -765,9 +765,13 @@ class HexColorWordle {
         this.colorizeRowLabel(this.currentRow, guess);
         this.clearCurrentRowBuffer();
         
-        // Save game state after each guess in daily mode
+        // Save game state after animations complete (colors are applied with delays)
         if (this.mode === 'daily') {
-            this.saveDailyGameState();
+            // Wait for all cell animations to complete before saving
+            // Last cell starts at 5 * 140ms = 700ms, then color applied at +180ms = 880ms
+            setTimeout(() => {
+                this.saveDailyGameState();
+            }, 1000); // Wait 1 second to be safe
         }
 
         if (guess === this.targetColor) {
@@ -1064,6 +1068,8 @@ class HexColorWordle {
             date: today,
             targetColor: this.targetColor,
             currentAttempt: this.currentAttempt,
+            currentRow: this.currentRow,
+            currentCol: this.currentCol,
             gameOver: this.gameOver,
             guessHistory: this.guessHistory,
             gridState: [] // Store the visual grid state
@@ -1106,19 +1112,10 @@ class HexColorWordle {
             // Restore game state
             this.targetColor = gameState.targetColor;
             this.currentAttempt = gameState.currentAttempt;
+            this.currentRow = gameState.currentRow !== undefined ? gameState.currentRow : (this.currentAttempt - 1);
+            this.currentCol = gameState.currentCol !== undefined ? gameState.currentCol : 0;
             this.gameOver = gameState.gameOver;
             this.guessHistory = gameState.guessHistory || [];
-            
-            // Calculate current row (0-indexed, so currentAttempt - 1)
-            // If game is over, currentRow should be maxAttempts (no active row)
-            if (this.gameOver) {
-                this.currentRow = this.maxAttempts;
-            } else {
-                this.currentRow = this.currentAttempt - 1;
-            }
-            
-            // Reset cursor position to start of current row
-            this.currentCol = 0;
             
             // Restore grid visual state
             if (gameState.gridState) {
