@@ -307,6 +307,24 @@ class HexColorWordle {
             rowCells.forEach(cell => cell.parentElement.classList.add('grid-row-locked'));
         }
     }
+    
+    showWaitForRevealNotification() {
+        // Show toast notification
+        if (typeof window.showToast === 'function') {
+            window.showToast('Wait for color reveal to finish!');
+        }
+        // Shake the current row
+        const currentRowEl = this.gridCellRefs[this.currentRow]?.[0]?.parentElement;
+        if (currentRowEl) {
+            currentRowEl.classList.remove('shake');
+            // Force reflow to restart animation
+            void currentRowEl.offsetWidth;
+            currentRowEl.classList.add('shake');
+            setTimeout(() => {
+                currentRowEl.classList.remove('shake');
+            }, 500);
+        }
+    }
 
     clearCurrentRowBuffer() {
         // nothing to clear visually; advance to next row
@@ -1071,6 +1089,8 @@ class HexColorWordle {
             currentRow: this.currentRow,
             currentCol: this.currentCol,
             gameOver: this.gameOver,
+            colorVisible: this.colorVisible,
+            hasRevealedThisAttempt: this.hasRevealedThisAttempt,
             guessHistory: this.guessHistory,
             gridState: [] // Store the visual grid state
         };
@@ -1115,6 +1135,8 @@ class HexColorWordle {
             this.currentRow = gameState.currentRow !== undefined ? gameState.currentRow : (this.currentAttempt - 1);
             this.currentCol = gameState.currentCol !== undefined ? gameState.currentCol : 0;
             this.gameOver = gameState.gameOver;
+            this.colorVisible = gameState.colorVisible || false;
+            this.hasRevealedThisAttempt = gameState.hasRevealedThisAttempt || false;
             this.guessHistory = gameState.guessHistory || [];
             
             // Restore grid visual state
@@ -1128,7 +1150,9 @@ class HexColorWordle {
                         const cellState = rowState[col];
                         if (cell && cellState) {
                             cell.textContent = cellState.text;
-                            cell.className = cellState.class;
+                            // Restore class but remove animation classes to prevent glitch
+                            const cleanClass = cellState.class.replace(/\b(reveal-jump|land-pop)\b/g, '').trim();
+                            cell.className = cleanClass;
                             if (cellState.text) hasContent = true;
                         }
                     }
@@ -1157,11 +1181,15 @@ class HexColorWordle {
             this.updateCaret();
             this.updateRowLabels();
             
-            // If game is over, show the final color
+            // Restore color display state
             if (this.gameOver) {
                 this.colorDisplay.textContent = '#' + this.targetColor;
                 this.colorDisplay.classList.remove('hidden');
                 this.colorDisplay.classList.add('game-ended');
+            } else if (this.hasRevealedThisAttempt) {
+                // User has already revealed color this attempt, disable the button
+                this.colorDisplay.classList.add('disabled');
+                this.colorDisplay.textContent = 'Already revealed!';
             }
         } catch (e) {
             console.error('Failed to load daily game state:', e);
