@@ -695,6 +695,11 @@ class HexColorWordle {
         this.timerText.textContent = '';
                 
         this.startTimer(duration);
+        
+        // Save state immediately after revealing color
+        if (this.mode === 'daily') {
+            this.saveDailyGameState();
+        }
                 
         setTimeout(() => {
             if (!this.gameOver) {
@@ -704,6 +709,11 @@ class HexColorWordle {
                 // Keep timer bar empty after color is hidden
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '0%';
+                
+                // Save state after timer expires
+                if (this.mode === 'daily') {
+                    this.saveDailyGameState();
+                }
             }
         }, duration);
     }
@@ -885,6 +895,11 @@ class HexColorWordle {
             this.colorDisplay.classList.remove('hidden');
             this.colorDisplay.textContent = `#${this.targetColor}`;
             this.colorDisplay.classList.add('game-ended');
+            
+            // Save state after setting the color
+            if (this.mode === 'daily') {
+                this.saveDailyGameState();
+            }
             
             // Show random win/loss message
             if (typeof window.showToast === 'function') {
@@ -1184,12 +1199,21 @@ class HexColorWordle {
             // Restore color display state
             if (this.gameOver) {
                 this.colorDisplay.textContent = '#' + this.targetColor;
+                this.colorDisplay.style.background = '#' + this.targetColor;
                 this.colorDisplay.classList.remove('hidden');
                 this.colorDisplay.classList.add('game-ended');
+            } else if (this.colorVisible) {
+                // Color was being shown when user left - hide it but keep revealed state
+                this.colorDisplay.classList.add('hidden');
+                this.colorDisplay.textContent = 'Submit a guess to reveal again!';
+                this.colorDisplay.style.background = ''; // Clear background
+                this.colorVisible = false; // Reset visible flag
+                this.colorDisplay.classList.add('disabled');
             } else if (this.hasRevealedThisAttempt) {
                 // User has already revealed color this attempt, disable the button
                 this.colorDisplay.classList.add('disabled');
-                this.colorDisplay.textContent = 'Already revealed!';
+                this.colorDisplay.textContent = 'Submit a guess to reveal again!';
+                this.colorDisplay.style.background = ''; // Clear background
             }
         } catch (e) {
             console.error('Failed to load daily game state:', e);
