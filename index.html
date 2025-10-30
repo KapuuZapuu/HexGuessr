@@ -24,6 +24,9 @@
                     shouldBeDark = true;
                 }
                 // If can't detect or is light, shouldBeDark stays false (default light)
+                
+                // Save the detected preference so it persists across mode switches
+                localStorage.setItem('theme', shouldBeDark ? 'dark' : 'light');
             }
             
             if (shouldBeDark) {

@@ -101,7 +101,7 @@ class HexColorWordle {
         // Track all guesses and their errors for statistics
         this.guessHistory = []; // Array of {hex, colorError}
         
-        // Check if daily puzzle is already completed or in progress
+        // Check if daily puzzle is already completed
         if (this.mode === 'daily') {
             const completionData = this.checkDailyCompletion();
             if (completionData.completed) {
@@ -109,9 +109,6 @@ class HexColorWordle {
                 this.dailyAlreadyCompleted = true;
                 // Will show stats modal after initialization
             }
-            
-            // Try to restore daily game state (completed or in-progress)
-            this.loadDailyGameState();
         }
                 
         this.initializeElements();
@@ -120,6 +117,11 @@ class HexColorWordle {
         this.initializeTimerText(); // Initialize the timer text
         this.buildGrid();
         this.setupOnScreenKeyboard();
+        
+        // Restore daily game state AFTER grid is built
+        if (this.mode === 'daily') {
+            this.loadDailyGameState();
+        }
         // keyboard input
         document.addEventListener('keydown', this.handleKeydown)
 
