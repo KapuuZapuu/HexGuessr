@@ -300,6 +300,13 @@ class HexColorWordle {
         const rowCells = this.gridCellRefs[this.currentRow];
         rowCells.forEach(cell => cell.parentElement.classList.add('grid-row-locked'));
     }
+    
+    lockRow(rowIndex) {
+        const rowCells = this.gridCellRefs[rowIndex];
+        if (rowCells) {
+            rowCells.forEach(cell => cell.parentElement.classList.add('grid-row-locked'));
+        }
+    }
 
     clearCurrentRowBuffer() {
         // nothing to clear visually; advance to next row
@@ -1102,18 +1109,45 @@ class HexColorWordle {
             this.gameOver = gameState.gameOver;
             this.guessHistory = gameState.guessHistory || [];
             
+            // Calculate current row (0-indexed, so currentAttempt - 1)
+            // If game is over, currentRow should be maxAttempts (no active row)
+            if (this.gameOver) {
+                this.currentRow = this.maxAttempts;
+            } else {
+                this.currentRow = this.currentAttempt - 1;
+            }
+            
+            // Reset cursor position to start of current row
+            this.currentCol = 0;
+            
             // Restore grid visual state
             if (gameState.gridState) {
                 for (let row = 0; row < gameState.gridState.length; row++) {
                     const rowState = gameState.gridState[row];
+                    let hasContent = false;
+                    
                     for (let col = 0; col < rowState.length; col++) {
                         const cell = this.gridCellRefs[row]?.[col];
                         const cellState = rowState[col];
                         if (cell && cellState) {
                             cell.textContent = cellState.text;
                             cell.className = cellState.class;
+                            if (cellState.text) hasContent = true;
                         }
                     }
+                    
+                    // Lock completed rows (rows before current row)
+                    if (hasContent && row < this.currentRow) {
+                        this.lockRow(row);
+                    }
+                }
+            }
+            
+            // Restore row labels with colors
+            for (let i = 0; i < this.guessHistory.length; i++) {
+                const guess = this.guessHistory[i];
+                if (guess && guess.hex) {
+                    this.colorizeRowLabel(i, guess.hex);
                 }
             }
             
@@ -1121,6 +1155,10 @@ class HexColorWordle {
             if (this.currentAttemptSpan) {
                 this.currentAttemptSpan.textContent = this.currentAttempt;
             }
+            
+            // Update caret position and row labels
+            this.updateCaret();
+            this.updateRowLabels();
             
             // If game is over, show the final color
             if (this.gameOver) {
