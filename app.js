@@ -101,7 +101,7 @@ class HexColorWordle {
         // Track all guesses and their errors for statistics
         this.guessHistory = []; // Array of {hex, colorError}
         
-        // Check if daily puzzle is already completed
+        // Check if daily puzzle is already completed or in progress
         if (this.mode === 'daily') {
             const completionData = this.checkDailyCompletion();
             if (completionData.completed) {
@@ -109,6 +109,9 @@ class HexColorWordle {
                 this.dailyAlreadyCompleted = true;
                 // Will show stats modal after initialization
             }
+            
+            // Try to restore daily game state (completed or in-progress)
+            this.loadDailyGameState();
         }
                 
         this.initializeElements();
@@ -752,6 +755,11 @@ class HexColorWordle {
         this.processGuess(guess);
         this.colorizeRowLabel(this.currentRow, guess);
         this.clearCurrentRowBuffer();
+        
+        // Save game state after each guess in daily mode
+        if (this.mode === 'daily') {
+            this.saveDailyGameState();
+        }
 
         if (guess === this.targetColor) {
             this.endGame(true);
@@ -856,7 +864,9 @@ class HexColorWordle {
             // Show stats modal after a short delay
             setTimeout(() => {
                 if (typeof window.showStatsModal === 'function') {
-                    window.showStatsModal();
+                    // In daily mode, pass true to show timer instead of play button
+                    const isDailyCompleted = this.mode === 'daily';
+                    window.showStatsModal(isDailyCompleted);
                 }
             }, 2500); // 2.5 second delay to see color and toast
         }, animationDelay);
@@ -864,9 +874,10 @@ class HexColorWordle {
         // Update statistics
         this.updateGameStats(won);
         
-        // Save daily completion if in daily mode
+        // Save daily completion and final state if in daily mode
         if (this.mode === 'daily') {
             this.saveDailyCompletion(won);
+            this.saveDailyGameState(); // Save final state with completed grid
         }
     }
 
@@ -1034,6 +1045,91 @@ class HexColorWordle {
             date: today,
             won: won
         }));
+    }
+    
+    saveDailyGameState() {
+        if (this.mode !== 'daily') return;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const gameState = {
+            date: today,
+            targetColor: this.targetColor,
+            currentAttempt: this.currentAttempt,
+            gameOver: this.gameOver,
+            guessHistory: this.guessHistory,
+            gridState: [] // Store the visual grid state
+        };
+        
+        // Save grid state (all rows)
+        for (let row = 0; row < this.maxAttempts; row++) {
+            const rowState = [];
+            for (let col = 0; col < 6; col++) {
+                const cell = this.gridCellRefs[row]?.[col];
+                if (cell) {
+                    rowState.push({
+                        text: cell.textContent,
+                        class: cell.className
+                    });
+                }
+            }
+            gameState.gridState.push(rowState);
+        }
+        
+        localStorage.setItem('dailyGameState', JSON.stringify(gameState));
+    }
+    
+    loadDailyGameState() {
+        if (this.mode !== 'daily') return;
+        
+        const saved = localStorage.getItem('dailyGameState');
+        if (!saved) return;
+        
+        try {
+            const gameState = JSON.parse(saved);
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Only restore if it's today's game
+            if (gameState.date !== today) {
+                localStorage.removeItem('dailyGameState');
+                return;
+            }
+            
+            // Restore game state
+            this.targetColor = gameState.targetColor;
+            this.currentAttempt = gameState.currentAttempt;
+            this.gameOver = gameState.gameOver;
+            this.guessHistory = gameState.guessHistory || [];
+            
+            // Restore grid visual state
+            if (gameState.gridState) {
+                for (let row = 0; row < gameState.gridState.length; row++) {
+                    const rowState = gameState.gridState[row];
+                    for (let col = 0; col < rowState.length; col++) {
+                        const cell = this.gridCellRefs[row]?.[col];
+                        const cellState = rowState[col];
+                        if (cell && cellState) {
+                            cell.textContent = cellState.text;
+                            cell.className = cellState.class;
+                        }
+                    }
+                }
+            }
+            
+            // Update UI to reflect loaded state
+            if (this.currentAttemptSpan) {
+                this.currentAttemptSpan.textContent = this.currentAttempt;
+            }
+            
+            // If game is over, show the final color
+            if (this.gameOver) {
+                this.colorDisplay.textContent = '#' + this.targetColor;
+                this.colorDisplay.classList.remove('hidden');
+                this.colorDisplay.classList.add('game-ended');
+            }
+        } catch (e) {
+            console.error('Failed to load daily game state:', e);
+            localStorage.removeItem('dailyGameState');
+        }
     }
 }
 
