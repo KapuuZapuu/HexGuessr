@@ -124,7 +124,17 @@ class HexColorWordle {
             this.loadDailyGameState();
         }
         // keyboard input
-        document.addEventListener('keydown', this.handleKeydown)
+        document.addEventListener('keydown', this.handleKeydown);
+        
+        // Document-level paste listener as fallback (catches paste even when grid isn't focused)
+        document.addEventListener('paste', (e) => {
+            // Only handle if we're not in an input field and game is active
+            const active = document.activeElement;
+            const isInInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+            if (!isInInput && !this.gameOver && !this.isAnimating) {
+                this.handlePaste(e);
+            }
+        })
 
         // Info button listener will be handled by modal system
         
@@ -216,6 +226,10 @@ class HexColorWordle {
         this.gridEl.tabIndex = 0;
         this.gridEl.addEventListener('focus', () => { this.gridFocused = true; });
         this.gridEl.addEventListener('blur',  () => { this.gridFocused = false; });
+        // paste event listener for all paste operations (Ctrl+V, right-click, menu, etc.)
+        // Remove old listener first to prevent duplicates
+        this.gridEl.removeEventListener('paste', this.handlePaste);
+        this.gridEl.addEventListener('paste', this.handlePaste);
         safeFocus(this.gridEl);
     }
 
@@ -255,6 +269,44 @@ class HexColorWordle {
         else if (e.key === 'Enter') {
             this.submitGuess();
             e.preventDefault();
+        }
+    }
+
+    handlePaste = async (e) => {
+        if (this.gameOver || this.isAnimating) return;
+        
+        // Prevent default paste behavior
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        
+        try {
+            let text;
+            // Try to get text from paste event first, fallback to clipboard API
+            if (e && e.clipboardData) {
+                text = e.clipboardData.getData('text');
+            } else {
+                text = await navigator.clipboard.readText();
+            }
+            
+            const hex = (text || '').replace(/[^0-9A-Fa-f]/g, '').toUpperCase().slice(0, 6);
+            if (!hex) return;
+            
+            // Fill the current row with the pasted hex
+            for (let i = 0; i < this.gridCols; i++) {
+                const ch = hex[i] || '';
+                this.setCell(this.currentRow, i, ch);
+            }
+            
+            // Update cursor position to end of pasted content
+            const lastCol = Math.min(hex.length, this.gridCols);
+            this.currentCol = Math.max(0, lastCol);
+            this.updateCaret();
+            safeFocus(this.gridEl);
+        } catch (err) {
+            if (typeof window.showToast === 'function') {
+                window.showToast('Clipboard access failed');
+            }
         }
     }
 
@@ -359,29 +411,15 @@ class HexColorWordle {
     
     updatePasteAction() {
         this.rowActions.forEach((el, idx) => {
-            el.classList.toggle('visible', idx === this.currentRow);
+            // Hide paste button if game is over, otherwise show for current row
+            el.classList.toggle('visible', idx === this.currentRow && !this.gameOver);
         });
     }
     attachPasteHandlers() {
         this.pasteButtons.forEach((btn, idx) => {
             btn.onclick = async () => {
                 if (this.gameOver || this.isAnimating || idx !== this.currentRow) return;
-                try {
-                    const text = await navigator.clipboard.readText();
-                    const hex = (text || '').replace(/[^0-9A-Fa-f]/g, '').toUpperCase().slice(0, 6);
-                    if (!hex) return;
-                    for (let i = 0; i < this.gridCols; i++) {
-                        const ch = hex[i] || ''; this.setCell(this.currentRow, i, ch);
-                    }
-                    const lastCol = Math.min(hex.length, this.gridCols);
-                    this.currentCol = Math.max(0, lastCol);
-                    this.updateCaret();
-                    safeFocus(this.gridEl);
-                } catch (e) {
-                    if (typeof window.showToast === 'function') {
-                        window.showToast('Clipboard access failed');
-                    }
-                }
+                await this.handlePaste();
             };
         });
     }
@@ -895,6 +933,11 @@ class HexColorWordle {
     endGame(won) {
         this.gameOver = true;
         this.timerText.textContent = '';
+        // Always empty the timer bar when game ends
+        this.timerFill.style.transition = '';
+        this.timerFill.style.width = '0%';
+        // Hide paste actions
+        this.updatePasteAction();
         
         // Calculate animation completion time
         // 6 cells × 140ms delay + 360ms animation = ~1200ms total
@@ -1214,6 +1257,12 @@ class HexColorWordle {
                 this.colorDisplay.style.background = '#' + this.targetColor;
                 this.colorDisplay.classList.remove('hidden');
                 this.colorDisplay.classList.add('game-ended');
+                // Ensure timer bar and text are empty for completed games
+                this.timerFill.style.transition = '';
+                this.timerFill.style.width = '0%';
+                this.timerText.textContent = '';
+                // Hide paste button for completed games
+                this.updatePasteAction();
             } else if (this.colorVisible) {
                 // Color was being shown when user left - hide it but keep revealed state
                 this.colorDisplay.classList.add('hidden');
@@ -1384,6 +1433,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         // Wait for animation to finish before hiding
         setTimeout(() => {
             modal.style.display = 'none';
+            // Refocus the grid after modal closes so paste works again
+            if (window.gameInstance && window.gameInstance.gridEl) {
+                safeFocus(window.gameInstance.gridEl);
+            }
         }, 200); // matches transition duration
     }
 
