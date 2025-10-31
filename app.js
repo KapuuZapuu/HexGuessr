@@ -1209,11 +1209,17 @@ class HexColorWordle {
                 this.colorDisplay.style.background = ''; // Clear background
                 this.colorVisible = false; // Reset visible flag
                 this.colorDisplay.classList.add('disabled');
+                // Reset timer bar to empty
+                this.timerFill.style.transition = '';
+                this.timerFill.style.width = '0%';
             } else if (this.hasRevealedThisAttempt) {
                 // User has already revealed color this attempt, disable the button
                 this.colorDisplay.classList.add('disabled');
                 this.colorDisplay.textContent = 'Submit a guess to reveal again!';
                 this.colorDisplay.style.background = ''; // Clear background
+                // Reset timer bar to empty since color was already revealed
+                this.timerFill.style.transition = '';
+                this.timerFill.style.width = '0%';
             }
         } catch (e) {
             console.error('Failed to load daily game state:', e);

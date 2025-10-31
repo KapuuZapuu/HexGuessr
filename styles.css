@@ -822,7 +822,7 @@ html.dark .key-btn:hover {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0);
-    cursor: pointer;
+    cursor: default;
     transition: background 0.2s ease;
 }
 .modal.open .modal-overlay {
@@ -984,7 +984,7 @@ html.dark .stats-button {
     color: #000000;
     border-color: #ffffff;
 }
-.stats-button:hover {
+.stats-button:hover:not(#nextColorTimer) {
     opacity: 0.8;
 }
 .stats-button:disabled {
@@ -1035,6 +1035,7 @@ html.dark .stats-button {
     font-weight: bold;
     border: 2px solid #ffffff;
     white-space: nowrap;
+    width: fit-content;
     opacity: 0;
     transform: translateY(-20px);
     transition: opacity 0.2s ease, transform 0.2s ease;
