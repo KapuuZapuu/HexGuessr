@@ -1209,17 +1209,19 @@ class HexColorWordle {
                 this.colorDisplay.style.background = ''; // Clear background
                 this.colorVisible = false; // Reset visible flag
                 this.colorDisplay.classList.add('disabled');
-                // Reset timer bar to empty
+                // Reset timer bar and text to empty
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '0%';
+                this.timerText.textContent = '';
             } else if (this.hasRevealedThisAttempt) {
                 // User has already revealed color this attempt, disable the button
                 this.colorDisplay.classList.add('disabled');
                 this.colorDisplay.textContent = 'Submit a guess to reveal again!';
                 this.colorDisplay.style.background = ''; // Clear background
-                // Reset timer bar to empty since color was already revealed
+                // Reset timer bar and text to empty since color was already revealed
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '0%';
+                this.timerText.textContent = '';
             }
         } catch (e) {
             console.error('Failed to load daily game state:', e);
@@ -1429,14 +1431,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     function showStatsModal(dailyAlreadyCompleted = false) {
         const mode = window.gameInstance?.mode || 'daily';
         const stats = getStats(mode);
+        const isGameOver = window.gameInstance?.gameOver || false;
         
         // Determine button content
         let buttonContent;
         if (dailyAlreadyCompleted && mode === 'daily') {
             // Show countdown timer for next daily color
             buttonContent = '<div id="nextColorTimer" class="stats-button" style="cursor: default;">Next Color: <span id="timerDisplay">--:--:--</span></div>';
+        } else if (isGameOver) {
+            // Game is over - show "PLAY AGAIN" button that restarts
+            buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY AGAIN</button>';
         } else {
-            buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY NOW</button>';
+            // Game is in progress - show "PLAY NOW" button that just closes modal
+            buttonContent = '<button class="stats-button" onclick="closeModal()">PLAY NOW</button>';
         }
         
         const statsContent = `
@@ -1710,8 +1717,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Make stats functions globally accessible
+    // Make stats and modal functions globally accessible
     window.showStatsModal = showStatsModal;
     window.getStats = getStats;
     window.saveStats = saveStats;
+    window.closeModal = closeModal;
 });
