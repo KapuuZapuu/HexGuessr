@@ -97,6 +97,7 @@ class HexColorWordle {
         this.colorVisible = false;
         this.hasRevealedThisAttempt = false;
         this.baseDuration = 1000; // 1 second for first attempt
+        this.isAnimating = false; // Track if guess animation is playing
         
         // Track all guesses and their errors for statistics
         this.guessHistory = []; // Array of {hex, colorError}
@@ -227,7 +228,7 @@ class HexColorWordle {
     }
 
     handleKeydown = (e) => {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isAnimating) return;
         // accept input anywhere; if user is typing in another field, ignore
         const active = document.activeElement;
         const isTypingInInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
@@ -364,7 +365,7 @@ class HexColorWordle {
     attachPasteHandlers() {
         this.pasteButtons.forEach((btn, idx) => {
             btn.onclick = async () => {
-                if (this.gameOver || idx !== this.currentRow) return;
+                if (this.gameOver || this.isAnimating || idx !== this.currentRow) return;
                 try {
                     const text = await navigator.clipboard.readText();
                     const hex = (text || '').replace(/[^0-9A-Fa-f]/g, '').toUpperCase().slice(0, 6);
@@ -396,7 +397,7 @@ class HexColorWordle {
         this.keyboardEl = document.getElementById('hexKeyboard');
         if (!this.keyboardEl) return;
         this.keyboardEl.addEventListener('click', (e) => {
-            if (this.gameOver) return;
+            if (this.gameOver || this.isAnimating) return;
             const btn = e.target.closest('.key-btn');
             if (!btn) return;
             const action = btn.dataset.action || '';
@@ -726,7 +727,7 @@ class HexColorWordle {
     }
 
     submitGuess() {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isAnimating) return;
         // Do not allow guesses while the reveal timer is active
         if (this.colorVisible) {
             this.showWaitForRevealNotification();
@@ -781,15 +782,25 @@ class HexColorWordle {
 
         // lock the row UI
         this.lockCurrentRow();
+        
+        // Set animation flag to prevent input during animation
+        this.isAnimating = true;
                 
-        // Reset reveal ability for next attempt
-        this.hasRevealedThisAttempt = false;
-        this.colorDisplay.classList.remove('disabled');
-        if (!this.colorVisible) {
-            this.colorDisplay.textContent = 'Click to reveal color!';
-        }
-                
+        // Process the guess animation first
         this.processGuess(guess);
+        
+        // Reset reveal ability for next attempt AFTER animation completes
+        // Animation timing: last cell starts at 5*140ms=700ms, animation duration is 360ms = 1060ms total
+        setTimeout(() => {
+            this.isAnimating = false; // Allow input again
+            if (!this.gameOver) {
+                this.hasRevealedThisAttempt = false;
+                this.colorDisplay.classList.remove('disabled');
+                if (!this.colorVisible) {
+                    this.colorDisplay.textContent = 'Click to reveal color!';
+                }
+            }
+        }, 1100); // Wait for all animations to complete
         this.colorizeRowLabel(this.currentRow, guess);
         this.clearCurrentRowBuffer();
         
@@ -892,7 +903,7 @@ class HexColorWordle {
         // Delay color reveal until animations complete
         setTimeout(() => {
             this.colorDisplay.style.background = `#${this.targetColor}`;
-            this.colorDisplay.classList.remove('hidden');
+            this.colorDisplay.classList.remove('hidden', 'disabled'); // Remove disabled to prevent gray text
             this.colorDisplay.textContent = `#${this.targetColor}`;
             this.colorDisplay.classList.add('game-ended');
             
@@ -1043,6 +1054,7 @@ class HexColorWordle {
         this.gameOver = false;
         this.colorVisible = false;
         this.hasRevealedThisAttempt = false;
+        this.isAnimating = false; // Reset animation flag
         this.guessHistory = []; // Reset guess history for new game
                 
         this.colorDisplay.classList.add('hidden');
@@ -1422,8 +1434,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const statsBtn = document.getElementById('statsButton');
     if (statsBtn) {
         statsBtn.addEventListener('click', () => {
-            // Check if daily is already completed for timer display
-            const isDailyCompleted = window.gameInstance?.dailyAlreadyCompleted || false;
+            // Check if daily mode game is completed (either loaded as completed or just finished)
+            const isDailyCompleted = window.gameInstance?.mode === 'daily' && window.gameInstance?.gameOver;
             showStatsModal(isDailyCompleted);
         });
     }

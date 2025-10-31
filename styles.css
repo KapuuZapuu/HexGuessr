@@ -397,6 +397,10 @@ body:not(.dark) .color-display.game-ended {
         -1px  1px 0 #000000,
         1px  1px 0 #000000;
 }
+.color-display.game-ended {
+    cursor: default;
+    pointer-events: none;
+}
 .color-display.disabled {
     cursor: default !important;
     color: #787878 !important;
