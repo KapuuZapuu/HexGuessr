@@ -144,7 +144,7 @@ class HexColorWordle {
                 if (typeof window.showStatsModal === 'function') {
                     window.showStatsModal(true); // true = already completed
                 }
-            }, 500); // Small delay for page load
+            }, 2000); // Small delay for page load
         }
     }
 
@@ -1504,11 +1504,11 @@ window.addEventListener('DOMContentLoaded', async () => {
             // Show countdown timer for next daily color
             buttonContent = '<div id="nextColorTimer" class="stats-button" style="cursor: default;">Next Color: <span id="timerDisplay">--:--:--</span></div>';
         } else if (isGameOver) {
-            // Game is over - show "PLAY AGAIN" button that restarts
-            buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY AGAIN</button>';
+            // Game is over - show "PLAY AGAIN!" button that restarts
+            buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY AGAIN!</button>';
         } else {
-            // Game is in progress - show "PLAY NOW" button that just closes modal
-            buttonContent = '<button class="stats-button" onclick="closeModal()">PLAY NOW</button>';
+            // Game is in progress - show "PLAY!" button that just closes modal
+            buttonContent = '<button class="stats-button" onclick="closeModal()">PLAY!</button>';
         }
         
         const statsContent = `
@@ -1557,6 +1557,20 @@ window.addEventListener('DOMContentLoaded', async () => {
             tomorrow.setUTCHours(24, 0, 0, 0); // Next midnight UTC
             
             const diff = tomorrow - now;
+            
+            // Check if new day has arrived (timer hit zero or went negative)
+            if (diff <= 0) {
+                // Replace timer with "PLAY NEW DAILY" button
+                const timerContainer = document.getElementById('nextColorTimer');
+                if (timerContainer) {
+                    timerContainer.innerHTML = '<button class="stats-button" onclick="window.location.reload()">PLAY NEW DAILY COLOR!</button>';
+                }
+                
+                // Stop the interval since we've shown the button
+                clearInterval(interval);
+                return;
+            }
+            
             const hours = Math.floor(diff / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
