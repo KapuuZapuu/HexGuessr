@@ -315,36 +315,31 @@ html.dark .hex-prefix {
     color: #ffffff;
 }
 
+/* ─────────────────────────── ASCII Title ─────────────────────── */
 .ascii-title {
     /* Monospace ensures each character is exactly the same width */
     font-family: monospace;
     /* Preserve every space and line‐break exactly as you type them */
     white-space: pre;
-    /* Prevent it from wrapping mid‑line */
-    overflow-x: auto;
     color: inherit;
     text-align: center;
     margin: 0 auto;
     padding: 30px 20px 20px;
-    line-height: 1em;
-    font-size: 1em;
+    line-height: 0.95em; /* Slightly more vertical space between lines */
+    font-size: min(0.8em, 1.5vw); /* Responsive font size */
     min-width: 0;
     max-width: 100%;
+    overflow-x: visible; /* Allow content to be visible */
+    width: 100%; /* Take full width of container */
     cursor: pointer;
     user-select: none;
     transition: opacity 0.2s ease;
     flex-basis: 100%; /* Title takes full width */
-    width: fit-content;
     order: 1; /* Appears first (at top) */
+    pointer-events: none;
+    text-rendering: optimizeSpeed; /* Improve rendering of small text */
+    letter-spacing: 0.00em;
 }
-
-/* Scale down font size on very small screens */
-@media (max-width: 31.25em) {
-    .ascii-title {
-        font-size: 0.8em;
-    }
-}
-
 .ascii-title:hover {
     color: #333333;
 }
@@ -354,6 +349,8 @@ html.dark .ascii-title:hover {
 /* animate every character - but only when active */
 .ascii-title span {
     display: inline-block;                      /* so animation-delay works per char */
+    pointer-events: auto;
+    cursor: pointer;
 }
 /* Only animate when .animating class is present */
 .ascii-title.animating span {
@@ -372,16 +369,16 @@ html.dark .ascii-title:hover {
 }
 
 .color-display {
-    width: 200px;
-    height: 200px;
+    width: min(200px, 40vw);
+    height: min(200px, 40vw);
     margin: 20px 0;
     cursor: pointer;
     display: flex;
     align-items: center;
-    filter: drop-shadow(6px 6px 0 var(--icon-shadow)); /* same shadow as icons */
+    filter: drop-shadow(6px 6px 0 var(--icon-shadow));
     justify-content: center;
     text-align: center;
-    font-size: 18px;
+    font-size: clamp(14px, 3vw, 18px);
     color: black;
     margin: 0;
 }
@@ -448,20 +445,24 @@ html.dark .color-display.hidden:hover {
     padding: 20px;
     background: rgba(58, 36, 36, 0.1);
     position: relative;
-    box-sizing: border-box;       /* include padding in the width calculation */
-    width: 100%;                  /* fill up to… */
-    max-width: 665px;             /* …your measured container width */
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 665px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .color-picker-main {
     display: flex;
     align-items: flex-start;
     gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .color-canvas {
-    width: 200px;
-    height: 200px;
+    width: min(200px, 40vw);
+    height: min(200px, 40vw);
     filter: none;
     box-shadow: 6px 6px 0 var(--icon-shadow);
     cursor: pointer;
@@ -490,7 +491,7 @@ html.dark .color-display.hidden:hover {
 
 .hue-slider {
     width: 20px;
-    height: 200px;
+    height: min(200px, 40vw);
     background: linear-gradient(to bottom, 
         #f00 0%, #ff0 16.66%, #0f0 33.33%, 
         #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
