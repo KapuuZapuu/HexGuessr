@@ -766,6 +766,8 @@ class HexColorWordle {
 
     submitGuess() {
         if (this.gameOver || this.isAnimating) return;
+        // Block submission if modal is open
+        if (document.body.classList.contains('modal-open')) return;
         // Do not allow guesses while the reveal timer is active
         if (this.colorVisible) {
             this.showWaitForRevealNotification();
@@ -1406,17 +1408,72 @@ window.addEventListener('DOMContentLoaded', async () => {
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modalBody');
     const modalOverlay = modal?.querySelector('.modal-overlay');
+    
+    let focusTrapHandler = null;
+
+    function setupFocusTrap() {
+        // Remove old handler if exists
+        if (focusTrapHandler) {
+            document.removeEventListener('keydown', focusTrapHandler);
+        }
+        
+        // Get all focusable elements within the modal
+        const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const focusableElements = modal.querySelectorAll(focusableSelectors);
+        const focusableArray = Array.from(focusableElements).filter(el => {
+            // Filter out hidden or disabled elements
+            return el.offsetParent !== null && !el.disabled;
+        });
+        
+        if (focusableArray.length === 0) return;
+        
+        const firstFocusable = focusableArray[0];
+        const lastFocusable = focusableArray[focusableArray.length - 1];
+        
+        // Focus the first element
+        firstFocusable.focus();
+        
+        // Create trap handler
+        focusTrapHandler = (e) => {
+            if (e.key !== 'Tab') return;
+            
+            const modalIsOpen = document.body.classList.contains('modal-open');
+            if (!modalIsOpen) return;
+            
+            if (e.shiftKey) {
+                // Shift+Tab: if on first element, wrap to last
+                if (document.activeElement === firstFocusable) {
+                    e.preventDefault();
+                    lastFocusable.focus();
+                }
+            } else {
+                // Tab: if on last element, wrap to first
+                if (document.activeElement === lastFocusable) {
+                    e.preventDefault();
+                    firstFocusable.focus();
+                }
+            }
+        };
+        
+        document.addEventListener('keydown', focusTrapHandler);
+    }
 
     function openModal(content) {
         if (!modal || !modalBody) return;
         modalBody.innerHTML = content;
         modal.style.display = 'flex';
         
+        // Block background interactions
+        document.body.classList.add('modal-open');
+        
         // Attach close button handler (now inside modal content)
         const modalClose = modalBody.querySelector('.modal-close');
         if (modalClose) {
             modalClose.addEventListener('click', closeModal);
         }
+        
+        // Setup focus trap: find all focusable elements in modal
+        setupFocusTrap();
         
         // Force reflow to ensure initial state is rendered
         void modal.offsetWidth;
@@ -1430,6 +1487,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     function closeModal() {
         if (!modal) return;
         modal.classList.remove('open');
+        
+        // Re-enable background interactions
+        document.body.classList.remove('modal-open');
+        
+        // Remove focus trap handler
+        if (focusTrapHandler) {
+            document.removeEventListener('keydown', focusTrapHandler);
+            focusTrapHandler = null;
+        }
+        
         // Wait for animation to finish before hiding
         setTimeout(() => {
             modal.style.display = 'none';
@@ -1445,12 +1512,53 @@ window.addEventListener('DOMContentLoaded', async () => {
         modalOverlay.addEventListener('click', closeModal);
     }
 
-    // ESC key handler
+    // Global keyboard event blocker for modal
+    // Prevents all keyboard input to background when modal is open
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal?.style.display === 'flex') {
-            closeModal();
+        const modalIsOpen = document.body.classList.contains('modal-open');
+        
+        if (modalIsOpen) {
+            // Allow Escape to close modal from anywhere
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeModal();
+                return;
+            }
+            
+            // Check if the event target is inside the modal
+            const isInsideModal = modal && modal.contains(e.target);
+            
+            // Special handling for Enter key - only allow if clicking a button/link inside modal
+            if (e.key === 'Enter' && !isInsideModal) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation(); // Also stop other listeners on same element
+                return;
+            }
+            
+            // Block all other keyboard events targeting elements outside the modal
+            if (!isInsideModal) {
+                e.preventDefault(); // Prevent default browser behavior (Tab navigation, Enter activation)
+                e.stopPropagation(); // Prevent event from reaching game handlers
+            }
         }
-    });
+    }, true); // Use capture phase to intercept before game handlers
+    
+    // Also block paste events when modal is open
+    document.addEventListener('paste', (e) => {
+        const modalIsOpen = document.body.classList.contains('modal-open');
+        if (modalIsOpen) {
+            e.stopPropagation();
+        }
+    }, true); // Use capture phase
+    
+    // Block scroll/wheel events on background when modal is open
+    document.addEventListener('wheel', (e) => {
+        const modalIsOpen = document.body.classList.contains('modal-open');
+        if (modalIsOpen && !modal.contains(e.target)) {
+            e.preventDefault();
+        }
+    }, { passive: false, capture: true });
 
     // Info/Help button
     const infoBtn = document.getElementById('infoButton');

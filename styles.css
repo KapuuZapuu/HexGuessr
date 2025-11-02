@@ -95,12 +95,18 @@ button, input, select, textarea {
     padding: 5px 30px;
 }
 
+/* Block pointer events on background when modal is open */
+body.modal-open .layout-container {
+    pointer-events: none;
+}
+
 .game-header {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    position: relative;
     width: 100%;
+    gap: 20px;
 }
         
 .game-container {
@@ -108,28 +114,23 @@ button, input, select, textarea {
     width: 100%;
 }
 
-/* Top-right container for the two buttons */
+/* Icon buttons container */
 .top-controls {
-    position: absolute;
-    right: 5px;
-    transform: none;
     display: flex;
     gap: 12px;
-    z-index: 1000;
     align-items: center;
     margin: 0;
+    order: 3; /* Appears third (after title and mode buttons) */
 }
 
 .mode-container {
-    position: absolute;
-    left: 5px;
-    transform: none;
     display: flex;
     align-items: center;
-    gap: 10px;             /* matches your other flex gaps */
-    padding: 10px;         /* same "cushion" as your color picker */
+    gap: 10px;
+    padding: 10px;
     background: rgba(143, 143, 143, 0.1);
     margin: 0;
+    order: 2; /* Appears second (after title, before icons) */
 }
 /* Button styling, same aesthetic as your "click to reveal" square */
 .mode-btn {
@@ -218,7 +219,7 @@ body {
     font-family: var(--ps2p-stack);
     margin: 0;
     padding: 20px;
-    background: #f0f0f0;
+    background: #f5f5f5;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -227,6 +228,12 @@ body {
     --icon-shadow: #c8c8c8;
     /* Override FOUC prevention for immediate display */
 }
+
+/* Prevent scrolling when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
 /* Dark-mode overrides */
 html.dark {
     background: #262626;
@@ -309,25 +316,35 @@ html.dark .hex-prefix {
 }
 
 .ascii-title {
-    /* 1) Monospace ensures each character is exactly the same width */
+    /* Monospace ensures each character is exactly the same width */
     font-family: monospace;
-    /* 2) Preserve every space and line‐break exactly as you type them */
+    /* Preserve every space and line‐break exactly as you type them */
     white-space: pre;
-    /* 3) Prevent it from wrapping mid‑line */
+    /* Prevent it from wrapping mid‑line */
     overflow-x: auto;
-    /* Optional styling to match your theme */
     color: inherit;
     text-align: center;
     margin: 0 auto;
     padding: 30px 20px 20px;
-    line-height: 1em;      /* tighten the lines if you like */
-    font-size: 1em;        /* adjust so it fits */
-    position: static;
+    line-height: 1em;
+    font-size: 1em;
     min-width: 0;
-    cursor: pointer;       /* make it clickable */
-    user-select: none;     /* prevent text selection */
+    max-width: 100%;
+    cursor: pointer;
+    user-select: none;
     transition: opacity 0.2s ease;
+    flex-basis: 100%; /* Title takes full width */
+    width: fit-content;
+    order: 1; /* Appears first (at top) */
 }
+
+/* Scale down font size on very small screens */
+@media (max-width: 31.25em) {
+    .ascii-title {
+        font-size: 0.8em;
+    }
+}
+
 .ascii-title:hover {
     color: #333333;
 }
