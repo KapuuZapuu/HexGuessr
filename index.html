@@ -85,35 +85,37 @@
 
     <div class="layout-container">
         <header class="game-header">
-            <!-- mode selector buttons -->
-            <div class="mode-container">
-                <a class="mode-btn" href="/">Daily</a>
-                <a class="mode-btn" href="/unlimited">Unlimited</a>
-            </div>
-
-<pre class="ascii-title">
+            <div class="ascii-wrap">
+                <pre class="ascii-title">
 ██╗  ██╗███████╗██╗  ██╗ ██████╗ ██╗   ██╗███████╗███████╗███████╗██████╗ 
 ██║  ██║██╔════╝╚██╗██╔╝██╔════╝ ██║   ██║██╔════╝██╔════╝██╔════╝██╔══██╗
 ███████║█████╗   ╚███╔╝ ██║  ███╗██║   ██║█████╗  ███████╗███████╗██████╔╝
 ██╔══██║██╔══╝   ██╔██╗ ██║   ██║██║   ██║██╔══╝  ╚════██║╚════██║██╔══██╗
 ██║  ██║███████╗██╔╝ ██╗╚██████╔╝╚██████╔╝███████╗███████║███████║██║  ██║
 ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝
-</pre>
+                </pre>
+            </div>
 
-            <div class="top-controls">
+            <div class="header-row">
+                <!-- mode selector buttons -->
+                <div class="mode-container">
+                    <a class="mode-btn" href="/">Daily</a>
+                    <a class="mode-btn" href="/unlimited">Unlimited</a>
+                </div>
+                <div class="top-controls">
+                    <!-- Help / Instructions -->
+                    <button id="infoButton" class="icon-btn has-tooltip" aria-label="How To Play"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-question"></use></svg></button>
 
-                <!-- Help / Instructions -->
-                <button id="infoButton" class="icon-btn has-tooltip" aria-label="How To Play"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-question"></use></svg></button>
+                    <!-- Stats (if you have a stats panel) -->
+                    <button id="statsButton" class="icon-btn has-tooltip" aria-label="Stats"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-stats"></use></svg></button>
 
-                <!-- Stats (if you have a stats panel) -->
-                <button id="statsButton" class="icon-btn has-tooltip" aria-label="Stats"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-stats"></use></svg></button>
-
-                <!-- Dark‑mode toggle -->
-                <button id="darkModeToggle" class="icon-btn has-tooltip" aria-label="Dark Mode"><svg class="icon icon--moon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-darkmode"></use></svg><svg class="icon icon--sun" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-lightmode"></use></svg></button>
+                    <!-- Dark‑mode toggle -->
+                    <button id="darkModeToggle" class="icon-btn has-tooltip" aria-label="Dark Mode"><svg class="icon icon--moon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-darkmode"></use></svg><svg class="icon icon--sun" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-lightmode"></use></svg></button>
+                </div>
             </div>
         </header>        
 
-        <div class="game-container">   
+        <main class="game-container">   
             <div class="color-game-section">
                 <div class="custom-color-picker">
                     <div class="color-display hidden" id="colorDisplay">
@@ -135,7 +137,7 @@
                             <div class="hex-input-container">
                                 <span class="hex-prefix">#</span>
                                 <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                                <button id="copyBtn" class="hex-copy-btn has-tooltip" aria-label="Copy"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-copy"></use></svg></button>
+                                <button id="copyBtn" class="hex-copy-btn has-tooltip" aria-label="Copy"><svg class="icon icon--paste" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-copy"></use></svg></button>
                             </div>
                         </div>
                     </div>
@@ -150,7 +152,7 @@
             <div class="input-section">
                 <div class="hex-grid-wrapper">
                     <div id="hexGrid" class="hex-grid" aria-label="Hex guess grid"></div>
-                    <div style="font-family: var(--ps2p-stack); font-size: 12px;">
+                    <div class="keyboard-shell">
                         <div id="hexKeyboard" class="hex-keyboard" aria-label="On-screen hex keyboard">
                             <div class="keyboard-row">
                                 <button class="key-btn" data-key="0">0</button>
@@ -180,7 +182,7 @@
             </div>
 
             <div class="guesses-container" id="guessesContainer"></div>
-        </div>
+        </main>
     </div>
 
     <!-- Reusable Modal -->

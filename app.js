@@ -123,6 +123,9 @@ class HexColorWordle {
         if (this.mode === 'daily') {
             this.loadDailyGameState();
         }
+
+        window.addEventListener('resize', this.handleResize);
+
         // keyboard input
         document.addEventListener('keydown', this.handleKeydown);
         
@@ -204,7 +207,7 @@ class HexColorWordle {
             pasteBtn.setAttribute('aria-label','Paste');
             const svgNS = 'http://www.w3.org/2000/svg';
             const pasteSvg = document.createElementNS(svgNS, 'svg');
-            pasteSvg.setAttribute('class', 'icon icon--sm');
+            pasteSvg.setAttribute('class', 'icon icon--paste');
             pasteSvg.setAttribute('viewBox', '0 0 15 15');
             const use = document.createElementNS(svgNS, 'use');
             use.setAttribute('href', '#icon-paste');
@@ -471,13 +474,23 @@ class HexColorWordle {
     }
             
     setupColorPickerListeners() {
-        // Canvas click/drag
         let isDraggingCanvas = false;
+        let isDraggingHue = false;
+
+        const startDrag = () => {
+            document.body.classList.add('color-dragging');
+        };
+        const endDrag = () => {
+            document.body.classList.remove('color-dragging');
+        };
+
+        // Canvas click/drag
         this.colorCanvas.addEventListener('mousedown', (e) => {
             isDraggingCanvas = true;
+            startDrag();
             this.updateCanvasPosition(e);
         });
-                
+
         document.addEventListener('mousemove', (e) => {
             if (isDraggingCanvas) {
                 this.updateCanvasPosition(e);
@@ -486,24 +499,25 @@ class HexColorWordle {
                 this.updateHuePosition(e);
             }
         });
-                
+
         document.addEventListener('mouseup', () => {
-            isDraggingCanvas = false;
-            isDraggingHue = false;
+            if (isDraggingCanvas || isDraggingHue) {
+                isDraggingCanvas = false;
+                isDraggingHue = false;
+                endDrag();
+            }
         });
-                
+
         // Hue slider click/drag
-        let isDraggingHue = false;
         this.hueSlider.addEventListener('mousedown', (e) => {
             isDraggingHue = true;
+            startDrag();
             this.updateHuePosition(e);
         });
 
         // 1) Block bad keys _before_ they ever enter the field
         this.hexInputField.addEventListener("keydown", e => {
-            // allow navigation / copy-paste etc.
             if (e.metaKey || e.ctrlKey || e.altKey) return;
-            // only block single‐char keys that aren't 0–9 or A–F
             if (e.key.length === 1 && !/^[0-9A-Fa-f]$/.test(e.key)) {
                 e.preventDefault();
             }
@@ -512,31 +526,24 @@ class HexColorWordle {
         // Hex input field
         this.hexInputField.addEventListener('input', (e) => {
             const input = e.target;
-            // save where the caret was
             const pos = input.selectionStart;
-            // filter + uppercase
             const filtered = input.value
                 .replace(/[^0-9A-Fa-f]/g, '')
                 .toUpperCase();
             input.value = filtered;
-            // put the caret back where it was
             input.setSelectionRange(pos, pos);
 
             if (filtered.length === 6) {
                 this.updateFromHex(filtered);
             }
         });
-                
+
         // Copy button
-        // --- helpers for tooltip text swap ---
         function setCopied(btn, text = "Copied!") {
-            // remember prior label so we can restore it later
             if (!btn.dataset.prevLabel) {
                 btn.dataset.prevLabel = btn.getAttribute("aria-label") || "Copy";
             }
             btn.setAttribute("aria-label", text);
-
-            // show tooltip even if the user isn't hovering (keyboard click)
             btn.classList.add("show-tooltip");
         }
         function restoreLabel(btn) {
@@ -544,7 +551,7 @@ class HexColorWordle {
             btn.setAttribute("aria-label", btn.dataset.prevLabel || "Copy");
             delete btn.dataset.prevLabel;
         }
-        // --- inside setupColorPickerListeners ---
+
         this.copyBtn.addEventListener('click', async () => {
             const hexValue = (this.hexInputField.value || '')
                 .toUpperCase()
@@ -560,17 +567,14 @@ class HexColorWordle {
                 throw new Error('Clipboard API unavailable');
             } 
             catch {
-                // Fallback only if needed (may be deprecated, but still works today)
                 try {
                     const ta = document.createElement('textarea');
                     ta.value = text;
                     ta.style.position = 'fixed';
                     ta.style.opacity = '0';
                     document.body.appendChild(ta);
-                    // Avoid scroll jump on focus
                     try { ta.focus({ preventScroll: true }); } catch { ta.focus(); }
                     ta.select();
-                    // eslint-disable-next-line deprecation/deprecation
                     document.execCommand('copy');
                     document.body.removeChild(ta);
                     setCopied(this.copyBtn, "Copied!");
@@ -580,10 +584,10 @@ class HexColorWordle {
                 }
             }
         });
-        // Revert only when the user stops hovering or the button loses focus
+
         this.copyBtn.addEventListener("pointerleave", () => restoreLabel(this.copyBtn));
         this.copyBtn.addEventListener("blur", () => restoreLabel(this.copyBtn));
-                
+
         // Initialize color picker
         this.currentHue = 0;
         this.currentSaturation = 1;
@@ -669,20 +673,21 @@ class HexColorWordle {
         const r = parseInt(hex.substr(0, 2), 16) / 255;
         const g = parseInt(hex.substr(2, 2), 16) / 255;
         const b = parseInt(hex.substr(4, 2), 16) / 255;
-                
+
         // Convert RGB to HSV
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
         const delta = max - min;
-                
+
         let h, s, v = max;
-                
+
         if (delta === 0) {
             h = 0;
             s = 0;
-        } else {
+        } 
+        else {
             s = delta / max;
-                    
+
             switch (max) {
                 case r: h = (g - b) / delta + (g < b ? 6 : 0); break;
                 case g: h = (b - r) / delta + 2; break;
@@ -690,28 +695,46 @@ class HexColorWordle {
             }
             h /= 6;
         }
-                
+
         // Update internal state
-        this.currentHue = h * 360;
+        this.currentHue        = h * 360;
         this.currentSaturation = s;
-        this.currentValue = v;
-                
-        // Update UI positions
-        const huePos = (this.currentHue / 360) * this.hueSlider.offsetHeight;
-        this.hueCursor.style.top = huePos + 'px';
-                
-        const canvasX = this.currentSaturation * this.colorCanvas.offsetWidth;
-        const canvasY = (1 - this.currentValue) * this.colorCanvas.offsetHeight;
-        this.canvasCursor.style.left = canvasX + 'px';
-        this.canvasCursor.style.top = canvasY + 'px';
-                
-        // Update canvas background
-        const hueColor = `hsl(${this.currentHue}, 100%, 50%)`;
-        this.colorCanvas.style.background = `linear-gradient(to right, #fff, ${hueColor})`;
-                
-        // Update preview
+        this.currentValue      = v;
+
+        // Re-position cursors & canvas based on state
+        this.syncCursorsFromState();
+
+        // Update preview + hex field
         this.colorPreview.style.backgroundColor = `#${hex}`;
+        this.hexInputField.value = hex;
     }
+
+    handleResize = () => {
+        // recompute cursor positions based on current HSV
+        this.syncCursorsFromState();
+    };
+
+    syncCursorsFromState() {
+        // Hue slider cursor
+        const sliderHeight = this.hueSlider.clientHeight;
+        const huePos = (this.currentHue / 360) * sliderHeight;
+        this.hueCursor.style.top = huePos + 'px';
+
+        // Canvas cursor
+        const canvasWidth  = this.colorCanvas.clientWidth;
+        const canvasHeight = this.colorCanvas.clientHeight;
+        const canvasX = this.currentSaturation * canvasWidth;
+        const canvasY = (1 - this.currentValue) * canvasHeight;
+
+        this.canvasCursor.style.left = canvasX + 'px';
+        this.canvasCursor.style.top  = canvasY + 'px';
+
+        // Canvas background for the current hue
+        const hueColor = `hsl(${this.currentHue}, 100%, 50%)`;
+        this.colorCanvas.style.background =
+            `linear-gradient(to right, #fff, ${hueColor})`;
+    }
+
 
     generateRandomColor() {
         return Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase();
@@ -1573,18 +1596,18 @@ window.addEventListener('DOMContentLoaded', async () => {
                         </svg>
                     </button>
                 </div>
-                <div style="font-size: 12px; line-height: 1.8;">
-                    <p style="margin-bottom: 15px;"><strong>HexGuessr</strong> is a color guessing game based on Wordle using hexcodes.</p>
-                    <p style="margin-bottom: 10px;"><span class="number-box">1</span> Click the square to briefly reveal the target color.</p>
-                    <p style="margin-bottom: 10px;"><span class="number-box">2</span> Enter your 6-digit hexcode guess and press Enter.</p>
-                    <p style="margin-bottom: 10px;"><span class="number-box">3</span> Color feedback:</p>
+                <div class="modal-body-text">
+                    <p class="modal-paragraph-intro"><strong>HexGuessr</strong> is a color guessing game based on Wordle using hexcodes.</p>
+                    <p class="modal-paragraph"><span class="number-box">1</span> Click the square to briefly reveal the target color.</p>
+                    <p class="modal-paragraph"><span class="number-box">2</span> Enter your 6-digit hexcode guess and press Enter.</p>
+                    <p class="modal-paragraph"><span class="number-box">3</span> Color feedback:</p>
                     <ul class="color-list">
-                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #4CAF50; vertical-align: middle; margin-right: 8px;"></span> = Correct digit in correct position</li>
-                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #FFC107; vertical-align: middle; margin-right: 8px;"></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
-                        <li style="margin-bottom: 8px;"><span style="display: inline-block; width: 20px; height: 20px; background: #f44336; vertical-align: middle; margin-right: 8px;"></span> = Digit is off by more than 1</li>
+                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--correct"></span></span> = Correct digit in correct position</li>
+                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--near"></span></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
+                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--far"></span></span> = Digit is off by more than 1</li>
                     </ul>
-                    <p style="margin-bottom: 10px;"><span class="number-box">4</span> You have 6 attempts – good luck!</p>
-                    <p style="margin-top: 20px; font-size: 10px; opacity: 0.7;">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" style="color: inherit; text-decoration: underline;">here</a>.</p>
+                    <p class="modal-paragraph"><span class="number-box">4</span> You have 6 attempts – good luck!</p>
+                    <p class="modal-footer-text">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" style="color: inherit; text-decoration: underline;">here</a>.</p>
                 </div>
             `;
             openModal(helpContent);
@@ -1610,7 +1633,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         let buttonContent;
         if (dailyAlreadyCompleted && mode === 'daily') {
             // Show countdown timer for next daily color
-            buttonContent = '<div id="nextColorTimer" class="stats-button" style="cursor: default;">Next Color: <span id="timerDisplay">--:--:--</span></div>';
+            buttonContent = '<div id="nextColorTimer" class="stats-button">Next Color: <span id="timerDisplay">--:--:--</span></div>';
         } else if (isGameOver) {
             // Game is over - show "PLAY AGAIN!" button that restarts
             buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY AGAIN!</button>';
@@ -1628,7 +1651,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     </svg>
                 </button>
             </div>
-            <div style="padding: 10px;">
+            <div class="stats-body">
                 <div class="stats-grid" id="statsGrid">
                     ${createStatCell(stats.gamesPlayed, 'Games Played', 0)}
                     ${createStatCell(stats.gamesWon, 'Games Won', 1)}

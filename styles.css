@@ -1,4 +1,7 @@
-/* Self-hosted font for instant loading */
+/* ==========================================================================
+   FONTS
+   ========================================================================== */
+
 @font-face {
     font-family: 'Press Start 2P';
     font-style: normal;
@@ -9,58 +12,404 @@
          url('assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf') format('truetype');
 }
 
-/* Define a shadow variable for light mode */
-:root {
-    /* icon shadow mechanic: */
-    --icon-shadow: #c8c8c8;  /* softer on light backgrounds */
-    /* icon hover mechanic: */
-    --icon-color: #000000;
-    --icon-color-hover: #555555;
-    /* tooltip variables: */
-    --tip-bg: #000;
-    --tip-fg: #fff;
-    --tip-offset: 8px;
-    /* Monospace fallbacks reduce the visual jump before the webfont loads */
-    --ps2p-stack:   'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco,
-                    Consolas, 'Liberation Mono', 'Courier New', monospace;
+/* ==========================================================================
+   CSS VARIABLES
+   ========================================================================== */
 
-  /* responsive tile + gaps + side label sizes */
-  --cell: clamp(36px, 9.5vw, 50px);
-  --gap: clamp(6px, 2.5vw, 12px);
-  --side: clamp(20px, 5vw, 32px);
+:root {
+    /* Typography */
+    --ps2p-stack: 'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco,
+                  Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+    /* ===== APP-WIDE SCALE DRIVER ===== */
+    --app-scale: clamp(8px, 4vw, 28px);
+
+    /* ===== SPACING SCALE ===== */
+    --spacing-xs: calc(var(--app-scale) * 0.15);
+    --spacing-sm: calc(var(--app-scale) * 0.25);
+    --spacing-md: calc(var(--app-scale) * 0.6);
+    --spacing-lg: calc(var(--app-scale) * 0.75);
+    --spacing-xl: calc(var(--app-scale) * 1.1);
+
+    /* ===== SHADOWS & EFFECTS ===== */
+    --shadow-header-offset: calc(var(--app-scale) * 0.16);
+    --shadow-body-offset: calc(var(--app-scale) * 0.2);
+    --shadow-grid-offset: calc(var(--app-scale) * 0.175);
+    --shadow-paste-offset: calc(var(--app-scale) * 0.125);
+    --shadow-key-offset: calc(var(--app-scale) * 0.175);
+    --shadow-modal-offset: calc(var(--app-scale) * 0.325);
+    --shadow-button-offset: calc(var(--app-scale) * 0.125);
+    --shadow-number-box-offset: calc(var(--app-scale) * 0.075);
+    --shadow-modal-title-offset: calc(var(--app-scale) * 0.175);
+    --shadow-timer-offset: calc(var(--app-scale) * 0.25);
+
+    /* ===== TOOLTIP ===== */
+    --tip-offset: calc(var(--app-scale) * 0.325);
+    --tip-padding-v: calc(var(--app-scale) * 0.25);
+    --tip-padding-h: calc(var(--app-scale) * 0.325);
+    --tip-shadow-offset: calc(var(--app-scale) * 0.175);
+    --tip-hover-offset: calc(var(--app-scale) * 0.075);
+    --tip-font-size: calc(var(--app-scale) * 0.425);
+
+    /* ===== COMPONENT SIZES ===== */
+    --mode-btn-height: calc(var(--app-scale) * 1.4);
+    --mode-btn-width: calc(var(--app-scale) * 4.5);
+    --mode-btn-font-size: calc(var(--app-scale) * 0.42);
+
+    --icon-size: calc(var(--app-scale) * 1.6);
+    --icon-size-copy: calc(var(--app-scale) * 0.7);
+    --icon-size-paste: calc(var(--app-scale) * 1.1);
+    --icon-size-modal-close: calc(var(--app-scale) * 1.1);
+    --icon-size-footer: calc(var(--app-scale) * 0.8);
+
+    --color-display-size: calc(var(--app-scale) * 7);
+    --color-display-font-size: calc(var(--app-scale) * 0.65);
+    --color-canvas-size: calc(var(--app-scale) * 7);
+    --hue-slider-width: calc(var(--app-scale) * 0.7);
+    --key-height: calc(var(--app-scale) * 1.8);
+    --key-min-width: calc(var(--app-scale) * 1.4);
+    --key-padding: calc(var(--app-scale) * 0.3);
+    --key-font-size: calc(var(--app-scale) * 0.5);
+
+    /* ===== LAYOUT SIZES ===== */
+    --max-width-game: 960px;
+    --max-width-picker: 665px;
+    --max-width-modal: 500px;
+    --color-controls-width: calc(var(--app-scale) * 5.7);
+
+    /* ===== CURSOR & POINTER SIZES ===== */
+    --canvas-cursor-size: calc(var(--app-scale) * 0.45);
+    --hue-cursor-width: calc(var(--app-scale) * 0.8);
+    --hue-cursor-height: calc(var(--app-scale) * 0.6);
+    --cursor-border-width: calc(var(--app-scale) * 0.1);
+
+    /* ===== INPUT SIZES ===== */
+    --hex-input-height: calc(var(--app-scale) * 1.2);
+    --hex-prefix-space: calc(var(--app-scale) * 0.9);
+    --hex-prefix-left: calc(var(--app-scale) * 0.3);
+    --hex-input-padding: calc(var(--app-scale) * 0.35);
+    --hex-input-padding-offset: calc(var(--app-scale) * 0.175);
+    --hex-input-padding-right: calc(var(--app-scale) * 1.4);
+    --hex-copy-hitbox: var(--hex-input-height);
+    --hex-input-font-size: calc(var(--app-scale) * 0.42);
+
+    /* ===== TIMER BAR ===== */
+    --timer-bar-width: calc(var(--app-scale) * 22);
+    --timer-bar-height: calc(var(--app-scale) * 1.2);
+    --timer-bar-font-size: calc(var(--app-scale) * 0.42);
+
+    /* ===== ASCII TITLE ===== */
+    --ascii-font-size: calc(var(--app-scale) * 0.45);
+    --ascii-padding-top: calc(var(--app-scale) * 1.2);
+    --ascii-padding-h: calc(var(--app-scale) * 0.4);
+    --ascii-padding-bottom: calc(var(--app-scale) * 0.25);
+    --ascii-line-height: 0.95em;
+
+    /* ===== GRID ===== */
+    --cell-size: calc(var(--app-scale) * 1.8);
+    --gap-size: calc(var(--app-scale) * 0.5);
+    --side-size: calc(var(--app-scale) * 1.4);
+    --grid-cell-font-size: calc(var(--app-scale) * 0.6);
+    --grid-caret-width: calc(var(--app-scale) * 0.11);
+    --grid-caret-height: 60%;
+    --row-label-font-size: calc(var(--app-scale) * 1.1);
+
+    /* ===== ANIMATIONS ===== */
+    --jump-distance: calc(var(--app-scale) * -0.45);
+    --shake-distance: calc(var(--app-scale) * 0.175);
+    --toast-offset: calc(var(--app-scale) * -0.875);
+    --modal-transform-offset: calc(var(--app-scale) * -0.45);
+
+    /* ===== MODAL SPECIFIC ===== */
+    --modal-padding: calc(var(--app-scale) * 1.5);
+    --modal-title-padding-v: calc(var(--app-scale) * 0.625);
+    --modal-title-padding-h: calc(var(--app-scale) * 0.8);
+    --modal-title-border: calc(var(--app-scale) * 0.125);
+    --modal-title-letter-spacing: calc(var(--app-scale) * 0.075);
+    --modal-close-top: 50%;
+    --modal-close-right: calc(var(--app-scale) * 0.625);
+    --modal-close-padding: calc(var(--app-scale) * 0.2);
+    --modal-number-box-padding-v: calc(var(--app-scale) * 0.175);
+    --modal-number-box-padding-h: calc(var(--app-scale) * 0.35);
+    --modal-number-box-border: calc(var(--app-scale) * 0.1);
+    --modal-list-padding-left: calc(var(--app-scale) * 0.875);
+    --modal-title-font-size: calc(var(--app-scale) * 1.0);
+    --modal-body-font-size: calc(var(--app-scale) * 0.42);
+    --modal-footer-font-size: calc(var(--app-scale) * 0.425);
+
+    /* ===== STATS SPECIFIC ===== */
+    --stat-cell-padding: calc(var(--app-scale) * 0.625);
+    --stat-cell-value-font-size: calc(var(--app-scale) * 1.0);
+    --stat-cell-label-font-size: calc(var(--app-scale) * 0.425);
+    --stat-value-margin: calc(var(--app-scale) * 0.2);
+    --stat-value-letter-spacing: calc(var(--app-scale) * 0.04);
+    --stat-label-letter-spacing: calc(var(--app-scale) * 0.02);
+    --stats-button-padding-v: calc(var(--app-scale) * 0.5);
+    --stats-button-padding-h: calc(var(--app-scale) * 1.25);
+    --stats-button-border: calc(var(--app-scale) * 0.125);
+    --stats-button-letter-spacing: calc(var(--app-scale) * 0.04);
+    --stats-button-font-size: calc(var(--app-scale) * 0.42);
+    --stats-grid-gap: calc(var(--app-scale) * 0.575);
+
+    /* ===== TOAST SPECIFIC ===== */
+    --toast-padding-v: calc(var(--app-scale) * 0.5);
+    --toast-padding-h: calc(var(--app-scale) * 0.8);
+    --toast-border: calc(var(--app-scale) * 0.1);
+    --toast-top: calc(var(--app-scale) * 1.625);
+    --toast-gap: calc(var(--app-scale) * 0.4);
+    --toast-font-size: calc(var(--app-scale) * 0.42);
+
+    /* ===== FOOTER SPECIFIC ===== */
+    --footer-padding: calc(var(--app-scale) * 0.6);
+    --footer-gap: calc(var(--app-scale) * 0.6);
+    --footer-letter-spacing: calc(var(--app-scale) * 0.04);
+    --footer-margin-top: calc(var(--app-scale) * 1.625);
+    --footer-font-size: calc(var(--app-scale) * 0.35);
+
+    /* ===== BUTTON/CONTROL GAPS ===== */
+    --header-row-gap: calc(var(--app-scale) * 0.7);
+    --mode-container-gap: calc(var(--app-scale) * 0.35);
+    --mode-container-padding: calc(var(--app-scale) * 0.35);
+    --top-controls-gap: calc(var(--app-scale) * 0.35);
+
+    --color-picker-gap: calc(var(--app-scale) * 0.55);
+    --color-picker-padding: calc(var(--app-scale) * 0.7);
+    --color-game-section-gap: calc(var(--app-scale) * 0.95);
+    --hex-grid-gap: calc(var(--app-scale) * 0.4);
+    --keyboard-gap: calc(var(--app-scale) * 0.35);
+    --keyboard-margin-top: calc(var(--app-scale) * 0.625);
+
+    /* ===== SCALE HOVER EFFECTS ===== */
+    --scale-pop: 1.1;
+
+    /* ===== COLOR PALETTE - LIGHT MODE ===== */
+    --color-page-bg: #f5f5f5;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f1f1f1;
+    --color-container-bg: #e6e6e6;
+    --color-shadow: #c8c8c8;
+    --color-primary: #000000;
+    --color-primary-hover: #333333;
+    --color-secondary: #ffffff;
+    
+    /* Derived colors */
+    --color-text: var(--color-primary);
+    --color-text-inverse: var(--color-secondary);
+    --icon-color: var(--color-primary);
+    --icon-color-hover: #555555;
+    --tip-bg: var(--color-primary);
+    --tip-fg: var(--color-secondary);
 }
 
-/* Prevent FOUC: hide body until fonts load */
-html,
-body {
+/* Dark Mode Color Overrides */
+html.dark {
+    --color-page-bg: #262626;
+    --color-surface: #343434;
+    --color-surface-hover: #373737;
+    --color-container-bg: #1d1d1d;
+    --color-shadow: #101010;
+    --color-primary: #ffffff;
+    --color-primary-hover: #dddddd;
+    --color-secondary: #000000;
+    
+    --color-text: var(--color-primary);
+    --color-text-inverse: var(--color-secondary);
+    --icon-color: var(--color-primary);
+    --icon-color-hover: #c8c8c8;
+    --tip-bg: var(--color-primary);
+    --tip-fg: var(--color-secondary);
+}
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .modal-content {
+        min-width: 0;
+        width: 95vw;
+        padding: var(--modal-padding);
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stat-cell:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ==========================================================================
+   BASE STYLES & RESETS
+   ========================================================================== */
+
+html {
+    background: var(--color-page-bg);
+    box-sizing: border-box;
     opacity: 0;
     transition: opacity 0.1s ease-in;
     overflow-x: hidden;
 }
-html.fonts-loaded,
+
+html.fonts-loaded {
+    opacity: 1;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: var(--ps2p-stack);
+    margin: 0;
+    padding: 0;
+    background: var(--color-page-bg);
+    color: var(--color-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    
+    opacity: 0;
+    transition: opacity 0.1s ease-in;
+}
+
 body.fonts-loaded {
     opacity: 1;
 }
 
-button, input, select, textarea {
-    font: inherit;          /* grabs font-family/size/weight from parent */
+body.modal-open {
+    overflow: hidden;
 }
 
-/* Tooltip styling */
-.has-tooltip {
-    position: relative; /* establish positioning context */
+button,
+input,
+select,
+textarea {
+    font: inherit;
 }
+
+/* ==========================================================================
+   LAYOUT CONTAINERS
+   ========================================================================== */
+
+.layout-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+body.modal-open .layout-container {
+    pointer-events: none;
+}
+
+.game-container {
+    max-width: var(--max-width-game);
+    margin: 0 auto;
+    padding-top: var(--spacing-xs);
+    width: 100%;
+}
+
+.game-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: var(--spacing-sm);
+}
+
+.header-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--header-row-gap);
+}
+
+/* ==========================================================================
+   ASCII TITLE
+   ========================================================================== */
+
+.ascii-wrap {
+    width: 100%;
+    position: relative;
+    overflow: visible;
+}
+
+.ascii-title {
+    font-family: monospace;
+    white-space: pre;
+    color: inherit;
+    text-align: center;
+    display: inline-block;
+    padding: var(--ascii-padding-top) var(--ascii-padding-h) var(--ascii-padding-bottom);
+    line-height: var(--ascii-line-height);
+    font-size: var(--ascii-font-size);
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.2s ease;
+    text-rendering: optimizeSpeed;
+    letter-spacing: 0;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ascii-title:hover {
+    color: var(--color-primary-hover);
+}
+
+html.dark .ascii-title:hover {
+    color: var(--color-primary-hover);
+}
+
+.ascii-title span {
+    display: inline-block;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.ascii-title.animating span {
+    animation: wave 6s linear infinite;
+    animation-delay: calc(var(--col) * 0.1s);
+}
+
+@keyframes wave {
+    0%   { color: hsl(0, 100%, 50%); }
+    16%  { color: hsl(60, 100%, 50%); }
+    33%  { color: hsl(120, 100%, 50%); }
+    50%  { color: hsl(180, 100%, 50%); }
+    66%  { color: hsl(240, 100%, 50%); }
+    83%  { color: hsl(300, 100%, 50%); }
+    100% { color: hsl(360, 100%, 50%); }
+}
+
+/* ==========================================================================
+   TOOLTIPS
+   ========================================================================== */
+
+.has-tooltip {
+    position: relative;
+}
+
 .has-tooltip::after {
     content: attr(aria-label);
     position: absolute;
     left: 50%;
     top: 100%;
     transform: translate(-50%, var(--tip-offset));
-    font-size: 10px;
+    font-size: var(--tip-font-size);
     line-height: 1.2;
     white-space: nowrap;
-    padding: 6px 8px;
-    box-shadow: 4px 4px 0 var(--icon-shadow);
+    padding: var(--tip-padding-v) var(--tip-padding-h);
+    box-shadow: var(--tip-shadow-offset) var(--tip-shadow-offset) 0 var(--color-shadow);
     background: var(--tip-bg);
     color: var(--tip-fg);
     border: 1px solid var(--tip-bg);
@@ -70,416 +419,216 @@ button, input, select, textarea {
     z-index: 1001;
     transition: opacity 0.12s ease, transform 0.12s ease;
 }
+
 .has-tooltip:hover::after,
-.has-tooltip:focus-visible::after {
+.has-tooltip:focus-visible::after,
+.has-tooltip.show-tooltip::after {
     opacity: 1;
     visibility: visible;
-    transform: translate(-50%, calc(var(--tip-offset) + 2px));
+    transform: translate(-50%, calc(var(--tip-offset) + var(--tip-hover-offset)));
 }
-/* Special case: paste button tooltip appears to the right */
+
 .paste-btn.has-tooltip::after {
-    top: 50%;              /* center vertically */
-    left: 100%;            /* place to the right of the button */
+    top: 50%;
+    left: 100%;
     transform: translate(var(--tip-offset), -50%);
 }
+
 .paste-btn.has-tooltip:hover::after,
 .paste-btn.has-tooltip:focus-visible::after {
-    transform: translate(calc(var(--tip-offset) + 2px), -50%);
-}
-/* Let JS force the tooltip open (for keyboard users, or right after click-- "Copied!") */
-.has-tooltip.show-tooltip::after {
-  opacity: 1;
-  visibility: visible;
-  /* match your hover offset nudge */
-  transform: translate(-50%, calc(var(--tip-offset) + 2px));
+    transform: translate(calc(var(--tip-offset) + var(--tip-hover-offset)), -50%);
 }
 
-.layout-container {
-    width: 100%;
-    margin: 0 auto;
-    box-sizing: border-box;
-    padding: 8px 16px;
-}
-
-/* Block pointer events on background when modal is open */
-body.modal-open .layout-container {
-    pointer-events: none;
-}
-
-.game-header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    gap: 20px;
-}
-        
-.game-container {
-    max-width: 960px;
-    margin: 0 auto;
-    padding-top: 30px 0;
-    width: 100%;
-}
-
-/* Icon buttons container */
-.top-controls {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin: 0;
-    order: 3; /* Appears third (after title and mode buttons) */
-}
+/* ==========================================================================
+   BUTTONS & CONTROLS
+   ========================================================================== */
 
 .mode-container {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: rgba(143, 143, 143, 0.1);
+    gap: var(--mode-container-gap);
+    padding: var(--mode-container-padding);
+    background: var(--color-container-bg);
     margin: 0;
-    order: 2; /* Appears second (after title, before icons) */
 }
-/* Button styling, same aesthetic as your "click to reveal" square */
+
 .mode-btn {
-    width: 130px;             /* wide and rectangular */
-    height: 40px;
-    background: #f9f9f9;        /* same blank canvas */
+    flex: 0 0 var(--mode-btn-width);
+    max-width: var(--mode-btn-width);
+    height: var(--mode-btn-height);
+    background: var(--color-surface);
     border: none;
     cursor: pointer;
-
-    /* block-pixel look */
-    filter: drop-shadow(4px 4px 0 var(--icon-shadow));
-    font-size: 12px;
+    filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
+    font-size: var(--mode-btn-font-size);
     text-decoration: none;
-    color: black;
-
-    /* center the label */
+    color: var(--color-text);
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
+    padding: 0 var(--spacing-md);
 }
+
 .mode-btn:hover {
-    background: #f1f1f1
+    background: var(--color-surface-hover);
 }
-html.dark .mode-container {
-    background: #1d1d1d;
-}
-html.dark .mode-btn {
-    background: #2e2e2e;
-    color: #ffffff;
-}
-html.dark .mode-btn:hover {
-    background: #373737
-}
-/* Selected (active) mode button styles */
+
 .mode-btn.active {
-  background: #000;   /* light mode: black */
-  color: #fff;        /* light mode: white text */
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
 }
+
 .mode-btn.active:hover {
-  background: #333333;
+    background: var(--color-primary-hover);
 }
-/* Dark mode: invert selected */
-html.dark .mode-btn.active {
-  background: #fff;   /* dark mode: white */
-  color: #000;        /* dark mode: black text */
-}
-html.dark .mode-btn.active:hover {
-  background: #dddddd;
+
+.top-controls {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--top-controls-gap);
+    margin: 0;
 }
 
 .icon-btn {
     background: none;
     border: none;
-    padding: 4px;
+    padding: var(--spacing-xs);
     cursor: pointer;
     display: flex;
     align-items: center;
 }
+
 .icon-btn .icon {
-    filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+    filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
 }
+
+.icon-btn:hover .icon {
+    color: var(--icon-color-hover);
+}
+
 .icon {
-    width: 45px;
-    height: 45px;
+    width: var(--icon-size);
+    height: var(--icon-size);
     display: block;
     fill: currentColor;
     color: var(--icon-color);
     shape-rendering: crispEdges;
 }
-.icon--sm {
-    width: 20px;
-    height: 20px;
-}
-.icon-btn:hover .icon {
-    color: var(--icon-color-hover);
-}
-/* Default (light mode): show moon, hide sun */
-#darkModeToggle .icon--sun  { display: none; }
-#darkModeToggle .icon--moon { display: block; }
-/* Dark mode: swap */
-html.dark #darkModeToggle .icon--moon { display: none; }
-html.dark #darkModeToggle .icon--sun { display: block; }
 
-/* Light mode style */
-body {
-    font-family: var(--ps2p-stack);
-    margin: 0;
-    padding: 20px;
-    background: #f5f5f5;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: black;
-    --icon-shadow: #c8c8c8;
-    /* Override FOUC prevention for immediate display */
+.icon--paste { /* Small Icon Modifier-- used for the paste button */
+    width: var(--icon-size-paste);
+    height: var(--icon-size-paste);
 }
 
-/* Prevent scrolling when modal is open */
-body.modal-open {
-    overflow: hidden;
+#darkModeToggle .icon--sun {
+    display: none;
 }
 
-/* Dark-mode overrides */
-html.dark {
-    background: #262626;
-}
-html.dark body {
-    background: #262626;
-    color: white;
-    /* icon shadow mechanic: */
-    --icon-shadow: #101010;  /* crisper on dark backgrounds */
-    /* icon hover mechanic: */
-    --icon-color: #fff;
-    --icon-color-hover: #c8c8c8;
-    /* tooltip variables: */
-    --tip-bg: #fff;
-    --tip-fg: #000;
+#darkModeToggle .icon--moon {
+    display: block;
 }
 
-html.dark .game-container {
-    max-width: 960px;
-    margin: 0 auto;
-    background: none;
-}
-html.dark .hex-input {
-    background: rgba(0, 0, 0, 0.1);
-    color: #000000;
-}
-html.dark .color-preview {
-    border-color: #ffffff;
-}
-html.dark .timer-bar {
-    background: #1d1d1d;
-}
-html.dark .timer-fill {
-    background: #ffffff;
-}
-html.dark .timer-text {
-    color: #000000;
-}
-html.dark .color-picker-section {
-    background: #222 !important;
-}
-html.dark .color-canvas {
-    border-color: #ffffff
-}
-html.dark .hue-slider {
-    border-color: #ffffff;
-}
-html.dark .color-picker-section h3 {
-    color: #eee !important;
-}
-html.dark .selected-color-info {
-    color: #eee !important;
-}
-html.dark .custom-color-picker {
-    background: #1d1d1d !important;
-}
-html.dark .color-picker-title {
-    color: #eee !important;
-}
-html.dark .hex-display {
-    color: #eee !important;
-}
-html.dark .hex-input-field {
-    padding-left: var(--prefix-space) !important;
-    color: #fff;
-}
-html.dark .hex-input-container {
-    background: #2e2e2e;
-    position: relative;
-}
-html.dark .hex-prefix {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-    color: #000000;
-    user-select: none;
-    pointer-events: none;
-    z-index: 2;
-    color: #ffffff;
+html.dark #darkModeToggle .icon--moon {
+    display: none;
 }
 
-/* ─────────────────────────── ASCII Title ─────────────────────── */
-.ascii-title {
-    /* Monospace ensures each character is exactly the same width */
-    font-family: monospace;
-    /* Preserve every space and line‐break exactly as you type them */
-    white-space: pre;
-    color: inherit;
-    text-align: center;
-    margin: 0 auto;
-    padding: 30px 20px 20px;
-    line-height: 0.95em; /* Slightly more vertical space between lines */
-    font-size: min(0.8em, 1.5vw); /* Responsive font size */
-    min-width: 0;
-    max-width: 100%;
-    overflow-x: visible; /* Allow content to be visible */
-    width: 100%; /* Take full width of container */
-    cursor: pointer;
-    user-select: none;
-    transition: opacity 0.2s ease;
-    flex-basis: 100%; /* Title takes full width */
-    order: 1; /* Appears first (at top) */
-    pointer-events: none;
-    text-rendering: optimizeSpeed; /* Improve rendering of small text */
-    letter-spacing: 0.00em;
+html.dark #darkModeToggle .icon--sun {
+    display: block;
 }
-.ascii-title:hover {
-    color: #333333;
-}
-html.dark .ascii-title:hover {
-    color: #dddddd;
-}
-/* animate every character - but only when active */
-.ascii-title span {
-    display: inline-block;                      /* so animation-delay works per char */
-    pointer-events: auto;
-    cursor: pointer;
-}
-/* Only animate when .animating class is present */
-.ascii-title.animating span {
-    animation: wave 6s linear infinite;         /* 6s for a full cycle */
-    animation-delay: calc(var(--col) * 0.1s);   /* stagger by 0.1s per character */
-}
-/* cycle through hues for title */
-@keyframes wave {
-    0%   { color: hsl(   0, 100%, 50%); }
-    16%  { color: hsl(  60, 100%, 50%); }
-    33%  { color: hsl( 120, 100%, 50%); }
-    50%  { color: hsl( 180, 100%, 50%); }
-    66%  { color: hsl( 240, 100%, 50%); }
-    83%  { color: hsl( 300, 100%, 50%); }
-    100% { color: hsl( 360, 100%, 50%); }
-}
+
+/* ==========================================================================
+   COLOR DISPLAY & GAME ELEMENTS
+   ========================================================================== */
 
 .color-display {
-    width: min(200px, 40vw);
-    height: min(200px, 40vw);
-    margin: 20px 0;
+    width: var(--color-display-size);
+    height: var(--color-display-size);
+    flex: 0 0 var(--color-display-size);
+    margin: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
-    filter: drop-shadow(6px 6px 0 var(--icon-shadow));
     justify-content: center;
     text-align: center;
-    font-size: clamp(14px, 3vw, 18px);
-    color: black;
-    margin: 0;
+    filter: drop-shadow(var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow));
+    font-size: var(--color-display-font-size);
+    color: var(--color-text);
 }
+
 .color-display.hidden {
-    background: #f9f9f9 !important;
+    background: var(--color-surface) !important;
 }
-html.dark .color-display {           
-    color: #ffffff;                  /* make sure your placeholder text is still readable */
-    filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+
+.color-display.hidden:hover {
+    background: var(--color-surface-hover) !important;
 }
-html.dark .color-display.hidden {
-    /* override the always‑black you had before */
-    background: #2e2e2e !important;
-}
-html.dark .color-display.game-ended {
-    /* reuse the dark‑mode text style */
-    color: #ffffff;
-    text-shadow:
-        -1px -1px 0 #000000,
-        1px -1px 0 #000000,
-        -1px  1px 0 #000000,
-        1px  1px 0 #000000;
-}
-body:not(.dark) .color-display.game-ended {
-    /* reuse the dark‑mode text style */
-    color: #eee;
-    text-shadow:
-        -1px -1px 0 #000000,
-        1px -1px 0 #000000,
-        -1px  1px 0 #000000,
-        1px  1px 0 #000000;
-}
+
 .color-display.game-ended {
     cursor: default;
     pointer-events: none;
+    color: #eee;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
+                 -1px 1px 0 #000, 1px 1px 0 #000;
 }
+
 .color-display.disabled {
     cursor: default !important;
     color: #787878 !important;
     pointer-events: none;
 }
+
+html.dark .color-display.game-ended {
+    color: #ffffff;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
+                 -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
 html.dark .color-display.disabled {
     color: #979797 !important;
 }
-.color-display.hidden:hover {
-    background: #f1f1f1 !important; 
-}
-html.dark .color-display.hidden:hover {
-    background: #373737 !important;
-}
 
-.game-info {
-    text-align: center;
-    margin: 20px 0;
-    font-size: 18px;
-}
+/* ==========================================================================
+   COLOR PICKER
+   ========================================================================== */
 
 .custom-color-picker {
     display: flex;
-    background: #e6e6e6 !important;
-    align-items: center;
-    gap: 15px;
-    margin: 20px auto;
-    padding: 20px;
-    background: rgba(58, 36, 36, 0.1);
+    background: var(--color-container-bg);
+    align-items: flex-start;
+    gap: var(--color-picker-gap);
+    margin: var(--spacing-lg) auto;
+    margin-bottom: var(--spacing-xs);
+    padding: var(--color-picker-padding);
     position: relative;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 665px;
-    flex-wrap: wrap;
+    width: fit-content;
+    max-width: var(--max-width-picker);
+    flex-wrap: nowrap;
     justify-content: center;
 }
 
 .color-picker-main {
     display: flex;
     align-items: flex-start;
-    gap: 15px;
-    flex-wrap: wrap;
+    gap: var(--color-picker-gap);
+    flex-wrap: nowrap;
     justify-content: center;
 }
 
 .color-canvas {
-    width: min(200px, 40vw);
-    height: min(200px, 40vw);
+    width: var(--color-canvas-size);
+    height: var(--color-canvas-size);
     filter: none;
-    box-shadow: 6px 6px 0 var(--icon-shadow);
+    box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
     cursor: pointer;
     position: relative;
     background: linear-gradient(to right, #fff, #f00);
+    flex: 0 0 var(--color-canvas-size);
     flex-shrink: 0;
 }
+
 .color-canvas::before {
     content: '';
     position: absolute;
@@ -489,292 +638,358 @@ html.dark .color-display.hidden:hover {
     bottom: 0;
     background: linear-gradient(to bottom, transparent, #000);
 }
+
 .canvas-cursor {
     position: absolute;
-    width: 10px;
-    height: 10px;
-    border: 2px solid white;
+    width: var(--canvas-cursor-size);
+    height: var(--canvas-cursor-size);
+    border: var(--cursor-border-width) solid #fff;
+    box-sizing: border-box;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
+    box-shadow: 0 0 0 calc(var(--cursor-border-width) * 0.5) rgba(0,0,0,0.3);
 }
 
 .hue-slider {
-    width: 20px;
-    height: min(200px, 40vw);
-    background: linear-gradient(to bottom, 
-        #f00 0%, #ff0 16.66%, #0f0 33.33%, 
+    width: var(--hue-slider-width);
+    height: var(--color-canvas-size);
+    background: linear-gradient(to bottom,
+        #f00 0%, #ff0 16.66%, #0f0 33.33%,
         #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
     position: relative;
     cursor: pointer;
     flex-shrink: 0;
     filter: none;
-    box-shadow: 6px 6px 0 var(--icon-shadow);
+    box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
 }
+
 .hue-cursor {
     position: absolute;
-    width: 20px;
-    height: 16px;
-    border: 2px solid white;
-    transform: translate(-8%, -50%);
-    left: 0px;
+    width: var(--hue-cursor-width);      /* make it thicker via this var */
+    height: var(--hue-cursor-height);
+    border: var(--cursor-border-width) solid #fff;
+    box-sizing: border-box;
+
+    left: 50%;                           /* center horizontally */
+    transform: translate(-50%, -50%);
+
     pointer-events: none;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
+    box-shadow: 0 0 0 calc(var(--cursor-border-width) * 0.5) rgba(0,0,0,0.3);
+}
+
+body.color-dragging {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    cursor: pointer;          /* or your glove cursor here */
+}
+
+/* While dragging in the color picker, freeze hover/interaction elsewhere */
+body.color-dragging * {
+    pointer-events: none;
+    cursor: inherit;          /* keep using the body's cursor (glove) */
+}
+
+/* …but keep the drag targets interactive */
+body.color-dragging .color-canvas,
+body.color-dragging .hue-slider {
+    pointer-events: auto;
+}
+
+html.dark .color-canvas,
+html.dark .hue-slider {
+    border-color: var(--color-primary);
 }
 
 .color-controls {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    align-items: center;
-    height: 200px;
-    justify-content: space-between;
+    gap: var(--color-picker-gap);
+    align-items: stretch;
+    justify-content: flex-start;
+    width: var(--color-controls-width);
+    height: var(--color-canvas-size);
 }
 
 .color-preview {
-    width: 160px;
-    flex: 1;
-    height: 100px;
+    width: 100%;
+    flex: 1 1 auto;
+    height: auto;
     margin: 0;
-    filter: drop-shadow(6px 6px 0 var(--icon-shadow));
+    filter: drop-shadow(var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow));
+}
+
+html.dark .color-preview {
+    border-color: var(--color-primary);
 }
 
 .hex-input-container {
-    --prefix-space: 24px;
     display: flex;
     align-items: center;
-    width: 160px;
-    height: 32px;
-    background: #f9f9f9;
+    width: 100%;
+    height: var(--hex-input-height);
+    flex: 0 0 var(--hex-input-height);
+    background: var(--color-surface);
     border: none;
     position: relative;
-    box-shadow: 6px 6px 0 var(--icon-shadow);
+    box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
     overflow: visible;
 }
+
 .hex-prefix {
     position: absolute;
-    left: 8px;
+    left: var(--hex-prefix-left);
     top: 50%;
     transform: translateY(-50%);
-    font-size: 12px;
-    color: #000000;
+    font-size: var(--hex-input-font-size);
+    color: var(--color-text);
     user-select: none;
     pointer-events: none;
     z-index: 2;
 }
+
 .hex-input-field {
-    padding-left: var(--prefix-space) !important;
-    font-size: 12px;
-    padding: 8px 4px;
+    padding-left: var(--hex-prefix-space) !important;
+    padding-right: var(--hex-input-padding-right);
+    font-size: var(--hex-input-font-size);
+    padding: var(--hex-input-padding) var(--hex-input-padding-offset);
     border: none;
     flex: 1;
-    min-width: 0; /* prevent overflow */
+    min-width: 0;
     background: transparent;
     text-transform: uppercase;
-    color: #000000;
+    color: var(--color-text);
     outline: none;
-    padding-right: 32px;
 }
 
 .hex-copy-btn {
-    background: none;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: var(--hex-copy-hitbox);
+    height: var(--hex-copy-hitbox);
+    padding: 0;
+
+    /* kill the native button look */
+    background: transparent;
     border: none;
-    width: 32px;          /* hitbox width */
-    height: 32px;         /* match your container height */
-    padding: 0;           /* size comes from width/height */
+    box-shadow: none;
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    right: 0;
-    position: absolute;
+    z-index: 2;
 }
+
+.hex-copy-btn .icon {
+    width: var(--icon-size-copy);
+    height: var(--icon-size-copy);
+}
+
 .hex-copy-btn:hover .icon {
     color: var(--icon-color-hover);
 }
 
-.color-game-section {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 30px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
+/* ==========================================================================
+   TIMER BAR
+   ========================================================================== */
 
 .timer-bar {
     position: relative;
-    width: 100%;
-    max-width: 625px;
-    height: 32px;
-    background: rgba(143, 143, 143, 0.1);
+    width: var(--timer-bar-width);
+    height: var(--timer-bar-height);
+    background: var(--color-container-bg);
     overflow: hidden;
-    margin: 10px auto;
-    box-shadow: 6px 6px 0 var(--icon-shadow);
+    margin: var(--spacing-sm) auto;
+    box-shadow: var(--shadow-timer-offset) var(--shadow-timer-offset) 0 var(--color-shadow);
 }
-/* the animated "fill" */
+
 .timer-fill {
-    width: 100%;              /* starts full */
+    width: 100%;
     height: 100%;
-    background: #000000;       /* or pick any accent color */
-    transition: width linear;  /* you'll set duration in JS */
+    background: var(--color-primary);
+    transition: width linear;
 }
+
 .timer-text {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    font-size: 12px;
-    color: #ffffff;
+    font-size: var(--timer-bar-font-size);
+    color: var(--color-text-inverse);
     white-space: nowrap;
     z-index: 1;
 }
-    
-/* === Wordle-style HEX grid === */
+
+/* ==========================================================================
+   HEX GRID (Wordle-style)
+   ========================================================================== */
+
+.color-game-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--color-game-section-gap);
+    margin: var(--spacing-md) 0;
+    flex-wrap: nowrap;
+}
+
 .hex-grid-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin: 20px 0;
+    gap: var(--hex-grid-gap);
+    margin: var(--spacing-lg) 0;
+    margin-top: calc(var(--spacing-xl));
 }
+
 .hex-grid-wrapper:focus {
     outline: none;
 }
+
 .hex-grid {
     display: grid;
     grid-template-rows: repeat(6, 1fr);
-    grid-auto-rows: var(--cell);
-    gap: var(--gap);
-    outline: none;  /* Remove focus outline since keyboard input is always captured */
+    grid-auto-rows: var(--cell-size);
+    gap: var(--gap-size);
+    outline: none;
 }
+
 .hex-grid-row {
     display: grid;
-    grid-template-columns: var(--side) repeat(6, var(--cell)) var(--side);
-    gap: var(--gap);
+    grid-template-columns: var(--side-size) repeat(6, var(--cell-size)) var(--side-size);
+    gap: var(--gap-size);
     justify-content: center;
 }
+
 .grid-cell {
-    width: var(--cell);
-    height: var(--cell);
+    width: var(--cell-size);
+    height: var(--cell-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    font-size: clamp(14px, 3.8vw, 16px);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--grid-cell-font-size);
     user-select: none;
     text-transform: uppercase;
-    filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+    filter: drop-shadow(var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow));
     position: relative;
 }
-html.dark .grid-cell {
-    background: #424242;
-    color: #ffffff;
-}
+
 .grid-row-locked .grid-cell {
     pointer-events: none;
 }
+
 .grid-cell.correct {
     background: #4CAF50 !important;
     border-color: #4CAF50 !important;
     color: #fff !important;
 }
+
 .grid-cell.close {
     background: #FFC107 !important;
     border-color: #FFC107 !important;
     color: #fff !important;
 }
+
 .grid-cell.wrong {
     background: #f44336 !important;
     border-color: #f44336 !important;
     color: #fff !important;
 }
-/* Caret blink animation */
-@keyframes caret-blink {
-  0%, 49% { opacity: 1; }
-  50%,100% { opacity: 0; }
-}
-/* Centered caret on the active (current) cell */
+
 .grid-current::after {
-  content: "";
-  position: absolute;
-  width: 3px;                 /* caret thickness */
-  height: 60%;                /* caret length */
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: currentColor;   /* adapts to dark/light */
-  animation: caret-blink 1s steps(1, end) infinite;
-  pointer-events: none;
+    content: "";
+    position: absolute;
+    width: var(--grid-caret-width);
+    height: var(--grid-caret-height);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: currentColor;
+    animation: caret-blink 1s steps(1, end) infinite;
+    pointer-events: none;
 }
-/* === Retro per-cell jump reveal === */
+
+@keyframes caret-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
 .grid-cell.reveal-jump {
-  animation: jump-8bit 360ms steps(3, end);
-  transform-origin: center bottom;        /* jump from the “floor” */
-  will-change: transform;
+    animation: jump-8bit 360ms steps(3, end);
+    transform-origin: center bottom;
+    will-change: transform;
 }
-/* tiny landing pop (optional) */
+
 .grid-cell.land-pop,
 .stat-cell.land-pop {
-  animation: land-pop-8bit 120ms steps(2, end);
+    animation: land-pop-8bit 120ms steps(2, end);
 }
+
 @keyframes jump-8bit {
-  0%   { transform: translateY(0); }
-  40%  { transform: translateY(-10px); }  /* apex */
-  100% { transform: translateY(0); }      /* land */
+    0% { transform: translateY(0); }
+    40% { transform: translateY(var(--jump-distance)); }
+    100% { transform: translateY(0); }
 }
+
 @keyframes land-pop-8bit {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.06); }
-  100% { transform: scale(1); }
+    0% { transform: scale(1); }
+    50% { transform: scale(var(--scale-pop)); }
+    100% { transform: scale(1); }
 }
-/* (Optional) make character a span we can keep crisp if you want to toggle visibility later */
+
 .grid-cell > .char {
-  display: inline-block;
+    display: inline-block;
 }
-        
-/* Row hashtag label (left of each row) */
+
 .row-label {
-    width: var(--side);
-    height: 50px;
+    width: var(--side-size);
+    height: var(--cell-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30px;
+    font-size: var(--row-label-font-size);
     user-select: none;
-    visibility: hidden; /* only current row shows; completed rows stay visible once colored */
-    filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+    visibility: hidden;
+    filter: drop-shadow(var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow));
 }
+
 .row-label.visible {
     visibility: visible;
 }
+
 .row-label.colored {
-    /* outline for readability across backgrounds */
-    text-shadow:
-        -1px -1px 0 #000,
-        1px -1px 0 #000,
-        -1px  1px 0 #000,
-        1px  1px 0 #000;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
+                 -1px 1px 0 #000, 1px 1px 0 #000;
 }
+
 html.dark .row-label.colored {
-    text-shadow:
-        -1px -1px 0 #fff,
-        1px -1px 0 #fff,
-        -1px  1px 0 #fff,
-        1px  1px 0 #fff;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff,
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;
 }
-/* Right-side paste action cell */
+
 .row-action {
-    width: var(--side);
-    height: var(--cell);
+    width: var(--side-size);
+    height: var(--cell-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    visibility: hidden; /* hidden by default; only current row shows */
+    visibility: hidden;
 }
-.row-action.visible { visibility: visible; }
+
+.row-action.visible {
+    visibility: visible;
+}
 
 .paste-btn {
     background: none;
@@ -785,57 +1000,67 @@ html.dark .row-label.colored {
     align-items: center;
     justify-content: center;
 }
+
 .paste-btn .icon {
-    filter: drop-shadow(3px 3px 0 var(--icon-shadow));
-    width: 30px;
-    height: 30px;
+    filter: drop-shadow(var(--shadow-paste-offset) var(--shadow-paste-offset) 0 var(--color-shadow));
+    width: var(--icon-size-paste);
+    height: var(--icon-size-paste);
 }
+
 .paste-btn:hover .icon {
     color: var(--icon-color-hover);
+}
+
+/* ==========================================================================
+   KEYBOARD
+   ========================================================================== */
+
+.keyboard-shell {
+    font-family: var(--ps2p-stack);
 }
 
 .hex-keyboard {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-top: 15px;
+    gap: var(--keyboard-gap);
+    margin-top: var(--keyboard-margin-top);
 }
+
 .keyboard-row {
     display: flex;
-    gap: 8px;
+    gap: var(--keyboard-gap);
     justify-content: center;
 }
+
 .key-btn {
-    background: #000000;
-    color: #ffffff;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
-    padding: 12px;
-    font-size: 14px;
+    padding: var(--key-padding);
+    font-size: var(--key-font-size);
     cursor: pointer;
-    min-width: 40px;
-    height: 50px;
+    min-width: var(--key-min-width);
+    height: var(--key-height);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     user-select: none;
     text-transform: uppercase;
-    filter: drop-shadow(4px 4px 0 var(--icon-shadow));
+    filter: drop-shadow(var(--shadow-key-offset) var(--shadow-key-offset) 0 var(--color-shadow));
 }
+
 .key-btn:hover {
-    background: #333333
+    background: var(--color-primary-hover);
 }
+
 .wide-key {
     flex: 1;
 }
-html.dark .key-btn {
-    background: #ffffff;
-    color: #000000;
-}
-html.dark .key-btn:hover {
-    background: #dddddd;
-}
 
-/* === Reusable Modal === */
+/* ==========================================================================
+   MODAL
+   ========================================================================== */
+
 .modal {
     position: fixed;
     top: 0;
@@ -847,6 +1072,7 @@ html.dark .key-btn:hover {
     align-items: center;
     justify-content: center;
 }
+
 .modal-overlay {
     position: absolute;
     top: 0;
@@ -857,276 +1083,322 @@ html.dark .key-btn:hover {
     cursor: default;
     transition: background 0.2s ease;
 }
+
 .modal.open .modal-overlay {
     background: rgba(0, 0, 0, 0.7);
 }
+
 .modal-content {
     position: relative;
     z-index: 1001;
-    background: #ffffff;
-    padding: 40px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: var(--modal-padding);
     max-width: 90vw;
     max-height: 90vh;
     overflow-y: auto;
-    filter: drop-shadow(8px 8px 0 var(--icon-shadow));
-    min-width: 500px;
+    filter: drop-shadow(var(--shadow-modal-offset) var(--shadow-modal-offset) 0 var(--color-shadow));
+    min-width: var(--max-width-modal);
     opacity: 0;
-    transform: scale(0.95) translateY(-10px);
+    transform: scale(0.95) translateY(var(--modal-transform-offset));
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
+
 .modal.open .modal-content {
     opacity: 1;
     transform: scale(1) translateY(0);
 }
-html.dark .modal-content {
-    background: #2e2e2e;
-    color: #ffffff;
-}
+
 .modal-close {
     position: absolute;
-    top: 50%;
-    right: 15px;
+    top: var(--modal-close-top);
+    right: var(--modal-close-right);
     transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px;
+    padding: var(--modal-close-padding);
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
 .modal-close .icon {
-    width: 32px;
-    height: 32px;
-    color: #ffffff;
+    width: var(--icon-size-modal-close);
+    height: var(--icon-size-modal-close);
+    color: var(--color-text-inverse);
 }
-html.dark .modal-close .icon {
-    color: #000000;
-}
+
 .modal-close:hover .icon {
     opacity: 0.7;
 }
+
 .modal-body {
     font-family: var(--ps2p-stack);
-    font-size: 14px;
     line-height: 1.6;
 }
+
+/* Inner text container inside the modal body */
+.modal-body-text {
+    font-size: var(--modal-body-font-size);   /* instead of hard-coded 12px */
+    line-height: 1.8;           /* was inline before */
+}
+
+/* Paragraph spacing inside the help modal */
+.modal-paragraph-intro {
+    margin-bottom: var(--spacing-md);  /* the first, slightly bigger gap */
+}
+
+.modal-paragraph {
+    margin-bottom: var(--spacing-sm);  /* normal paragraph gap */
+}
+
+/* Bullet items for the color legend */
+.modal-list-item {
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Colored squares used in the legend */
+.color-legend-swatch {
+    display: inline-block;
+    width: clamp(14px, 3vw, 20px);
+    height: clamp(14px, 3vw, 20px);
+    margin-right: var(--spacing-xs);
+    vertical-align: middle;
+}
+
+/* Variants for the three feedback types */
+.color-legend-swatch--correct {
+    background: #4CAF50;
+}
+
+.color-legend-swatch--near {
+    background: #FFC107;
+}
+
+.color-legend-swatch--far {
+    background: #F44336;
+}
+
+/* Small faded footer text in the help modal */
+.modal-footer-text {
+    margin-top: var(--spacing-md);
+    font-size: var(--modal-footer-font-size);
+    opacity: 0.7;
+}
+
+/* Links inside that footer */
+.modal-link {
+    color: inherit;
+    text-decoration: underline;
+}
+
 .modal-body .title {
-    background: #000000;
-    color: #ffffff;
-    padding: 15px 20px;
-    border: 3px solid #000000;
-    filter: drop-shadow(4px 4px 0 var(--icon-shadow));
-    font-size: 24px;
-    margin: 0 0 20px 0;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    padding: var(--modal-title-padding-v) var(--modal-title-padding-h);
+    border: var(--modal-title-border) solid var(--color-primary);
+    filter: drop-shadow(var(--shadow-modal-title-offset) var(--shadow-modal-title-offset) 0 var(--color-shadow));
+    font-size: var(--modal-title-font-size);
+    margin: 0 0 var(--spacing-lg) 0;
     text-align: center;
-    letter-spacing: 2px;
+    letter-spacing: var(--modal-title-letter-spacing);
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-html.dark .modal-body .title {
-    background: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
-}
+
 .modal-body .number-box {
     display: inline-block;
-    background: #000000;
-    color: #ffffff;
-    padding: 4px 8px;
-    border: 2px solid #000000;
-    filter: drop-shadow(2px 2px 0 var(--icon-shadow));
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    padding: var(--modal-number-box-padding-v) var(--modal-number-box-padding-h);
+    border: var(--modal-number-box-border) solid var(--color-primary);
+    filter: drop-shadow(var(--shadow-number-box-offset) var(--shadow-number-box-offset) 0 var(--color-shadow));
     font-weight: bold;
-    margin-right: 8px;
-}
-html.dark .modal-body .number-box {
-    background: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
-}
-.modal-body ul.color-list {
-    list-style: none;
-    padding-left: 20px;
-    margin: 10px 0 10px 20px;
+    margin-right: var(--spacing-sm);
 }
 
-/* === Stats Grid === */
+.modal-body ul.color-list {
+    list-style: none;
+    padding-left: var(--modal-list-padding-left);
+    margin: var(--spacing-sm) 0 var(--spacing-sm) var(--spacing-lg);
+}
+
+/* ==========================================================================
+   STATS
+   ========================================================================== */
+
+.stats-body {
+    padding: var(--spacing-sm);
+}
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin: 20px 0;
+    gap: var(--stats-grid-gap);
+    margin: var(--spacing-lg) 0;
 }
+
 .stat-cell {
-    background: #e6e6e6;
-    padding: 15px;
+    background: var(--color-container-bg);
+    padding: var(--stat-cell-padding);
     text-align: center;
     position: relative;
     transform-origin: center center;
 }
+
 .stat-cell:hover {
-    background: #d4d4d4;
+    background: var(--color-surface);
 }
-html.dark .stat-cell {
-    background: #1d1d1d;
-}
-html.dark .stat-cell:hover {
-    background: #252525;
-}
+
 .stat-cell.easter-egg-active .stat-value,
 .stat-cell.easter-egg-active .stat-label {
     color: #ffffff;
-    text-shadow: 
-        -1px -1px 0 #000000,
-        1px -1px 0 #000000,
-        -1px 1px 0 #000000,
-        1px 1px 0 #000000;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
+                 -1px 1px 0 #000, 1px 1px 0 #000;
 }
+
 .stat-value {
-    font-size: 24px;
+    font-size: var(--stat-cell-value-font-size);
     font-weight: bold;
     display: block;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
+    margin-bottom: var(--stat-value-margin);
+    letter-spacing: var(--stat-value-letter-spacing);
 }
+
 .stat-label {
-    font-size: 9px;
+    font-size: var(--stat-cell-label-font-size);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: var(--stat-label-letter-spacing);
     opacity: 0.7;
 }
+
 .stats-button {
-    background: #000000;
-    color: #ffffff;
-    border: 3px solid #000000;
-    padding: 12px 30px;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: var(--stats-button-border) solid var(--color-primary);
+    padding: var(--stats-button-padding-v) var(--stats-button-padding-h);
     font-family: var(--ps2p-stack);
-    font-size: 12px;
+    font-size: var(--stats-button-font-size);
     font-weight: bold;
     cursor: pointer;
-    filter: drop-shadow(3px 3px 0 var(--icon-shadow));
-    margin: 20px auto;
+    filter: drop-shadow(var(--shadow-button-offset) var(--shadow-button-offset) 0 var(--color-shadow));
+    margin: var(--spacing-lg) auto;
     display: block;
-    letter-spacing: 1px;
+    letter-spacing: var(--stats-button-letter-spacing);
 }
-html.dark .stats-button {
-    background: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
-}
+
 .stats-button:hover:not(#nextColorTimer) {
     opacity: 0.8;
 }
+
 .stats-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
-.stats-note {
-    font-size: 10px;
-    opacity: 0.7;
-    text-align: center;
-    margin-top: 20px;
-}
-@media (max-width: 600px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-    .stat-cell:last-child {
-        grid-column: 1 / -1;
-    }
-}
-@media (max-width: 768px) {
-    .modal-content {
-        min-width: 0;
-        width: 95vw;
-        padding: 30px 20px;
-    }
+
+#nextColorTimer {
+    cursor: default;
 }
 
-/* === Toast Notification System === */
+.stats-note {
+    font-size: var(--modal-footer-font-size);
+    opacity: 0.7;
+    text-align: center;
+    margin-top: var(--spacing-lg);
+}
+
+/* ==========================================================================
+   TOAST NOTIFICATIONS
+   ========================================================================== */
+
 .toast-container {
     position: fixed;
-    top: 40px;
+    top: var(--toast-top);
     left: 50%;
     transform: translateX(-50%);
     z-index: 2000;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--toast-gap);
     pointer-events: none;
 }
+
 .toast {
-    background: #000000;
-    color: #ffffff;
-    padding: 12px 20px;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    padding: var(--toast-padding-v) var(--toast-padding-h);
     font-family: var(--ps2p-stack);
-    font-size: 12px;
+    font-size: var(--toast-font-size);
     font-weight: bold;
-    border: 2px solid #ffffff;
+    border: var(--toast-border) solid var(--color-text-inverse);
     white-space: nowrap;
     width: fit-content;
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(var(--toast-offset));
     transition: opacity 0.2s ease, transform 0.2s ease;
     pointer-events: auto;
 }
-html.dark .toast {
-    background: #ffffff;
-    color: #000000;
-    border-color: #000000;
-}
+
 .toast.show {
     opacity: 1;
     transform: translateY(0);
 }
+
 .toast.hide {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(var(--toast-offset));
 }
 
-/* === Shake Animation === */
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-    20%, 40%, 60%, 80% { transform: translateX(4px); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(calc(-1 * var(--shake-distance))); }
+    20%, 40%, 60%, 80% { transform: translateX(var(--shake-distance)); }
 }
+
 .shake {
     animation: shake 0.5s ease-in-out;
 }
 
-/* === Footer === */
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
 .site-footer {
-    background: #000000;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 40px;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    padding: var(--footer-padding);
+    margin-top: var(--footer-margin-top);
+    margin-bottom: var(--spacing-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: var(--footer-gap);
     font-family: var(--ps2p-stack);
-    font-size: 10px;
+    font-size: var(--footer-font-size);
     width: 100%;
 }
-html.dark .site-footer {
-    background: #ffffff;
-    color: #000000;
-}
+
 .footer-logo {
-    width: 20px;
-    height: 20px;
+    width: var(--icon-size-footer);
+    height: var(--icon-size-footer);
     image-rendering: pixelated;
 }
+
 .footer-text {
-    letter-spacing: 1px;
+    letter-spacing: var(--footer-letter-spacing);
 }
+
 .footer-text a {
     color: inherit;
     text-decoration: underline;
 }
+
 .footer-text a:hover {
     opacity: 0.7;
 }
