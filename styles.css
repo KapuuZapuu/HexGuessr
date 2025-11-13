@@ -356,7 +356,7 @@ body.modal-open .layout-container {
     user-select: none;
     transition: opacity 0.2s ease;
     text-rendering: optimizeSpeed;
-    letter-spacing: 0;
+    letter-spacing: -0.02em;
     position: relative;
     left: 50%;
     transform: translateX(-50%);
