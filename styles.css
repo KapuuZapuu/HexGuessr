@@ -157,7 +157,7 @@
     --footer-font-size: calc(var(--app-scale) * 0.35);
 
     /* ===== BUTTON/CONTROL GAPS ===== */
-    --header-row-gap: calc(var(--app-scale) * 1);
+    --header-row-gap: calc(var(--app-scale) * 1.1);
     --mode-container-gap: calc(var(--app-scale) * 0.5);
     --top-controls-gap: calc(var(--app-scale) * 0.35);
 
@@ -302,15 +302,16 @@ body.modal-open .layout-container {
     align-items: flex-start;    /* top-align title with controls */
     width: 100%;
     gap: var(--spacing-lg);     /* a little breathing room between columns */
+    padding-top: var(--ascii-padding);
 }
 
 .header-row {
     display: flex;
     flex-direction: column;     /* stack mode buttons above icons */
     align-items: center;
-    justify-content: flex-start;
-    gap: var(--header-row-gap);
-    padding-top: calc(var(--ascii-padding) * 1.9); /* center align with title */
+    justify-content: center;
+    gap: var(--header-row-gap); /* keeps your existing spacing variable */
+    padding-top: var(--spacing-md);
 }
 
 /* ==========================================================================
@@ -324,12 +325,13 @@ body.modal-open .layout-container {
 }
 
 .ascii-title {
+    margin: 0;
     font-family: monospace;
     white-space: pre;
     color: inherit;
     text-align: left;           /* was center */
     display: block;             /* cleaner in a left column */
-    padding: var(--ascii-padding);
+    padding: 0 var(--ascii-padding) var(--ascii-padding);
     line-height: var(--ascii-line-height);
     font-size: var(--ascii-font-size);
     cursor: pointer;
@@ -404,7 +406,7 @@ body.modal-open .layout-container {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: var(--top-controls-gap);
+    gap: calc(var(--top-controls-gap) - var(--shadow-header-offset));
     margin: 0;
 }
 
@@ -414,6 +416,7 @@ body.modal-open .layout-container {
     cursor: pointer;
     display: flex;
     align-items: center;
+    padding-inline: var(--shadow-header-offset);
 }
 
 .icon-btn .icon {
