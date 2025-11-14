@@ -30,6 +30,7 @@
     --spacing-md: calc(var(--app-scale) * 0.6);
     --spacing-lg: calc(var(--app-scale) * 0.75);
     --spacing-xl: calc(var(--app-scale) * 1.1);
+    --spacing-2xl : calc(var(--app-scale) * 1.6);
 
     /* ===== SHADOWS & EFFECTS ===== */
     --shadow-header-offset: calc(var(--app-scale) * 0.2);
@@ -48,7 +49,7 @@
     --mode-btn-width: calc(var(--app-scale) * 5.5);
     --mode-btn-font-size: calc(var(--app-scale) * 0.6);
 
-    --icon-size: calc(var(--app-scale) * 1.8);
+    --icon-size: calc(var(--app-scale) * 1.75);
     --icon-size-copy: calc(var(--app-scale) * 0.7);
     --icon-size-paste: calc(var(--app-scale) * 1.1);
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
@@ -299,9 +300,9 @@ body.modal-open .layout-container {
     display: flex;
     flex-direction: row;        /* was column */
     justify-content: center;
-    align-items: flex-start;    /* top-align title with controls */
+    align-items: center;    /* top-align title with controls */
     width: 100%;
-    gap: var(--spacing-lg);     /* a little breathing room between columns */
+    gap: var(--spacing-2xl);     /* a little breathing room between columns */
     padding-top: var(--ascii-padding);
 }
 
@@ -311,7 +312,6 @@ body.modal-open .layout-container {
     align-items: center;
     justify-content: center;
     gap: var(--header-row-gap); /* keeps your existing spacing variable */
-    padding-top: var(--spacing-md);
 }
 
 /* ==========================================================================
@@ -331,7 +331,6 @@ body.modal-open .layout-container {
     color: inherit;
     text-align: left;           /* was center */
     display: block;             /* cleaner in a left column */
-    padding: 0 var(--ascii-padding) var(--ascii-padding);
     line-height: var(--ascii-line-height);
     font-size: var(--ascii-font-size);
     cursor: pointer;
