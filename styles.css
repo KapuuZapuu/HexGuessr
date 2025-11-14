@@ -44,9 +44,9 @@
     --shadow-timer-offset: calc(var(--app-scale) * 0.25);
 
     /* ===== COMPONENT SIZES ===== */
-    --mode-btn-height: calc(var(--app-scale) * 1.6);
-    --mode-btn-width: calc(var(--app-scale) * 5);
-    --mode-btn-font-size: calc(var(--app-scale) * 0.5);
+    --mode-btn-height: calc(var(--app-scale) * 1.8);
+    --mode-btn-width: calc(var(--app-scale) * 5.5);
+    --mode-btn-font-size: calc(var(--app-scale) * 0.6);
 
     --icon-size: calc(var(--app-scale) * 2);
     --icon-size-copy: calc(var(--app-scale) * 0.7);
@@ -92,9 +92,7 @@
 
     /* ===== ASCII TITLE ===== */
     --ascii-font-size: calc(var(--app-scale) * 0.5);
-    --ascii-padding-top: calc(var(--app-scale) * 1.2);
-    --ascii-padding-h: calc(var(--app-scale) * 0.4);
-    --ascii-padding-bottom: calc(var(--app-scale) * 0.25);
+    --ascii-padding: calc(var(--app-scale) * 1.2);
     --ascii-line-height: 0.95em;
 
     /* ===== GRID ===== */
@@ -331,7 +329,7 @@ body.modal-open .layout-container {
     color: inherit;
     text-align: left;           /* was center */
     display: block;             /* cleaner in a left column */
-    padding: var(--ascii-padding-top) var(--ascii-padding-h) var(--ascii-padding-bottom);
+    padding: var(--ascii-padding);
     line-height: var(--ascii-line-height);
     font-size: var(--ascii-font-size);
     cursor: pointer;
