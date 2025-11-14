@@ -32,7 +32,7 @@
     --spacing-xl: calc(var(--app-scale) * 1.1);
 
     /* ===== SHADOWS & EFFECTS ===== */
-    --shadow-header-offset: calc(var(--app-scale) * 0.16);
+    --shadow-header-offset: calc(var(--app-scale) * 0.2);
     --shadow-body-offset: calc(var(--app-scale) * 0.2);
     --shadow-grid-offset: calc(var(--app-scale) * 0.175);
     --shadow-paste-offset: calc(var(--app-scale) * 0.125);
@@ -44,11 +44,11 @@
     --shadow-timer-offset: calc(var(--app-scale) * 0.25);
 
     /* ===== COMPONENT SIZES ===== */
-    --mode-btn-height: calc(var(--app-scale) * 1.8);
+    --mode-btn-height: calc(var(--app-scale) * 2);
     --mode-btn-width: calc(var(--app-scale) * 5.5);
     --mode-btn-font-size: calc(var(--app-scale) * 0.6);
 
-    --icon-size: calc(var(--app-scale) * 2);
+    --icon-size: calc(var(--app-scale) * 1.8);
     --icon-size-copy: calc(var(--app-scale) * 0.7);
     --icon-size-paste: calc(var(--app-scale) * 1.1);
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
@@ -157,9 +157,8 @@
     --footer-font-size: calc(var(--app-scale) * 0.35);
 
     /* ===== BUTTON/CONTROL GAPS ===== */
-    --header-row-gap: calc(var(--app-scale) * 0.7);
-    --mode-container-gap: calc(var(--app-scale) * 0.35);
-    --mode-container-padding: calc(var(--app-scale) * 0.35);
+    --header-row-gap: calc(var(--app-scale) * 1);
+    --mode-container-gap: calc(var(--app-scale) * 0.5);
     --top-controls-gap: calc(var(--app-scale) * 0.35);
 
     --color-picker-gap: calc(var(--app-scale) * 0.55);
@@ -300,7 +299,7 @@ body.modal-open .layout-container {
     display: flex;
     flex-direction: row;        /* was column */
     justify-content: center;
-    align-items: center;    /* top-align title with controls */
+    align-items: flex-start;    /* top-align title with controls */
     width: 100%;
     gap: var(--spacing-lg);     /* a little breathing room between columns */
 }
@@ -310,7 +309,8 @@ body.modal-open .layout-container {
     flex-direction: column;     /* stack mode buttons above icons */
     align-items: center;
     justify-content: flex-start;
-    gap: var(--header-row-gap); /* keeps your existing spacing variable */
+    gap: var(--header-row-gap);
+    padding-top: calc(var(--ascii-padding) * 1.9); /* center align with title */
 }
 
 /* ==========================================================================
@@ -372,8 +372,6 @@ body.modal-open .layout-container {
     flex-direction: column;
     align-items: stretch;
     gap: var(--mode-container-gap);
-    padding: calc(var(--mode-container-padding) + var(--shadow-header-offset));
-    background: var(--color-container-bg);
     margin: 0;
     overflow: visible;
 }
@@ -413,7 +411,6 @@ body.modal-open .layout-container {
 .icon-btn {
     background: none;
     border: none;
-    padding: var(--spacing-xs);
     cursor: pointer;
     display: flex;
     align-items: center;
