@@ -300,19 +300,19 @@ body.modal-open .layout-container {
 
 .game-header {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;        /* was column */
     justify-content: center;
-    align-items: center;
+    align-items: center;    /* top-align title with controls */
     width: 100%;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-lg);     /* a little breathing room between columns */
 }
 
 .header-row {
     display: flex;
-    flex-wrap: nowrap;
+    flex-direction: column;     /* stack mode buttons above icons */
     align-items: center;
-    justify-content: center;
-    gap: var(--header-row-gap);
+    justify-content: flex-start;
+    gap: var(--header-row-gap); /* keeps your existing spacing variable */
 }
 
 /* ==========================================================================
@@ -320,7 +320,7 @@ body.modal-open .layout-container {
    ========================================================================== */
 
 .ascii-wrap {
-    width: 100%;
+    width: auto;                /* was 100% so it forced a new row */
     position: relative;
     overflow: visible;
 }
@@ -329,8 +329,8 @@ body.modal-open .layout-container {
     font-family: monospace;
     white-space: pre;
     color: inherit;
-    text-align: center;
-    display: inline-block;
+    text-align: left;           /* was center */
+    display: block;             /* cleaner in a left column */
     padding: var(--ascii-padding-top) var(--ascii-padding-h) var(--ascii-padding-bottom);
     line-height: var(--ascii-line-height);
     font-size: var(--ascii-font-size);
@@ -340,8 +340,8 @@ body.modal-open .layout-container {
     text-rendering: optimizeSpeed;
     letter-spacing: -0.02em;
     position: relative;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;                    /* remove centering offset */
+    transform: none;            /* remove translateX(-50%) */
 }
 
 .ascii-title span {
@@ -370,33 +370,33 @@ body.modal-open .layout-container {
    ========================================================================== */
 
 .mode-container {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--mode-container-gap);
-  padding: calc(var(--mode-container-padding) + var(--shadow-header-offset));
-  background: var(--color-container-bg);
-  margin: 0;
-  overflow: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--mode-container-gap);
+    padding: calc(var(--mode-container-padding) + var(--shadow-header-offset));
+    background: var(--color-container-bg);
+    margin: 0;
+    overflow: visible;
 }
 
 .mode-btn {
-  flex: 0 0 auto;
-  width: 100%;
-  max-width: none;
-  height: var(--mode-btn-height);
-  background: var(--color-surface);
-  border: none;
-  cursor: pointer;
-  filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
-  font-size: var(--mode-btn-font-size);
-  text-decoration: none;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  padding: 0 var(--spacing-md);
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+    height: var(--mode-btn-height);
+    background: var(--color-surface);
+    border: none;
+    cursor: pointer;
+    filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
+    font-size: var(--mode-btn-font-size);
+    text-decoration: none;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0 var(--spacing-md);
 }
 
 .mode-btn.active {
