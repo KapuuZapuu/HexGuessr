@@ -203,7 +203,7 @@ class HexColorWordle {
             action.className = 'row-action';
             const pasteBtn = document.createElement('button');
             pasteBtn.type = 'button';
-            pasteBtn.className = 'paste-btn has-tooltip';
+            pasteBtn.className = 'paste-btn';
             pasteBtn.setAttribute('aria-label','Paste');
             const svgNS = 'http://www.w3.org/2000/svg';
             const pasteSvg = document.createElementNS(svgNS, 'svg');
@@ -538,36 +538,24 @@ class HexColorWordle {
             }
         });
 
-        // Copy button
-        function setCopied(btn, text = "Copied!") {
-            if (!btn.dataset.prevLabel) {
-                btn.dataset.prevLabel = btn.getAttribute("aria-label") || "Copy";
-            }
-            btn.setAttribute("aria-label", text);
-            btn.classList.add("show-tooltip");
-        }
-        function restoreLabel(btn) {
-            btn.classList.remove("show-tooltip");
-            btn.setAttribute("aria-label", btn.dataset.prevLabel || "Copy");
-            delete btn.dataset.prevLabel;
-        }
-
         this.copyBtn.addEventListener('click', async () => {
             const hexValue = (this.hexInputField.value || '')
                 .toUpperCase()
                 .replace(/[^0-9A-F]/g, '')
                 .slice(0, 6);
+
+            if (!hexValue) {
+                if (typeof window.showToast === 'function') window.showToast('Nothing to copy');
+                return;
+            }
+
             const text = hexValue.startsWith('#') ? hexValue : ('#' + hexValue);
+
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(text);
-                    setCopied(this.copyBtn, "Copied!");
-                    return;
-                }
-                throw new Error('Clipboard API unavailable');
-            } 
-            catch {
-                try {
+                } 
+                else {
                     const ta = document.createElement('textarea');
                     ta.value = text;
                     ta.style.position = 'fixed';
@@ -577,16 +565,13 @@ class HexColorWordle {
                     ta.select();
                     document.execCommand('copy');
                     document.body.removeChild(ta);
-                    setCopied(this.copyBtn, "Copied!");
-                } 
-                catch {
-                    setCopied(this.copyBtn, "Press ⌘C / Ctrl+C");
                 }
+                if (typeof window.showToast === 'function') window.showToast('Copied!');
+            } 
+            catch {
+                if (typeof window.showToast === 'function') window.showToast('Press ⌘C / Ctrl+C');
             }
         });
-
-        this.copyBtn.addEventListener("pointerleave", () => restoreLabel(this.copyBtn));
-        this.copyBtn.addEventListener("blur", () => restoreLabel(this.copyBtn));
 
         // Initialize color picker
         this.currentHue = 0;

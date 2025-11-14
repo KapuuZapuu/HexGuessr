@@ -43,14 +43,6 @@
     --shadow-modal-title-offset: calc(var(--app-scale) * 0.175);
     --shadow-timer-offset: calc(var(--app-scale) * 0.25);
 
-    /* ===== TOOLTIP ===== */
-    --tip-offset: calc(var(--app-scale) * 0.325);
-    --tip-padding-v: calc(var(--app-scale) * 0.25);
-    --tip-padding-h: calc(var(--app-scale) * 0.325);
-    --tip-shadow-offset: calc(var(--app-scale) * 0.175);
-    --tip-hover-offset: calc(var(--app-scale) * 0.075);
-    --tip-font-size: calc(var(--app-scale) * 0.425);
-
     /* ===== COMPONENT SIZES ===== */
     --mode-btn-height: calc(var(--app-scale) * 1.4);
     --mode-btn-width: calc(var(--app-scale) * 4.5);
@@ -179,45 +171,35 @@
     --keyboard-gap: calc(var(--app-scale) * 0.35);
     --keyboard-margin-top: calc(var(--app-scale) * 0.625);
 
-    /* ===== SCALE HOVER EFFECTS ===== */
+    /* ===== SCALE EFFECTS ===== */
     --scale-pop: 1.1;
 
     /* ===== COLOR PALETTE - LIGHT MODE ===== */
     --color-page-bg: #f5f5f5;
     --color-surface: #ffffff;
-    --color-surface-hover: #f1f1f1;
     --color-container-bg: #e6e6e6;
     --color-shadow: #c8c8c8;
     --color-primary: #000000;
-    --color-primary-hover: #333333;
     --color-secondary: #ffffff;
     
     /* Derived colors */
     --color-text: var(--color-primary);
     --color-text-inverse: var(--color-secondary);
     --icon-color: var(--color-primary);
-    --icon-color-hover: #555555;
-    --tip-bg: var(--color-primary);
-    --tip-fg: var(--color-secondary);
 }
 
 /* Dark Mode Color Overrides */
 html.dark {
     --color-page-bg: #262626;
     --color-surface: #343434;
-    --color-surface-hover: #373737;
     --color-container-bg: #1d1d1d;
     --color-shadow: #101010;
     --color-primary: #ffffff;
-    --color-primary-hover: #dddddd;
     --color-secondary: #000000;
     
     --color-text: var(--color-primary);
     --color-text-inverse: var(--color-secondary);
     --icon-color: var(--color-primary);
-    --icon-color-hover: #c8c8c8;
-    --tip-bg: var(--color-primary);
-    --tip-fg: var(--color-secondary);
 }
 
 /* ==========================================================================
@@ -362,14 +344,6 @@ body.modal-open .layout-container {
     transform: translateX(-50%);
 }
 
-.ascii-title:hover {
-    color: var(--color-primary-hover);
-}
-
-html.dark .ascii-title:hover {
-    color: var(--color-primary-hover);
-}
-
 .ascii-title span {
     display: inline-block;
     pointer-events: auto;
@@ -392,54 +366,6 @@ html.dark .ascii-title:hover {
 }
 
 /* ==========================================================================
-   TOOLTIPS
-   ========================================================================== */
-
-.has-tooltip {
-    position: relative;
-}
-
-.has-tooltip::after {
-    content: attr(aria-label);
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    transform: translate(-50%, var(--tip-offset));
-    font-size: var(--tip-font-size);
-    line-height: 1.2;
-    white-space: nowrap;
-    padding: var(--tip-padding-v) var(--tip-padding-h);
-    box-shadow: var(--tip-shadow-offset) var(--tip-shadow-offset) 0 var(--color-shadow);
-    background: var(--tip-bg);
-    color: var(--tip-fg);
-    border: 1px solid var(--tip-bg);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 1001;
-    transition: opacity 0.12s ease, transform 0.12s ease;
-}
-
-.has-tooltip:hover::after,
-.has-tooltip:focus-visible::after,
-.has-tooltip.show-tooltip::after {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, calc(var(--tip-offset) + var(--tip-hover-offset)));
-}
-
-.paste-btn.has-tooltip::after {
-    top: 50%;
-    left: 100%;
-    transform: translate(var(--tip-offset), -50%);
-}
-
-.paste-btn.has-tooltip:hover::after,
-.paste-btn.has-tooltip:focus-visible::after {
-    transform: translate(calc(var(--tip-offset) + var(--tip-hover-offset)), -50%);
-}
-
-/* ==========================================================================
    BUTTONS & CONTROLS
    ========================================================================== */
 
@@ -448,9 +374,10 @@ html.dark .ascii-title:hover {
     flex-wrap: nowrap;
     align-items: center;
     gap: var(--mode-container-gap);
-    padding: var(--mode-container-padding);
+    padding: calc(var(--mode-container-padding) + var(--shadow-header-offset));
     background: var(--color-container-bg);
     margin: 0;
+    overflow: hidden;
 }
 
 .mode-btn {
@@ -471,17 +398,9 @@ html.dark .ascii-title:hover {
     padding: 0 var(--spacing-md);
 }
 
-.mode-btn:hover {
-    background: var(--color-surface-hover);
-}
-
 .mode-btn.active {
     background: var(--color-primary);
     color: var(--color-text-inverse);
-}
-
-.mode-btn.active:hover {
-    background: var(--color-primary-hover);
 }
 
 .top-controls {
@@ -503,10 +422,6 @@ html.dark .ascii-title:hover {
 
 .icon-btn .icon {
     filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
-}
-
-.icon-btn:hover .icon {
-    color: var(--icon-color-hover);
 }
 
 .icon {
@@ -560,10 +475,6 @@ html.dark #darkModeToggle .icon--sun {
 
 .color-display.hidden {
     background: var(--color-surface) !important;
-}
-
-.color-display.hidden:hover {
-    background: var(--color-surface-hover) !important;
 }
 
 .color-display.game-ended {
@@ -684,7 +595,7 @@ body.color-dragging {
     cursor: pointer;          /* or your glove cursor here */
 }
 
-/* While dragging in the color picker, freeze hover/interaction elsewhere */
+/* While dragging in the color picker, freeze interaction elsewhere */
 body.color-dragging * {
     pointer-events: none;
     cursor: inherit;          /* keep using the body's cursor (glove) */
@@ -790,10 +701,6 @@ html.dark .color-preview {
 .hex-copy-btn .icon {
     width: var(--icon-size-copy);
     height: var(--icon-size-copy);
-}
-
-.hex-copy-btn:hover .icon {
-    color: var(--icon-color-hover);
 }
 
 /* ==========================================================================
@@ -1007,10 +914,6 @@ html.dark .row-label.colored {
     height: var(--icon-size-paste);
 }
 
-.paste-btn:hover .icon {
-    color: var(--icon-color-hover);
-}
-
 /* ==========================================================================
    KEYBOARD
    ========================================================================== */
@@ -1047,10 +950,6 @@ html.dark .row-label.colored {
     user-select: none;
     text-transform: uppercase;
     filter: drop-shadow(var(--shadow-key-offset) var(--shadow-key-offset) 0 var(--color-shadow));
-}
-
-.key-btn:hover {
-    background: var(--color-primary-hover);
 }
 
 .wide-key {
@@ -1127,10 +1026,6 @@ html.dark .row-label.colored {
     width: var(--icon-size-modal-close);
     height: var(--icon-size-modal-close);
     color: var(--color-text-inverse);
-}
-
-.modal-close:hover .icon {
-    opacity: 0.7;
 }
 
 .modal-body {
@@ -1248,10 +1143,6 @@ html.dark .row-label.colored {
     transform-origin: center center;
 }
 
-.stat-cell:hover {
-    background: var(--color-surface);
-}
-
 .stat-cell.easter-egg-active .stat-value,
 .stat-cell.easter-egg-active .stat-label {
     color: #ffffff;
@@ -1287,10 +1178,6 @@ html.dark .row-label.colored {
     margin: var(--spacing-lg) auto;
     display: block;
     letter-spacing: var(--stats-button-letter-spacing);
-}
-
-.stats-button:hover:not(#nextColorTimer) {
-    opacity: 0.8;
 }
 
 .stats-button:disabled {
@@ -1397,8 +1284,4 @@ html.dark .row-label.colored {
 .footer-text a {
     color: inherit;
     text-decoration: underline;
-}
-
-.footer-text a:hover {
-    opacity: 0.7;
 }
