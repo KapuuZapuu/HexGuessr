@@ -44,11 +44,11 @@
     --shadow-timer-offset: calc(var(--app-scale) * 0.25);
 
     /* ===== COMPONENT SIZES ===== */
-    --mode-btn-height: calc(var(--app-scale) * 1.4);
-    --mode-btn-width: calc(var(--app-scale) * 4.5);
-    --mode-btn-font-size: calc(var(--app-scale) * 0.42);
+    --mode-btn-height: calc(var(--app-scale) * 1.6);
+    --mode-btn-width: calc(var(--app-scale) * 5);
+    --mode-btn-font-size: calc(var(--app-scale) * 0.5);
 
-    --icon-size: calc(var(--app-scale) * 1.6);
+    --icon-size: calc(var(--app-scale) * 2);
     --icon-size-copy: calc(var(--app-scale) * 0.7);
     --icon-size-paste: calc(var(--app-scale) * 1.1);
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
@@ -91,7 +91,7 @@
     --timer-bar-font-size: calc(var(--app-scale) * 0.42);
 
     /* ===== ASCII TITLE ===== */
-    --ascii-font-size: calc(var(--app-scale) * 0.45);
+    --ascii-font-size: calc(var(--app-scale) * 0.5);
     --ascii-padding-top: calc(var(--app-scale) * 1.2);
     --ascii-padding-h: calc(var(--app-scale) * 0.4);
     --ascii-padding-bottom: calc(var(--app-scale) * 0.25);
@@ -370,32 +370,33 @@ body.modal-open .layout-container {
    ========================================================================== */
 
 .mode-container {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: var(--mode-container-gap);
-    padding: calc(var(--mode-container-padding) + var(--shadow-header-offset));
-    background: var(--color-container-bg);
-    margin: 0;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--mode-container-gap);
+  padding: calc(var(--mode-container-padding) + var(--shadow-header-offset));
+  background: var(--color-container-bg);
+  margin: 0;
+  overflow: visible;
 }
 
 .mode-btn {
-    flex: 0 0 var(--mode-btn-width);
-    max-width: var(--mode-btn-width);
-    height: var(--mode-btn-height);
-    background: var(--color-surface);
-    border: none;
-    cursor: pointer;
-    filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
-    font-size: var(--mode-btn-font-size);
-    text-decoration: none;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    padding: 0 var(--spacing-md);
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  height: var(--mode-btn-height);
+  background: var(--color-surface);
+  border: none;
+  cursor: pointer;
+  filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
+  font-size: var(--mode-btn-font-size);
+  text-decoration: none;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 0 var(--spacing-md);
 }
 
 .mode-btn.active {
