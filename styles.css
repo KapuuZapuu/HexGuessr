@@ -274,6 +274,22 @@ textarea {
 }
 
 /* ==========================================================================
+   TOUCH BEHAVIOR (MOBILE)
+   ========================================================================== */
+
+button,
+.mode-btn,
+.key-btn,          /* on-screen keyboard keys */
+.icon-btn,         /* header icons (help, dark mode, stats, etc.) */
+.paste-btn,        /* little paste icons by rows */
+.color-canvas,     /* main color picking area */
+.hue-slider,       /* vertical hue strip */
+.hex-input-container,
+.hex-input-field {
+    touch-action: manipulation;
+}
+
+/* ==========================================================================
    LAYOUT CONTAINERS
    ========================================================================== */
 
@@ -1277,7 +1293,7 @@ html.dark .row-label.colored {
     color: var(--color-text-inverse);
     padding: var(--footer-padding);
     margin-top: var(--footer-margin-top);
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
     display: flex;
     align-items: center;
     justify-content: center;
