@@ -42,6 +42,7 @@
     --shadow-button-offset: calc(var(--app-scale) * 0.125);
     --shadow-number-box-offset: calc(var(--app-scale) * 0.075);
     --shadow-modal-title-offset: calc(var(--app-scale) * 0.175);
+    --text-outline-size: calc(var(--app-scale) * 0.05);
 
     /* ===== COMPONENT SIZES ===== */
     --mode-btn-height: calc(var(--app-scale) * 2);
@@ -494,8 +495,14 @@ html.dark #darkModeToggle .icon--sun {
     cursor: default;
     pointer-events: none;
     color: #eee;
-    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000,
-                 -2px 2px 0 #000, 2px 2px 0 #000;
+    text-shadow: 0                                   calc(-1 * var(--text-outline-size)) 0 #000,
+                 0                                   var(--text-outline-size)            0 #000,
+                 calc(-1 * var(--text-outline-size)) 0                                   0 #000,
+                 var(--text-outline-size)            0                                   0 #000,
+                 calc(-1 * var(--text-outline-size)) calc(-1 * var(--text-outline-size)) 0 #000,
+                 var(--text-outline-size)            calc(-1 * var(--text-outline-size)) 0 #000,
+                 calc(-1 * var(--text-outline-size)) var(--text-outline-size)            0 #000,
+                 var(--text-outline-size)            var(--text-outline-size)            0 #000;
 }
 
 .color-display.disabled {
@@ -506,8 +513,14 @@ html.dark #darkModeToggle .icon--sun {
 
 html.dark .color-display.game-ended {
     color: #ffffff;
-    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000,
-                 -2px 2px 0 #000, 2px 2px 0 #000;
+    text-shadow: 0                                   calc(-1 * var(--text-outline-size)) 0 #000,
+                 0                                   var(--text-outline-size)            0 #000,
+                 calc(-1 * var(--text-outline-size)) 0                                   0 #000,
+                 var(--text-outline-size)            0                                   0 #000,
+                 calc(-1 * var(--text-outline-size)) calc(-1 * var(--text-outline-size)) 0 #000,
+                 var(--text-outline-size)            calc(-1 * var(--text-outline-size)) 0 #000,
+                 calc(-1 * var(--text-outline-size)) var(--text-outline-size)            0 #000,
+                 var(--text-outline-size)            var(--text-outline-size)            0 #000;
 }
 
 html.dark .color-display.disabled {
@@ -903,13 +916,25 @@ html.dark .color-preview {
 }
 
 .row-label.colored {
-    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000,
-                 -2px 2px 0 #000, 2px 2px 0 #000;
+    text-shadow: 0                                   calc(-1 * var(--text-outline-size)) 0 #000,
+                 0                                   var(--text-outline-size)            0 #000,
+                 calc(-1 * var(--text-outline-size)) 0                                   0 #000,
+                 var(--text-outline-size)            0                                   0 #000,
+                 calc(-1 * var(--text-outline-size)) calc(-1 * var(--text-outline-size)) 0 #000,
+                 var(--text-outline-size)            calc(-1 * var(--text-outline-size)) 0 #000,
+                 calc(-1 * var(--text-outline-size)) var(--text-outline-size)            0 #000,
+                 var(--text-outline-size)            var(--text-outline-size)            0 #000;
 }
 
 html.dark .row-label.colored {
-    text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff,
-                 -2px 2px 0 #fff, 2px 2px 0 #fff;
+    text-shadow: 0                                   calc(-1 * var(--text-outline-size)) 0 #fff,
+                 0                                   var(--text-outline-size)            0 #fff,
+                 calc(-1 * var(--text-outline-size)) 0                                   0 #fff,
+                 var(--text-outline-size)            0                                   0 #fff,
+                 calc(-1 * var(--text-outline-size)) calc(-1 * var(--text-outline-size)) 0 #fff,
+                 var(--text-outline-size)            calc(-1 * var(--text-outline-size)) 0 #fff,
+                 calc(-1 * var(--text-outline-size)) var(--text-outline-size)            0 #fff,
+                 var(--text-outline-size)            var(--text-outline-size)            0 #fff;
 }
 
 .row-action {
@@ -1173,8 +1198,14 @@ html.dark .row-label.colored {
 .stat-cell.easter-egg-active .stat-value,
 .stat-cell.easter-egg-active .stat-label {
     color: #ffffff;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
-                 -1px 1px 0 #000, 1px 1px 0 #000;
+    text-shadow: 0                                   calc(-1 * var(--text-outline-size)) 0 #000,
+                 0                                   var(--text-outline-size)            0 #000,
+                 calc(-1 * var(--text-outline-size)) 0                                   0 #000,
+                 var(--text-outline-size)            0                                   0 #000,
+                 calc(-1 * var(--text-outline-size)) calc(-1 * var(--text-outline-size)) 0 #000,
+                 var(--text-outline-size)            calc(-1 * var(--text-outline-size)) 0 #000,
+                 calc(-1 * var(--text-outline-size)) var(--text-outline-size)            0 #000,
+                 var(--text-outline-size)            var(--text-outline-size)            0 #000;
 }
 
 .stat-value {

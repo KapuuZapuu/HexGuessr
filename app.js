@@ -506,9 +506,63 @@ class HexColorWordle {
             this.updateHuePosition(e);
         });
 
+        // TOUCH EVENTS
+        this.colorCanvas.addEventListener('touchstart', (e) => {
+            isDraggingCanvas = true;
+            startDrag();
+            e.preventDefault();               // stop page scroll
+            this.updateCanvasPosition(e);
+        }, { passive: false });
+
+        this.hueSlider.addEventListener('touchstart', (e) => {
+            isDraggingHue = true;
+            startDrag();
+            e.preventDefault();
+            this.updateHuePosition(e);
+        }, { passive: false });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDraggingCanvas && !isDraggingHue) return;
+
+            e.preventDefault();               // keep drag smooth, no scrolling
+
+            if (isDraggingCanvas) {
+                this.updateCanvasPosition(e);
+            }
+            if (isDraggingHue) {
+                this.updateHuePosition(e);
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', () => {
+            if (isDraggingCanvas || isDraggingHue) {
+                isDraggingCanvas = false;
+                isDraggingHue = false;
+                endDrag();
+            }
+        });
+
+        document.addEventListener('touchcancel', () => {
+            if (isDraggingCanvas || isDraggingHue) {
+                isDraggingCanvas = false;
+                isDraggingHue = false;
+                endDrag();
+            }
+        });
+
         // 1) Block bad keys _before_ they ever enter the field
         this.hexInputField.addEventListener("keydown", e => {
+            // Allow shortcuts
             if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+            // Close mobile keyboard on Enter
+            if (e.key === 'Enter') {
+                e.preventDefault();          // don't submit / add newline
+                this.hexInputField.blur();   // remove focus → keyboard closes
+                return;
+            }
+
+            // Only allow 0–9 / A–F
             if (e.key.length === 1 && !/^[0-9A-Fa-f]$/.test(e.key)) {
                 e.preventDefault();
             }
@@ -573,32 +627,53 @@ class HexColorWordle {
             
     updateCanvasPosition(e) {
         const rect = this.colorCanvas.getBoundingClientRect();
-        const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-        const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
-                
+
+        // Support both mouse and touch events
+        let clientX, clientY;
+        if (e.touches && e.touches.length) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        const x = Math.max(0, Math.min(rect.width,  clientX - rect.left));
+        const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
+
         this.canvasCursor.style.left = x + 'px';
-        this.canvasCursor.style.top = y + 'px';
-                
+        this.canvasCursor.style.top  = y + 'px';
+
         // Calculate saturation and brightness (value)
         this.currentSaturation = x / rect.width;
-        this.currentValue = 1 - (y / rect.height);
-                
+        this.currentValue      = 1 - (y / rect.height);
+
         this.updateColorFromHSV();
     }
-            
+
     updateHuePosition(e) {
         const rect = this.hueSlider.getBoundingClientRect();
-        const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
-                
+
+        // Support both mouse and touch events
+        let clientY;
+        if (e.touches && e.touches.length) {
+            clientY = e.touches[0].clientY;
+        } else {
+            clientY = e.clientY;
+        }
+
+        const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
+
         this.hueCursor.style.top = y + 'px';
-                
-        // Calculate hue (0-360)
+
+        // Calculate hue (0–360)
         this.currentHue = (y / rect.height) * 360;
-                
+
         // Update canvas background
         const hueColor = `hsl(${this.currentHue}, 100%, 50%)`;
-        this.colorCanvas.style.background = `linear-gradient(to right, #fff, ${hueColor})`;
-                
+        this.colorCanvas.style.background =
+            `linear-gradient(to right, #fff, ${hueColor})`;
+
         this.updateColorFromHSV();
     }
             
@@ -1645,34 +1720,35 @@ window.addEventListener('DOMContentLoaded', async () => {
     function startNextColorTimer() {
         const timerDisplay = document.getElementById('timerDisplay');
         if (!timerDisplay) return;
-        
+
+        // Compute the target once
+        const target = new Date();
+        target.setUTCHours(24, 0, 0, 0); // next midnight UTC
+
         function updateTimer() {
             const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setUTCHours(24, 0, 0, 0); // Next midnight UTC
-            
-            const diff = tomorrow - now;
-            
-            // Check if new day has arrived (timer hit zero or went negative)
+            const diff = target - now;
+
             if (diff <= 0) {
-                // Replace timer with "PLAY NEW DAILY" button
                 const timerContainer = document.getElementById('nextColorTimer');
                 if (timerContainer) {
-                    timerContainer.innerHTML = '<button class="stats-button" onclick="window.location.reload()">PLAY NEW DAILY COLOR!</button>';
+                    timerContainer.innerHTML =
+                        '<button class="stats-button" onclick="window.location.reload()">PLAY NEW DAILY COLOR!</button>';
                 }
-                
-                // Stop the interval since we've shown the button
                 clearInterval(interval);
                 return;
             }
-            
-            const hours = Math.floor(diff / (1000 * 60 * 60));
+
+            const hours   = Math.floor(diff / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            timerDisplay.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            timerDisplay.textContent =
+                `${String(hours).padStart(2, '0')}:` +
+                `${String(minutes).padStart(2, '0')}:` +
+                `${String(seconds).padStart(2, '0')}`;
         }
-        
+
         updateTimer();
         const interval = setInterval(updateTimer, 1000);
         
