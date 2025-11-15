@@ -50,15 +50,15 @@
     --mode-btn-font-size: calc(var(--app-scale) * 0.6);
 
     --icon-size: calc(var(--app-scale) * 1.75);
-    --icon-size-copy: calc(var(--app-scale) * 0.7);
+    --icon-size-copy: calc(var(--app-scale) * 1.25);
     --icon-size-paste: calc(var(--app-scale) * 1.1);
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
     --icon-size-footer: calc(var(--app-scale) * 0.8);
 
     --color-display-width: calc(var(--app-scale) * 10.5);
     --color-display-height: calc(var(--app-scale) * 7);
-    --color-display-font-size: calc(var(--app-scale) * 0.65);
-    --color-canvas-size: calc(var(--app-scale) * 7);
+    --color-display-font-size: calc(var(--app-scale) * 1.0);
+    --color-canvas-size: calc(var(--app-scale) * 17);
     --hue-slider-width: calc(var(--app-scale) * 0.7);
     --key-height: calc(var(--app-scale) * 1.8);
     --key-min-width: calc(var(--app-scale) * 1.4);
@@ -78,17 +78,17 @@
     --cursor-border-width: calc(var(--app-scale) * 0.1);
 
     /* ===== INPUT SIZES ===== */
-    --hex-input-height: calc(var(--app-scale) * 3);
-    --hex-prefix-space: calc(var(--app-scale) * 0.9);
-    --hex-prefix-left: calc(var(--app-scale) * 0.3);
+    --hex-input-height: calc(var(--app-scale) * 2);
+    --hex-prefix-space: calc(var(--app-scale) * 1.75);
+    --hex-prefix-left: calc(var(--app-scale) * 0.5);
     --hex-input-padding: calc(var(--app-scale) * 0.35);
     --hex-input-padding-offset: calc(var(--app-scale) * 0.175);
     --hex-input-padding-right: calc(var(--app-scale) * 1.4);
-    --hex-input-font-size: calc(var(--app-scale) * 1.8);
+    --hex-input-font-size: calc(var(--app-scale) * 1.0);
 
     /* ===== TIMER BAR ===== */
     --timer-bar-width: calc(var(--app-scale) * 22);
-    --timer-bar-height: calc(var(--app-scale) * 1.2);
+    --timer-bar-height: calc(var(--app-scale) * 2);
 
     /* ===== ASCII TITLE ===== */
     --ascii-font-size: calc(var(--app-scale) * 0.5);
@@ -472,6 +472,7 @@ html.dark #darkModeToggle .icon--sun {
     filter: drop-shadow(var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow));
     font-size: var(--color-display-font-size);
     color: var(--color-text);
+    padding: var(--spacing-xl);
 }
 
 .color-display.hidden {
@@ -524,22 +525,33 @@ html.dark .color-display.disabled {
 
 .color-picker-main {
     grid-area: canvas;
-    display: flex;
-    align-items: flex-start;
-    gap: var(--color-picker-gap);
-    justify-content: center;
+
+    /* use grid instead of flex so we can control the two columns */
+    display: grid;
+    grid-template-columns:
+        var(--color-canvas-size)  /* left column = canvas width */
+        minmax(var(--hue-slider-width), 1fr); /* right column grows to fill */
+    column-gap: var(--color-picker-gap);
+
+    justify-content: start;   /* left-align the whole row */
+    align-items: stretch;     /* both items same height */
 }
 
 .color-canvas {
-    width: var(--color-canvas-size);
-    height: var(--color-canvas-size);
+    /* fill the left grid column and stay square */
+    width: 100%;
+    max-width: var(--color-canvas-size);
+    aspect-ratio: 1 / 1;      /* always a square */
+    height: auto;
+
     filter: none;
     box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
     cursor: pointer;
     position: relative;
     background: linear-gradient(to right, #fff, #f00);
-    flex: 0 0 var(--color-canvas-size);
-    flex-shrink: 0;
+    /* remove old flex values */
+    /* flex: 0 0 var(--color-canvas-size); */
+    /* flex-shrink: 0; */
 }
 
 .color-canvas::before {
@@ -564,14 +576,20 @@ html.dark .color-display.disabled {
 }
 
 .hue-slider {
-    width: var(--hue-slider-width);
-    height: var(--color-canvas-size);
+    /* take the entire right grid column */
+    width: 100%;
+    height: 100%;   /* match the canvas height */
+    max-width: 100%;
+
     background: linear-gradient(to bottom,
         #f00 0%, #ff0 16.66%, #0f0 33.33%,
         #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
     position: relative;
     cursor: pointer;
-    flex-shrink: 0;
+
+    /* remove flex-based sizing */
+    /* flex-shrink: 0; */
+
     filter: none;
     box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
 }
@@ -640,7 +658,11 @@ html.dark .color-preview {
 .hex-input-container {
     display: flex;
     align-items: center;
-    width: 100%;
+
+    width: var(--color-display-width);   /* match reveal/preview width */
+    max-width: 100%;                     /* safety on tiny screens */
+    align-self: center;                  /* center inside color-controls */
+
     height: var(--hex-input-height);
     flex: 0 0 var(--hex-input-height);
     background: var(--color-surface);
