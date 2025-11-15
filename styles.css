@@ -91,7 +91,7 @@
     --timer-bar-height: calc(var(--app-scale) * 2);
 
     /* ===== ASCII TITLE ===== */
-    --ascii-font-size: calc(var(--app-scale) * 0.5);
+    --ascii-font-size: calc(var(--app-scale) * 0.6);
     --ascii-line-height: 0.95em;
 
     /* ===== GRID ===== */
