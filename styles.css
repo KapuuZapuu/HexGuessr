@@ -30,19 +30,18 @@
     --spacing-md: calc(var(--app-scale) * 0.6);
     --spacing-lg: calc(var(--app-scale) * 0.75);
     --spacing-xl: calc(var(--app-scale) * 1.1);
-    --spacing-2xl : calc(var(--app-scale) * 1.6);
+    --spacing-2xl : calc(var(--app-scale) * 2.0);
 
     /* ===== SHADOWS & EFFECTS ===== */
     --shadow-header-offset: calc(var(--app-scale) * 0.2);
-    --shadow-body-offset: calc(var(--app-scale) * 0.2);
-    --shadow-grid-offset: calc(var(--app-scale) * 0.175);
+    --shadow-body-offset: calc(var(--app-scale) * 0.3);
+    --shadow-grid-offset: calc(var(--app-scale) * 0.2);
     --shadow-paste-offset: calc(var(--app-scale) * 0.125);
     --shadow-key-offset: calc(var(--app-scale) * 0.175);
     --shadow-modal-offset: calc(var(--app-scale) * 0.325);
     --shadow-button-offset: calc(var(--app-scale) * 0.125);
     --shadow-number-box-offset: calc(var(--app-scale) * 0.075);
     --shadow-modal-title-offset: calc(var(--app-scale) * 0.175);
-    --shadow-timer-offset: calc(var(--app-scale) * 0.2);
 
     /* ===== COMPONENT SIZES ===== */
     --mode-btn-height: calc(var(--app-scale) * 2);
@@ -51,19 +50,19 @@
 
     --icon-size: calc(var(--app-scale) * 2);
     --icon-size-copy: calc(var(--app-scale) * 1.25);
-    --icon-size-paste: calc(var(--app-scale) * 1.1);
+    --icon-size-paste: calc(var(--app-scale) * 2.0);
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
-    --icon-size-footer: calc(var(--app-scale) * 0.8);
+    --icon-size-footer: calc(var(--app-scale) * 1.6);
 
     --color-display-width: calc(var(--app-scale) * 10.5);
     --color-display-height: calc(var(--app-scale) * 7);
     --color-display-font-size: calc(var(--app-scale) * 1.0);
     --color-canvas-size: calc(var(--app-scale) * 17);
     --hue-slider-width: calc(var(--app-scale) * 0.7);
-    --key-height: calc(var(--app-scale) * 1.8);
-    --key-min-width: calc(var(--app-scale) * 1.4);
+    --key-height: calc(var(--app-scale) * 2.8);
+    --key-min-width: calc(var(--app-scale) * 2.0);
     --key-padding: calc(var(--app-scale) * 0.3);
-    --key-font-size: calc(var(--app-scale) * 0.5);
+    --key-font-size: calc(var(--app-scale) * 0.7);
 
     /* ===== LAYOUT SIZES ===== */
     --max-width-game: 960px;
@@ -72,10 +71,10 @@
     --color-controls-width: calc(var(--app-scale) * 5.7);
 
     /* ===== CURSOR & POINTER SIZES ===== */
-    --canvas-cursor-size: calc(var(--app-scale) * 0.45);
-    --hue-cursor-width: calc(var(--app-scale) * 0.8);
-    --hue-cursor-height: calc(var(--app-scale) * 0.6);
-    --cursor-border-width: calc(var(--app-scale) * 0.1);
+    --canvas-cursor-size: calc(var(--app-scale) * 1.2);
+    --hue-cursor-width: calc(var(--app-scale) * 4.2);
+    --hue-cursor-height: calc(var(--app-scale) * 1.2);
+    --cursor-border-width: calc(var(--app-scale) * 0.2);
 
     /* ===== INPUT SIZES ===== */
     --hex-input-height: calc(var(--app-scale) * 2);
@@ -95,13 +94,13 @@
     --ascii-line-height: 0.95em;
 
     /* ===== GRID ===== */
-    --cell-size: calc(var(--app-scale) * 1.8);
+    --cell-size: calc(var(--app-scale) * 2.4);
     --gap-size: calc(var(--app-scale) * 0.5);
-    --side-size: calc(var(--app-scale) * 1.4);
-    --grid-cell-font-size: calc(var(--app-scale) * 0.6);
+    --side-size: calc(var(--app-scale) * 2.4);
+    --grid-cell-font-size: calc(var(--app-scale) * 1.0);
     --grid-caret-width: calc(var(--app-scale) * 0.11);
     --grid-caret-height: 60%;
-    --row-label-font-size: calc(var(--app-scale) * 1.1);
+    --row-label-font-size: calc(var(--app-scale) * 2.1);
 
     /* ===== ANIMATIONS ===== */
     --jump-distance: calc(var(--app-scale) * -0.45);
@@ -149,19 +148,19 @@
     --toast-font-size: calc(var(--app-scale) * 0.42);
 
     /* ===== FOOTER SPECIFIC ===== */
-    --footer-padding: calc(var(--app-scale) * 0.6);
-    --footer-gap: calc(var(--app-scale) * 0.6);
+    --footer-padding: calc(var(--app-scale) * 0.8);
+    --footer-gap: calc(var(--app-scale) * 0.8);
     --footer-letter-spacing: calc(var(--app-scale) * 0.04);
-    --footer-margin-top: calc(var(--app-scale) * 1.625);
-    --footer-font-size: calc(var(--app-scale) * 0.35);
+    --footer-margin-top: calc(var(--app-scale) * 1.8);
+    --footer-font-size: calc(var(--app-scale) * 0.6);
 
     /* ===== BUTTON/CONTROL GAPS ===== */
     --header-row-gap: calc(var(--app-scale) * 1.2);
     --mode-container-gap: calc(var(--app-scale) * 0.5);
     --mode-container-padding: calc(var(--app-scale) * 0.4);
-    --top-controls-gap: calc(var(--app-scale) * 0.35);
+    --top-controls-gap: calc(var(--app-scale) * 0.45);
 
-    --color-picker-gap: calc(var(--app-scale) * 0.55);
+    --color-picker-gap: calc(var(--app-scale) * 0.7);
     --color-picker-padding: calc(var(--app-scale) * 0.7);
     --color-game-section-gap: calc(var(--app-scale) * 0.95);
     --hex-grid-gap: calc(var(--app-scale) * 0.4);
@@ -324,7 +323,7 @@ body.modal-open .layout-container {
     width: auto;                /* was 100% so it forced a new row */
     position: relative;
     overflow: visible;
-    padding: var(--spacing-xl) 0 0;
+    padding: var(--spacing-xl) 0 var(--spacing-md) 0;
 }
 
 .ascii-title {
@@ -342,8 +341,6 @@ body.modal-open .layout-container {
     text-rendering: optimizeSpeed;
     letter-spacing: -0.02em;
     position: relative;
-    left: 0;                    /* remove centering offset */
-    transform: none;            /* remove translateX(-50%) */
 }
 
 .ascii-title span {
@@ -486,8 +483,8 @@ html.dark #darkModeToggle .icon--sun {
     cursor: default;
     pointer-events: none;
     color: #eee;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
-                 -1px 1px 0 #000, 1px 1px 0 #000;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000,
+                 -2px 2px 0 #000, 2px 2px 0 #000;
 }
 
 .color-display.disabled {
@@ -498,8 +495,8 @@ html.dark #darkModeToggle .icon--sun {
 
 html.dark .color-display.game-ended {
     color: #ffffff;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
-                 -1px 1px 0 #000, 1px 1px 0 #000;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000,
+                 -2px 2px 0 #000, 2px 2px 0 #000;
 }
 
 html.dark .color-display.disabled {
@@ -740,10 +737,10 @@ html.dark .color-preview {
     position: relative;
     width: 100%;                /* override old fixed width */
     height: var(--timer-bar-height);
-    background: var(--color-container-bg);
+    background: var(--color-page-bg);
     overflow: hidden;
     margin: 0;                  /* no extra margin inside grid */
-    box-shadow: var(--shadow-timer-offset) var(--shadow-timer-offset) 0 var(--color-shadow);
+    box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
 }
 
 
@@ -887,6 +884,7 @@ html.dark .color-preview {
     user-select: none;
     visibility: hidden;
     filter: drop-shadow(var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow));
+    padding-top: var(--spacing-sm);
 }
 
 .row-label.visible {
@@ -894,13 +892,13 @@ html.dark .color-preview {
 }
 
 .row-label.colored {
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
-                 -1px 1px 0 #000, 1px 1px 0 #000;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000,
+                 -2px 2px 0 #000, 2px 2px 0 #000;
 }
 
 html.dark .row-label.colored {
-    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff,
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;
+    text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff,
+                 -2px 2px 0 #fff, 2px 2px 0 #fff;
 }
 
 .row-action {
