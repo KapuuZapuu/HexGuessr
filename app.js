@@ -115,7 +115,6 @@ class HexColorWordle {
         this.initializeElements();
         this.setupEventListeners();
         this.updateColorPicker();
-        this.initializeTimerText(); // Initialize the timer text
         this.buildGrid();
         this.setupOnScreenKeyboard();
         
@@ -154,7 +153,6 @@ class HexColorWordle {
     initializeElements() {
         this.colorDisplay = document.getElementById('colorDisplay');
         this.guessesContainer = document.getElementById('guessesContainer');
-        this.timerText = document.getElementById('timerText');
         this.timerBar  = document.getElementById('timerBar');
         this.timerFill = document.getElementById('timerFill');
                 
@@ -425,13 +423,6 @@ class HexColorWordle {
                 await this.handlePaste();
             };
         });
-    }
-
-    initializeTimerText() {
-        // Set the initial timer text to show the duration for the current attempt
-        const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
-        const seconds = (duration / 1000).toFixed(1);
-        this.timerText.textContent = `Color reveal will be visible for ${seconds}s`;
     }
 
     setupOnScreenKeyboard() {
@@ -738,9 +729,6 @@ class HexColorWordle {
         // Calculate duration: increases with each attempt
         const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
                 
-        // Clear timer text after clicking
-        this.timerText.textContent = '';
-                
         this.startTimer(duration);
         
         // Save state immediately after revealing color
@@ -872,10 +860,6 @@ class HexColorWordle {
             if (this.currentAttemptSpan) {
                 this.currentAttemptSpan.textContent = this.currentAttempt;
             }
-            // Update timer text for the new attempt
-            const duration = this.baseDuration + (this.currentAttempt - 1) * 500;
-            const seconds = (duration / 1000).toFixed(1);
-            this.timerText.textContent = `Color reveal will be visible for ${seconds}s`;
             // Refill the timer bar for next attempt
             this.timerFill.style.transition = '';
             this.timerFill.style.width = '100%';
@@ -942,7 +926,6 @@ class HexColorWordle {
 
     endGame(won) {
         this.gameOver = true;
-        this.timerText.textContent = '';
         // Always empty the timer bar when game ends
         this.timerFill.style.transition = '';
         this.timerFill.style.width = '0%';
@@ -1130,7 +1113,6 @@ class HexColorWordle {
         this.timerFill.style.width = '100%';
                 
         // Initialize timer text for new game
-        this.initializeTimerText();
     }
 
     checkDailyCompletion() {
@@ -1270,7 +1252,6 @@ class HexColorWordle {
                 // Ensure timer bar and text are empty for completed games
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '0%';
-                this.timerText.textContent = '';
                 // Hide paste button for completed games
                 this.updatePasteAction();
             } else if (this.colorVisible) {
@@ -1283,7 +1264,6 @@ class HexColorWordle {
                 // Reset timer bar and text to empty
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '0%';
-                this.timerText.textContent = '';
             } else if (this.hasRevealedThisAttempt) {
                 // User has already revealed color this attempt, disable the button
                 this.colorDisplay.classList.add('disabled');
@@ -1292,7 +1272,6 @@ class HexColorWordle {
                 // Reset timer bar and text to empty since color was already revealed
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '0%';
-                this.timerText.textContent = '';
             }
         } catch (e) {
             console.error('Failed to load daily game state:', e);

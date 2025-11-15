@@ -130,35 +130,48 @@
         <main class="game-container">   
             <div class="color-game-section">
                 <div class="custom-color-picker">
+                    <!-- BLUE: reveal square -->
                     <div class="color-display hidden" id="colorDisplay">
                         Click to reveal color!
                     </div>
-                    
-                    <div class="color-picker-main">                
+
+                    <!-- GREEN: timer bar under reveal square -->
+                    <div class="timer-bar" id="timerBar">
+                        <div class="timer-fill" id="timerFill"></div>
+                    </div>
+
+                    <!-- YELLOW + ORANGE: preview + hex input (stacked) -->
+                    <div class="color-controls">
+                        <div class="color-preview" id="colorPreview"></div>
+
+                        <div class="hex-input-container">
+                            <span class="hex-prefix">#</span>
+                            <input
+                                type="text"
+                                id="hexInputField"
+                                class="hex-input-field"
+                                value="FF5733"
+                                maxlength="6"
+                            >
+                            <button id="copyBtn" class="hex-copy-btn" aria-label="Copy">
+                                <svg class="icon icon--paste" viewBox="0 0 24 24" aria-hidden="true">
+                                    <use href="#icon-copy"></use>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RED + PURPLE: canvas + hue slider -->
+                    <div class="color-picker-main">
                         <div class="color-canvas" id="colorCanvas">
                             <div class="canvas-cursor" id="canvasCursor"></div>
                         </div>
-                        
+
                         <div class="hue-slider" id="hueSlider">
                             <div class="hue-cursor" id="hueCursor"></div>
                         </div>
-                        
-                        <div class="color-controls">
-                            <div class="color-preview" id="colorPreview"></div>
-                            
-                            <div class="hex-input-container">
-                                <span class="hex-prefix">#</span>
-                                <input type="text" id="hexInputField" class="hex-input-field" value="FF5733" maxlength="6">
-                                <button id="copyBtn" class="hex-copy-btn" aria-label="Copy"><svg class="icon icon--paste" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-copy"></use></svg></button>
-                            </div>
-                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="timer-bar" id="timerBar">
-                <div class="timer-fill" id="timerFill"></div>
-                <div class="timer-text" id="timerText">Color reveal will be visible for 1.0s</div>
             </div>
 
             <div class="input-section">
