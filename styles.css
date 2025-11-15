@@ -55,7 +55,8 @@
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
     --icon-size-footer: calc(var(--app-scale) * 0.8);
 
-    --color-display-size: calc(var(--app-scale) * 11);
+    --color-display-width: calc(var(--app-scale) * 10.5);
+    --color-display-height: calc(var(--app-scale) * 7);
     --color-display-font-size: calc(var(--app-scale) * 0.65);
     --color-canvas-size: calc(var(--app-scale) * 7);
     --hue-slider-width: calc(var(--app-scale) * 0.7);
@@ -77,14 +78,13 @@
     --cursor-border-width: calc(var(--app-scale) * 0.1);
 
     /* ===== INPUT SIZES ===== */
-    --hex-input-height: calc(var(--app-scale) * 1.2);
+    --hex-input-height: calc(var(--app-scale) * 3);
     --hex-prefix-space: calc(var(--app-scale) * 0.9);
     --hex-prefix-left: calc(var(--app-scale) * 0.3);
     --hex-input-padding: calc(var(--app-scale) * 0.35);
     --hex-input-padding-offset: calc(var(--app-scale) * 0.175);
     --hex-input-padding-right: calc(var(--app-scale) * 1.4);
-    --hex-copy-hitbox: var(--hex-input-height);
-    --hex-input-font-size: calc(var(--app-scale) * 0.42);
+    --hex-input-font-size: calc(var(--app-scale) * 1.8);
 
     /* ===== TIMER BAR ===== */
     --timer-bar-width: calc(var(--app-scale) * 22);
@@ -460,9 +460,9 @@ html.dark #darkModeToggle .icon--sun {
 
 .color-display {
     grid-area: display;
-    width: var(--color-display-size);
-    height: var(--color-display-size);
-    flex: 0 0 var(--color-display-size);
+    width: var(--color-display-width);
+    height: var(--color-display-height);
+    flex: 0 0 var(--color-display-height);
     margin: 0;
     cursor: pointer;
     display: flex;
@@ -626,9 +626,9 @@ html.dark .hue-slider {
 }
 
 .color-preview {
-    width: var(--color-display-size);     /* optional cap */
-    height: var(--color-display-size);       /* fixed height */
-    flex: 0 0 var(--color-display-size);     /* don’t grow/shrink */
+    width: var(--color-display-width);     /* optional cap */
+    height: var(--color-display-height);       /* fixed height */
+    flex: 0 0 var(--color-display-height);     /* don’t grow/shrink */
     margin: 0 auto;
     filter: drop-shadow(var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow));
 }
@@ -681,8 +681,8 @@ html.dark .color-preview {
     top: 50%;
     right: 0;
     transform: translateY(-50%);
-    width: var(--hex-copy-hitbox);
-    height: var(--hex-copy-hitbox);
+    width: var(--hex-input-height);
+    height: var(--hex-input-height);
     padding: 0;
 
     /* kill the native button look */
