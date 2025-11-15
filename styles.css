@@ -45,11 +45,11 @@
     --shadow-timer-offset: calc(var(--app-scale) * 0.2);
 
     /* ===== COMPONENT SIZES ===== */
-    --mode-btn-height: calc(var(--app-scale) * 1.8);
-    --mode-btn-width: calc(var(--app-scale) * 5.5);
-    --mode-btn-font-size: calc(var(--app-scale) * 0.6);
+    --mode-btn-height: calc(var(--app-scale) * 2);
+    --mode-btn-width: calc(var(--app-scale) * 6);
+    --mode-btn-font-size: calc(var(--app-scale) * 0.75);
 
-    --icon-size: calc(var(--app-scale) * 1.75);
+    --icon-size: calc(var(--app-scale) * 2);
     --icon-size-copy: calc(var(--app-scale) * 1.25);
     --icon-size-paste: calc(var(--app-scale) * 1.1);
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
@@ -156,7 +156,7 @@
     --footer-font-size: calc(var(--app-scale) * 0.35);
 
     /* ===== BUTTON/CONTROL GAPS ===== */
-    --header-row-gap: calc(var(--app-scale) * 1.0);
+    --header-row-gap: calc(var(--app-scale) * 1.2);
     --mode-container-gap: calc(var(--app-scale) * 0.5);
     --mode-container-padding: calc(var(--app-scale) * 0.4);
     --top-controls-gap: calc(var(--app-scale) * 0.35);
@@ -280,7 +280,8 @@ textarea {
 
 .layout-container {
     width: 100%;
-    margin: 0 auto;
+    max-width: var(--max-width-game);   /* << central width limiter */
+    margin: 0 auto;                     /* center whole column */
     padding: var(--spacing-sm) var(--spacing-md);
 }
 
@@ -288,20 +289,16 @@ body.modal-open .layout-container {
     pointer-events: none;
 }
 
-.game-container {
-    max-width: var(--max-width-game);
-    margin: 0 auto;
-    padding-top: var(--spacing-xs);
-    width: 100%;
-}
-
 .game-header {
     display: flex;
-    flex-direction: row;        /* was column */
+    flex-direction: row;
     justify-content: center;
-    align-items: center;    /* top-align title with controls */
-    width: 100%;
-    gap: var(--spacing-xl);     /* a little breathing room between columns */
+    align-items: center;
+
+    width: 100%;                /* fill the layout-container */
+    margin: 0;                  /* layout-container already centered */
+
+    gap: var(--spacing-2xl);
     padding-top: var(--spacing-sm);
 }
 
@@ -313,6 +310,12 @@ body.modal-open .layout-container {
     gap: var(--header-row-gap); /* keeps your existing spacing variable */
 }
 
+.game-container {
+    width: 100%;                /* also fill layout-container */
+    max-width: none;            /* let parent control width */
+    margin: 0;                  /* remove extra centering */
+}
+
 /* ==========================================================================
    ASCII TITLE
    ========================================================================== */
@@ -321,7 +324,7 @@ body.modal-open .layout-container {
     width: auto;                /* was 100% so it forced a new row */
     position: relative;
     overflow: visible;
-    padding: var(--spacing-xl) var(--mode-container-padding) var(--mode-container-padding);
+    padding: var(--spacing-xl) 0 0;
 }
 
 .ascii-title {
@@ -520,7 +523,7 @@ html.dark .color-display.disabled {
     gap: var(--color-picker-gap);
     background: var(--color-container-bg);
     padding: var(--color-picker-padding);
-    margin: var(--spacing-lg) auto var(--spacing-xs);
+    margin: var(--spacing-sm);
 }
 
 .color-picker-main {
