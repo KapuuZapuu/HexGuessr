@@ -85,7 +85,7 @@
     --hex-input-padding: calc(var(--app-scale) * 0.35);
     --hex-input-padding-offset: calc(var(--app-scale) * 0.175);
     --hex-input-padding-right: calc(var(--app-scale) * 1.4);
-    --hex-input-font-size: calc(var(--app-scale) * 1.0);
+    --hex-input-font-size: max(16px, calc(var(--app-scale) * 1.0));
 
     /* ===== TIMER BAR ===== */
     --timer-bar-width: calc(var(--app-scale) * 22);
