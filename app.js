@@ -468,6 +468,10 @@ class HexColorWordle {
         let isDraggingCanvas = false;
         let isDraggingHue = false;
 
+        // Touch “focus” state: user must tap once to arm, then drag on second touch
+        let touchCanvasArmed = false;
+        let touchHueArmed = false;
+
         const startDrag = () => {
             document.body.classList.add('color-dragging');
         };
@@ -475,11 +479,17 @@ class HexColorWordle {
             document.body.classList.remove('color-dragging');
         };
 
-        // Canvas click/drag
+        // ----- MOUSE: unchanged -----
         this.colorCanvas.addEventListener('mousedown', (e) => {
             isDraggingCanvas = true;
             startDrag();
             this.updateCanvasPosition(e);
+        });
+
+        this.hueSlider.addEventListener('mousedown', (e) => {
+            isDraggingHue = true;
+            startDrag();
+            this.updateHuePosition(e);
         });
 
         document.addEventListener('mousemove', (e) => {
@@ -499,39 +509,52 @@ class HexColorWordle {
             }
         });
 
-        // Hue slider click/drag
-        this.hueSlider.addEventListener('mousedown', (e) => {
-            isDraggingHue = true;
-            startDrag();
-            this.updateHuePosition(e);
-        });
+        // ----- TOUCH: tap to arm, second tap+drag to use -----
 
-        // TOUCH EVENTS
+        // Canvas
         this.colorCanvas.addEventListener('touchstart', (e) => {
+            // First tap: arm + highlight, but DON'T start dragging yet
+            if (!touchCanvasArmed) {
+                touchCanvasArmed = true;
+                touchHueArmed = false;
+
+                this.colorCanvas.classList.add('touch-active');
+                this.hueSlider.classList.remove('touch-active');
+                // No preventDefault -> scroll still works on this first tap
+                return;
+            }
+
+            // Already armed -> now we start dragging
             isDraggingCanvas = true;
             startDrag();
-            e.preventDefault();               // stop page scroll
+            e.preventDefault(); // keep drag smooth, no scroll
             this.updateCanvasPosition(e);
         }, { passive: false });
 
+        // Hue slider
         this.hueSlider.addEventListener('touchstart', (e) => {
+            if (!touchHueArmed) {
+                touchHueArmed = true;
+                touchCanvasArmed = false;
+
+                this.hueSlider.classList.add('touch-active');
+                this.colorCanvas.classList.remove('touch-active');
+                return;
+            }
+
             isDraggingHue = true;
             startDrag();
             e.preventDefault();
             this.updateHuePosition(e);
         }, { passive: false });
 
+        // Dragging with touch
         document.addEventListener('touchmove', (e) => {
             if (!isDraggingCanvas && !isDraggingHue) return;
 
-            e.preventDefault();               // keep drag smooth, no scrolling
-
-            if (isDraggingCanvas) {
-                this.updateCanvasPosition(e);
-            }
-            if (isDraggingHue) {
-                this.updateHuePosition(e);
-            }
+            e.preventDefault(); // only when dragging
+            if (isDraggingCanvas) this.updateCanvasPosition(e);
+            if (isDraggingHue) this.updateHuePosition(e);
         }, { passive: false });
 
         document.addEventListener('touchend', () => {
@@ -550,15 +573,26 @@ class HexColorWordle {
             }
         });
 
-        // 1) Block bad keys _before_ they ever enter the field
+        // Tapping anywhere outside picker clears the “armed” state + outline
+        document.addEventListener('touchstart', (e) => {
+            const t = e.target;
+            if (!this.colorCanvas.contains(t) && !this.hueSlider.contains(t)) {
+                touchCanvasArmed = false;
+                touchHueArmed = false;
+                this.colorCanvas.classList.remove('touch-active');
+                this.hueSlider.classList.remove('touch-active');
+            }
+        }, { passive: true });
+
+        // ----- Hex input restrictions (unchanged except for where you put them) -----
         this.hexInputField.addEventListener("keydown", e => {
             // Allow shortcuts
             if (e.metaKey || e.ctrlKey || e.altKey) return;
 
             // Close mobile keyboard on Enter
             if (e.key === 'Enter') {
-                e.preventDefault();          // don't submit / add newline
-                this.hexInputField.blur();   // remove focus → keyboard closes
+                e.preventDefault();
+                this.hexInputField.blur();
                 return;
             }
 
@@ -568,7 +602,6 @@ class HexColorWordle {
             }
         });
 
-        // Hex input field
         this.hexInputField.addEventListener('input', (e) => {
             const input = e.target;
             const pos = input.selectionStart;
@@ -599,8 +632,7 @@ class HexColorWordle {
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(text);
-                } 
-                else {
+                } else {
                     const ta = document.createElement('textarea');
                     ta.value = text;
                     ta.style.position = 'fixed';
@@ -612,8 +644,7 @@ class HexColorWordle {
                     document.body.removeChild(ta);
                 }
                 if (typeof window.showToast === 'function') window.showToast('Copied!');
-            } 
-            catch {
+            } catch {
                 if (typeof window.showToast === 'function') window.showToast('Press ⌘C / Ctrl+C');
             }
         });
@@ -624,6 +655,7 @@ class HexColorWordle {
         this.currentValue = 1;
         this.updateColorPicker();
     }
+
             
     updateCanvasPosition(e) {
         const rect = this.colorCanvas.getBoundingClientRect();

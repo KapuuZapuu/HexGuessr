@@ -61,6 +61,7 @@
     --color-canvas-size: calc(var(--app-scale) * 17);
     --hue-slider-width: calc(var(--app-scale) * 0.7);
     --key-height: calc(var(--app-scale) * 2.8);
+    --mobile-selection-offset: calc(var(--app-scale) * 0.2);
     --key-min-width: calc(var(--app-scale) * 2.0);
     --key-padding: calc(var(--app-scale) * 0.3);
     --key-font-size: calc(var(--app-scale) * 0.7);
@@ -649,6 +650,12 @@ body.color-dragging * {
 body.color-dragging .color-canvas,
 body.color-dragging .hue-slider {
     pointer-events: auto;
+}
+
+.color-canvas.touch-active,
+.hue-slider.touch-active {
+    outline: var(--mobile-selection-offset) solid var(--color-primary);
+    outline-offset: var(--mobile-selection-offset);
 }
 
 html.dark .color-canvas,
