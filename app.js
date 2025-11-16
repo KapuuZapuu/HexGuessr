@@ -663,6 +663,7 @@ class HexColorWordle {
             // Close mobile keyboard on Enter
             if (e.key === 'Enter') {
                 e.preventDefault();
+                e.stopPropagation();
                 this.hexInputField.blur();
                 return;
             }
