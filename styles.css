@@ -100,7 +100,7 @@
     --gap-size: calc(var(--app-scale) * 0.5);
     --side-size: calc(var(--app-scale) * 2.4);
     --grid-cell-font-size: calc(var(--app-scale) * 1.0);
-    --grid-caret-width: calc(var(--app-scale) * 0.11);
+    --grid-caret-width: calc(var(--app-scale) * 0.18);
     --grid-caret-height: 60%;
     --row-label-font-size: calc(var(--app-scale) * 2.1);
 

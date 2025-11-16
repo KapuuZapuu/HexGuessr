@@ -481,17 +481,6 @@ class HexColorWordle {
         let hueStartY = 0;
         let huePotentialTap = false;
 
-        // Ignore synthetic mouse events that follow touch
-        let hadRecentTouch = false;
-        let touchTimeoutId = null;
-        const noteTouch = () => {
-            hadRecentTouch = true;
-            if (touchTimeoutId) clearTimeout(touchTimeoutId);
-            touchTimeoutId = setTimeout(() => {
-                hadRecentTouch = false;
-            }, 400);
-        };
-
         const startDrag = () => {
             document.body.classList.add('color-dragging');
         };
@@ -505,44 +494,48 @@ class HexColorWordle {
             this.hueSlider.classList.remove('touch-active');
         };
 
-        // ----- MOUSE: ignore if we just had a touch -----
-        this.colorCanvas.addEventListener('mousedown', (e) => {
-            if (hadRecentTouch) return; // don't react to synthetic mouse after touch
-            isDraggingCanvas = true;
-            startDrag();
-            this.updateCanvasPosition(e);
-        });
+        // Detect touch-capable devices
+        const isTouchDevice =
+            ('ontouchstart' in window) ||
+            (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+            (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0);
 
-        this.hueSlider.addEventListener('mousedown', (e) => {
-            if (hadRecentTouch) return;
-            isDraggingHue = true;
-            startDrag();
-            this.updateHuePosition(e);
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDraggingCanvas) {
+        // ----- MOUSE: desktop / non-touch only -----
+        if (!isTouchDevice) {
+            this.colorCanvas.addEventListener('mousedown', (e) => {
+                isDraggingCanvas = true;
+                startDrag();
                 this.updateCanvasPosition(e);
-            }
-            if (isDraggingHue) {
-                this.updateHuePosition(e);
-            }
-        });
+            });
 
-        document.addEventListener('mouseup', () => {
-            if (isDraggingCanvas || isDraggingHue) {
-                isDraggingCanvas = false;
-                isDraggingHue = false;
-                endDrag();
-            }
-        });
+            this.hueSlider.addEventListener('mousedown', (e) => {
+                isDraggingHue = true;
+                startDrag();
+                this.updateHuePosition(e);
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDraggingCanvas) {
+                    this.updateCanvasPosition(e);
+                }
+                if (isDraggingHue) {
+                    this.updateHuePosition(e);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDraggingCanvas || isDraggingHue) {
+                    isDraggingCanvas = false;
+                    isDraggingHue = false;
+                    endDrag();
+                }
+            });
+        }
 
         // ----- TOUCH: tap to arm, second gesture to drag -----
 
         // Canvas touchstart
         this.colorCanvas.addEventListener('touchstart', (e) => {
-            noteTouch();
-
             const touch = e.touches[0];
 
             if (!touchCanvasArmed) {
@@ -564,8 +557,6 @@ class HexColorWordle {
 
         // Hue slider touchstart
         this.hueSlider.addEventListener('touchstart', (e) => {
-            noteTouch();
-
             const touch = e.touches[0];
 
             if (!touchHueArmed) {
@@ -591,7 +582,7 @@ class HexColorWordle {
             if (Math.hypot(dx, dy) > TAP_THRESHOLD) {
                 canvasPotentialTap = false; // no longer a tap; user is dragging/scrolling
             }
-        // do NOT preventDefault here; scrolling should continue
+            // do NOT preventDefault here; scrolling should continue
         }, { passive: true });
 
         this.hueSlider.addEventListener('touchmove', (e) => {
@@ -735,7 +726,7 @@ class HexColorWordle {
         this.currentValue = 1;
         this.updateColorPicker();
     }
-            
+        
     updateCanvasPosition(e) {
         const rect = this.colorCanvas.getBoundingClientRect();
 
