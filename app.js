@@ -468,9 +468,29 @@ class HexColorWordle {
         let isDraggingCanvas = false;
         let isDraggingHue = false;
 
-        // Touch “focus” state: user must tap once to arm, then drag on second touch
+        // Touch “focus” state: user must tap once to arm, then drag on second gesture
         let touchCanvasArmed = false;
         let touchHueArmed = false;
+
+        // Tap vs drag detection
+        const TAP_THRESHOLD = 10; // px
+
+        let canvasStartX = 0, canvasStartY = 0;
+        let canvasPotentialTap = false;
+
+        let hueStartY = 0;
+        let huePotentialTap = false;
+
+        // Ignore synthetic mouse events that follow touch
+        let hadRecentTouch = false;
+        let touchTimeoutId = null;
+        const noteTouch = () => {
+            hadRecentTouch = true;
+            if (touchTimeoutId) clearTimeout(touchTimeoutId);
+            touchTimeoutId = setTimeout(() => {
+                hadRecentTouch = false;
+            }, 400);
+        };
 
         const startDrag = () => {
             document.body.classList.add('color-dragging');
@@ -478,15 +498,23 @@ class HexColorWordle {
         const endDrag = () => {
             document.body.classList.remove('color-dragging');
         };
+        const clearTouchFocus = () => {
+            touchCanvasArmed = false;
+            touchHueArmed = false;
+            this.colorCanvas.classList.remove('touch-active');
+            this.hueSlider.classList.remove('touch-active');
+        };
 
-        // ----- MOUSE: unchanged -----
+        // ----- MOUSE: ignore if we just had a touch -----
         this.colorCanvas.addEventListener('mousedown', (e) => {
+            if (hadRecentTouch) return; // don't react to synthetic mouse after touch
             isDraggingCanvas = true;
             startDrag();
             this.updateCanvasPosition(e);
         });
 
         this.hueSlider.addEventListener('mousedown', (e) => {
+            if (hadRecentTouch) return;
             isDraggingHue = true;
             startDrag();
             this.updateHuePosition(e);
@@ -509,46 +537,73 @@ class HexColorWordle {
             }
         });
 
-        // ----- TOUCH: tap to arm, second tap+drag to use -----
+        // ----- TOUCH: tap to arm, second gesture to drag -----
 
-        // Canvas
+        // Canvas touchstart
         this.colorCanvas.addEventListener('touchstart', (e) => {
-            // First tap: arm + highlight, but DON'T start dragging yet
-            if (!touchCanvasArmed) {
-                touchCanvasArmed = true;
-                touchHueArmed = false;
+            noteTouch();
 
-                this.colorCanvas.classList.add('touch-active');
-                this.hueSlider.classList.remove('touch-active');
-                // No preventDefault -> scroll still works on this first tap
+            const touch = e.touches[0];
+
+            if (!touchCanvasArmed) {
+                // First ever interaction: treat this gesture as a candidate "tap"
+                canvasPotentialTap = true;
+                canvasStartX = touch.clientX;
+                canvasStartY = touch.clientY;
+                // IMPORTANT: no preventDefault here → scroll still works
                 return;
             }
 
-            // Already armed -> now we start dragging
+            // Already armed → this gesture is for dragging
+            canvasPotentialTap = false;
             isDraggingCanvas = true;
             startDrag();
-            e.preventDefault(); // keep drag smooth, no scroll
+            e.preventDefault(); // keep drag smooth
             this.updateCanvasPosition(e);
         }, { passive: false });
 
-        // Hue slider
+        // Hue slider touchstart
         this.hueSlider.addEventListener('touchstart', (e) => {
-            if (!touchHueArmed) {
-                touchHueArmed = true;
-                touchCanvasArmed = false;
+            noteTouch();
 
-                this.hueSlider.classList.add('touch-active');
-                this.colorCanvas.classList.remove('touch-active');
+            const touch = e.touches[0];
+
+            if (!touchHueArmed) {
+                huePotentialTap = true;
+                hueStartY = touch.clientY;
                 return;
             }
 
+            // Already armed → drag
+            huePotentialTap = false;
             isDraggingHue = true;
             startDrag();
             e.preventDefault();
             this.updateHuePosition(e);
         }, { passive: false });
 
-        // Dragging with touch
+        // Element-level touchmove for tap vs drag detection
+        this.colorCanvas.addEventListener('touchmove', (e) => {
+            if (!canvasPotentialTap) return;
+            const touch = e.touches[0];
+            const dx = touch.clientX - canvasStartX;
+            const dy = touch.clientY - canvasStartY;
+            if (Math.hypot(dx, dy) > TAP_THRESHOLD) {
+                canvasPotentialTap = false; // no longer a tap; user is dragging/scrolling
+            }
+        // do NOT preventDefault here; scrolling should continue
+        }, { passive: true });
+
+        this.hueSlider.addEventListener('touchmove', (e) => {
+            if (!huePotentialTap) return;
+            const touch = e.touches[0];
+            const dy = touch.clientY - hueStartY;
+            if (Math.abs(dy) > TAP_THRESHOLD) {
+                huePotentialTap = false;
+            }
+        }, { passive: true });
+
+        // Dragging with touch (only when actually dragging)
         document.addEventListener('touchmove', (e) => {
             if (!isDraggingCanvas && !isDraggingHue) return;
 
@@ -557,12 +612,33 @@ class HexColorWordle {
             if (isDraggingHue) this.updateHuePosition(e);
         }, { passive: false });
 
-        document.addEventListener('touchend', () => {
+        document.addEventListener('touchend', (e) => {
+            // End drag if we were dragging
             if (isDraggingCanvas || isDraggingHue) {
                 isDraggingCanvas = false;
                 isDraggingHue = false;
                 endDrag();
             }
+
+            // Handle "tap" completion for canvas
+            if (!touchCanvasArmed && canvasPotentialTap) {
+                touchCanvasArmed = true;
+                touchHueArmed = false;
+                this.colorCanvas.classList.add('touch-active');
+                this.hueSlider.classList.remove('touch-active');
+            }
+
+            // Handle "tap" completion for hue slider
+            if (!touchHueArmed && huePotentialTap) {
+                touchHueArmed = true;
+                touchCanvasArmed = false;
+                this.hueSlider.classList.add('touch-active');
+                this.colorCanvas.classList.remove('touch-active');
+            }
+
+            // Reset potentialTap flags after gesture ends
+            canvasPotentialTap = false;
+            huePotentialTap = false;
         });
 
         document.addEventListener('touchcancel', () => {
@@ -571,20 +647,24 @@ class HexColorWordle {
                 isDraggingHue = false;
                 endDrag();
             }
+            canvasPotentialTap = false;
+            huePotentialTap = false;
         });
 
         // Tapping anywhere outside picker clears the “armed” state + outline
         document.addEventListener('touchstart', (e) => {
             const t = e.target;
             if (!this.colorCanvas.contains(t) && !this.hueSlider.contains(t)) {
-                touchCanvasArmed = false;
-                touchHueArmed = false;
-                this.colorCanvas.classList.remove('touch-active');
-                this.hueSlider.classList.remove('touch-active');
+                clearTouchFocus();
             }
         }, { passive: true });
 
-        // ----- Hex input restrictions (unchanged except for where you put them) -----
+        // Any page scroll disarms the picker (user has "moved on")
+        window.addEventListener('scroll', () => {
+            clearTouchFocus();
+        }, { passive: true });
+
+        // ----- Hex input restrictions (unchanged) -----
         this.hexInputField.addEventListener("keydown", e => {
             // Allow shortcuts
             if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -655,7 +735,6 @@ class HexColorWordle {
         this.currentValue = 1;
         this.updateColorPicker();
     }
-
             
     updateCanvasPosition(e) {
         const rect = this.colorCanvas.getBoundingClientRect();
