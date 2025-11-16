@@ -85,7 +85,7 @@
     --hex-input-padding: calc(var(--app-scale) * 0.35);
     --hex-input-padding-offset: calc(var(--app-scale) * 0.175);
     --hex-input-padding-right: calc(var(--app-scale) * 1.4);
-    --hex-input-font-size: max(16px, calc(var(--app-scale) * 1.0));
+    --hex-input-font-size: calc(var(--app-scale) * 1.0);
 
     /* ===== TIMER BAR ===== */
     --timer-bar-width: calc(var(--app-scale) * 22);
@@ -142,12 +142,12 @@
     --stats-grid-gap: calc(var(--app-scale) * 0.575);
 
     /* ===== TOAST SPECIFIC ===== */
-    --toast-padding-v: calc(var(--app-scale) * 0.5);
-    --toast-padding-h: calc(var(--app-scale) * 0.8);
-    --toast-border: calc(var(--app-scale) * 0.1);
+    --toast-padding-v: calc(var(--app-scale) * 0.8);
+    --toast-padding-h: calc(var(--app-scale) * 1.2);
+    --toast-border: calc(var(--app-scale) * 0.175);
     --toast-top: calc(var(--app-scale) * 1.625);
     --toast-gap: calc(var(--app-scale) * 0.4);
-    --toast-font-size: calc(var(--app-scale) * 0.42);
+    --toast-font-size: calc(var(--app-scale) * 0.6);
 
     /* ===== FOOTER SPECIFIC ===== */
     --footer-padding: calc(var(--app-scale) * 0.8);
@@ -202,6 +202,15 @@ html.dark {
 /* ==========================================================================
    RESPONSIVE ADJUSTMENTS
    ========================================================================== */
+
+/* NEW: on small touch screens, don't let app-scale (and therefore hex font)
+   go below 16px, so iOS won't zoom the input */
+@media (max-width: 600px) and (pointer: coarse) {
+    :root {
+        /* you can use max(16px, 4vw) or clamp(16px, 4vw, 28px) */
+        --app-scale: max(16px, 4vw);
+    }
+}
 
 @media (max-width: 768px) {
     .modal-content {
