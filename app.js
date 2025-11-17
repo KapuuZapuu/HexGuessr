@@ -223,6 +223,7 @@ class HexColorWordle {
         this.updateRowLabels();
         this.updatePasteAction();
         this.attachPasteHandlers();
+        this.attachRowLabelHandlers();
         // focus handling: click grid focuses keyboard capture
         this.gridEl.tabIndex = 0;
         this.gridEl.addEventListener('focus', () => { this.gridFocused = true; });
@@ -421,6 +422,40 @@ class HexColorWordle {
             btn.onclick = async () => {
                 if (this.gameOver || this.isAnimating || idx !== this.currentRow) return;
                 await this.handlePaste();
+            };
+        });
+    }
+
+    attachRowLabelHandlers() {
+        this.rowLabels.forEach((label, rowIndex) => {
+            label.onclick = () => {
+                // Only work for rows where a guess has already been made
+                // (colorizeRowLabel adds the "colored" class)
+                if (!label.classList.contains('colored')) return;
+
+                const rowCells = this.gridCellRefs[rowIndex];
+                if (!rowCells) return;
+
+                // Build hex from the row's 6 cells
+                const hex = rowCells
+                    .map(cell => (cell.textContent || ''))
+                    .join('')
+                    .replace(/[^0-9A-Fa-f]/g, '')
+                    .toUpperCase();
+
+                // Only proceed if it's a full 6-char hex
+                if (hex.length !== 6) return;
+
+                // Put it into the main hex input + sync the picker
+                this.hexInputField.value = hex;
+                this.updateFromHex(hex);
+
+                // Optional: focus the input so user can edit it
+                try {
+                    this.hexInputField.focus({ preventScroll: true });
+                } catch {
+                    this.hexInputField.focus();
+                }
             };
         });
     }

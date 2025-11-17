@@ -843,7 +843,7 @@ html.dark .color-preview {
     font-size: var(--grid-cell-font-size);
     user-select: none;
     text-transform: uppercase;
-    filter: drop-shadow(var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
     position: relative;
 }
 
@@ -932,6 +932,8 @@ html.dark .color-preview {
 }
 
 .row-label.colored {
+    cursor: pointer;
+    
     text-shadow: 0                                   calc(-1 * var(--text-outline-size)) 0 #000,
                  0                                   var(--text-outline-size)            0 #000,
                  calc(-1 * var(--text-outline-size)) 0                                   0 #000,
