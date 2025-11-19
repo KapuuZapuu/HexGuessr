@@ -1019,7 +1019,7 @@ html.dark .row-label.colored {
     justify-content: center;
     user-select: none;
     text-transform: uppercase;
-    filter: drop-shadow(var(--shadow-key-offset) var(--shadow-key-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
 }
 
 .wide-key {
