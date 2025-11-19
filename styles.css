@@ -409,7 +409,7 @@ body.modal-open .layout-container {
     background: var(--color-surface);
     border: none;
     cursor: pointer;
-    filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow);
     font-size: var(--mode-btn-font-size);
     text-decoration: none;
     color: var(--color-text);
@@ -491,7 +491,7 @@ html.dark #darkModeToggle .icon--sun {
     align-items: center;
     justify-content: center;
     text-align: center;
-    filter: drop-shadow(var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
     font-size: var(--color-display-font-size);
     color: var(--color-text);
     padding: var(--spacing-xl);
@@ -688,7 +688,7 @@ html.dark .hue-slider {
     height: var(--color-display-height);       /* fixed height */
     flex: 0 0 var(--color-display-height);     /* don’t grow/shrink */
     margin: 0 auto;
-    filter: drop-shadow(var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
 }
 
 html.dark .color-preview {
@@ -1019,7 +1019,7 @@ html.dark .row-label.colored {
     justify-content: center;
     user-select: none;
     text-transform: uppercase;
-    box-shadow: var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
+    box-shadow: var(--shadow-key-offset) var(--shadow-key-offset) 0 var(--color-shadow);
 }
 
 .wide-key {
@@ -1066,7 +1066,7 @@ html.dark .row-label.colored {
     max-width: 90vw;
     max-height: 90vh;
     overflow-y: auto;
-    filter: drop-shadow(var(--shadow-modal-offset) var(--shadow-modal-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-modal-offset) var(--shadow-modal-offset) 0 var(--color-shadow);
     min-width: var(--max-width-modal);
     opacity: 0;
     transform: scale(0.95) translateY(var(--modal-transform-offset));
@@ -1163,7 +1163,7 @@ html.dark .row-label.colored {
     color: var(--color-text-inverse);
     padding: var(--modal-title-padding-v) var(--modal-title-padding-h);
     border: var(--modal-title-border) solid var(--color-primary);
-    filter: drop-shadow(var(--shadow-modal-title-offset) var(--shadow-modal-title-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-modal-title-offset) var(--shadow-modal-title-offset) 0 var(--color-shadow);
     font-size: var(--modal-title-font-size);
     margin: 0 0 var(--spacing-lg) 0;
     text-align: center;
@@ -1180,7 +1180,7 @@ html.dark .row-label.colored {
     color: var(--color-text-inverse);
     padding: var(--modal-number-box-padding-v) var(--modal-number-box-padding-h);
     border: var(--modal-number-box-border) solid var(--color-primary);
-    filter: drop-shadow(var(--shadow-number-box-offset) var(--shadow-number-box-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-number-box-offset) var(--shadow-number-box-offset) 0 var(--color-shadow);
     font-weight: bold;
     margin-right: var(--spacing-sm);
 }
@@ -1250,7 +1250,7 @@ html.dark .row-label.colored {
     font-size: var(--stats-button-font-size);
     font-weight: bold;
     cursor: pointer;
-    filter: drop-shadow(var(--shadow-button-offset) var(--shadow-button-offset) 0 var(--color-shadow));
+    box-shadow: var(--shadow-button-offset) var(--shadow-button-offset) 0 var(--color-shadow);
     margin: var(--spacing-lg) auto;
     display: block;
     letter-spacing: var(--stats-button-letter-spacing);
