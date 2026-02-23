@@ -211,12 +211,17 @@ html.dark {
    RESPONSIVE ADJUSTMENTS
    ========================================================================== */
 
-/* NEW: on small touch screens, don't let app-scale (and therefore hex font)
-   go below 16px, so iOS won't zoom the input */
+/* Large touch devices (e.g., iPad Pro): allow a bigger scale than desktop */
+@media (min-width: 601px) and (pointer: coarse) {
+    :root {
+        --app-scale: clamp(10px, 4vw, 24px);
+    }
+}
+
+/* Small touch phones: reduce scale only to prevent side clipping */
 @media (max-width: 600px) and (pointer: coarse) {
     :root {
-        /* you can use max(16px, 4vw) or clamp(16px, 4vw, 28px) */
-        --app-scale: max(16px, 4vw);
+        --app-scale: clamp(6px, 4vw, 18px);
     }
 }
 

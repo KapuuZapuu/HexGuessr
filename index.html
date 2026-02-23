@@ -32,6 +32,11 @@
             if (shouldBeDark) {
                 document.documentElement.classList.add('dark');
             }
+
+            // During full-page mode navigation, paint the pre-CSS frame
+            // using the same background as the active theme.
+            document.documentElement.style.backgroundColor = shouldBeDark ? '#262626' : '#f5f5f5';
+            document.documentElement.style.colorScheme = shouldBeDark ? 'dark' : 'light';
         })();
     </script>
     
