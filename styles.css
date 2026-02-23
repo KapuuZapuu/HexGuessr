@@ -49,9 +49,9 @@
     --mode-btn-width: calc(var(--app-scale) * 6);
     --mode-btn-font-size: calc(var(--app-scale) * 0.75);
 
-    --icon-size: calc(var(--app-scale) * 2);
+    --icon-size: calc(var(--app-scale) * 1.5);
     --icon-size-copy: calc(var(--app-scale) * 1.25);
-    --icon-size-paste: calc(var(--app-scale) * 2.0);
+    --icon-size-paste: calc(var(--app-scale) * 1.4);
     --icon-size-modal-close: calc(var(--app-scale) * 1.1);
     --icon-size-footer: calc(var(--app-scale) * 1.6);
 
@@ -65,6 +65,8 @@
     --key-min-width: calc(var(--app-scale) * 2.0);
     --key-padding: calc(var(--app-scale) * 0.3);
     --key-font-size: calc(var(--app-scale) * 0.7);
+    --icon-btn-size: calc(var(--key-height) * 0.8);
+    --paste-btn-size: calc(var(--side-size) * 0.8);
 
     /* ===== LAYOUT SIZES ===== */
     --max-width-game: 960px;
@@ -136,7 +138,6 @@
     --stat-label-letter-spacing: calc(var(--app-scale) * 0.02);
     --stats-button-padding-v: calc(var(--app-scale) * 0.5);
     --stats-button-padding-h: calc(var(--app-scale) * 1.25);
-    --stats-button-border: calc(var(--app-scale) * 0.125);
     --stats-button-letter-spacing: calc(var(--app-scale) * 0.04);
     --stats-button-font-size: calc(var(--app-scale) * 0.42);
     --stats-grid-gap: calc(var(--app-scale) * 0.575);
@@ -157,10 +158,10 @@
     --footer-font-size: calc(var(--app-scale) * 0.6);
 
     /* ===== BUTTON/CONTROL GAPS ===== */
-    --header-row-gap: calc(var(--app-scale) * 1.2);
+    --header-row-gap: calc(var(--app-scale) * 1.0);
     --mode-container-gap: calc(var(--app-scale) * 0.5);
     --mode-container-padding: calc(var(--app-scale) * 0.4);
-    --top-controls-gap: calc(var(--app-scale) * 0.45);
+    --top-controls-gap: calc(var(--app-scale) * 0.7);
 
     --color-picker-gap: calc(var(--app-scale) * 0.7);
     --color-picker-padding: calc(var(--app-scale) * 0.7);
@@ -171,6 +172,11 @@
     /* ===== SCALE EFFECTS ===== */
     --scale-pop: 1.1;
 
+    /* ===== MOUSE HOVER EFFECTS ===== */
+    --hover-light: #f5f5f5;
+    --hover-dark: #303030;
+    --hover-alt: #dcdcdc;
+
     /* ===== COLOR PALETTE - LIGHT MODE ===== */
     --color-page-bg: #f5f5f5;
     --color-surface: #ffffff;
@@ -180,9 +186,8 @@
     --color-secondary: #ffffff;
     
     /* Derived colors */
-    --color-text: var(--color-primary);
-    --color-text-inverse: var(--color-secondary);
-    --icon-color: var(--color-primary);
+    --icon-btn-bg: #000000;
+    --icon-btn-color: #ffffff;
 }
 
 /* Dark Mode Color Overrides */
@@ -194,9 +199,12 @@ html.dark {
     --color-primary: #ffffff;
     --color-secondary: #000000;
     
-    --color-text: var(--color-primary);
-    --color-text-inverse: var(--color-secondary);
-    --icon-color: var(--color-primary);
+    --icon-btn-bg: #ffffff;
+    --icon-btn-color: #000000;
+    
+    --hover-light: #2b2b2b;
+    --hover-dark: #d9d9d9;
+    --hover-alt: #262626;
 }
 
 /* ==========================================================================
@@ -257,7 +265,7 @@ body {
     margin: 0;
     padding: 0;
     background: var(--color-page-bg);
-    color: var(--color-text);
+    color: var(--color-primary);
     overflow-x: hidden;
     
     opacity: 0;
@@ -365,27 +373,6 @@ body.modal-open .layout-container {
     position: relative;
 }
 
-.ascii-title span {
-    display: inline-block;
-    pointer-events: auto;
-    cursor: pointer;
-}
-
-.ascii-title.animating span {
-    animation: wave 6s linear infinite;
-    animation-delay: calc(var(--col) * 0.1s);
-}
-
-@keyframes wave {
-    0%   { color: hsl(0, 100%, 50%); }
-    16%  { color: hsl(60, 100%, 50%); }
-    33%  { color: hsl(120, 100%, 50%); }
-    50%  { color: hsl(180, 100%, 50%); }
-    66%  { color: hsl(240, 100%, 50%); }
-    83%  { color: hsl(300, 100%, 50%); }
-    100% { color: hsl(360, 100%, 50%); }
-}
-
 /* ==========================================================================
    BUTTONS & CONTROLS
    ========================================================================== */
@@ -412,7 +399,7 @@ body.modal-open .layout-container {
     box-shadow: var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow);
     font-size: var(--mode-btn-font-size);
     text-decoration: none;
-    color: var(--color-text);
+    color: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -422,7 +409,7 @@ body.modal-open .layout-container {
 
 .mode-btn.active {
     background: var(--color-primary);
-    color: var(--color-text-inverse);
+    color: var(--color-secondary);
 }
 
 .top-controls {
@@ -434,16 +421,21 @@ body.modal-open .layout-container {
 }
 
 .icon-btn {
-    background: none;
+    background: var(--icon-btn-bg);
+    color: var(--icon-btn-color);
     border: none;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    padding-inline: var(--shadow-header-offset);
+    justify-content: center;
+    width: var(--icon-btn-size);
+    height: var(--icon-btn-size);
+    box-shadow: var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow);
+    padding: 0;
 }
 
 .icon-btn .icon {
-    filter: drop-shadow(var(--shadow-header-offset) var(--shadow-header-offset) 0 var(--color-shadow));
+    color: var(--icon-btn-color);
 }
 
 .icon {
@@ -451,7 +443,7 @@ body.modal-open .layout-container {
     height: var(--icon-size);
     display: block;
     fill: currentColor;
-    color: var(--icon-color);
+    color: var(--color-primary);
     shape-rendering: crispEdges;
 }
 
@@ -493,7 +485,7 @@ html.dark #darkModeToggle .icon--sun {
     text-align: center;
     box-shadow: var(--shadow-body-offset) var(--shadow-body-offset) 0 var(--color-shadow);
     font-size: var(--color-display-font-size);
-    color: var(--color-text);
+    color: var(--color-primary);
     padding: var(--spacing-xl);
 }
 
@@ -718,7 +710,7 @@ html.dark .color-preview {
     top: 50%;
     transform: translateY(-50%);
     font-size: var(--hex-input-font-size);
-    color: var(--color-text);
+    color: var(--color-primary);
     user-select: none;
     pointer-events: none;
     z-index: 2;
@@ -734,7 +726,7 @@ html.dark .color-preview {
     min-width: 0;
     background: transparent;
     text-transform: uppercase;
-    color: var(--color-text);
+    color: var(--color-primary);
     outline: none;
 }
 
@@ -839,7 +831,7 @@ html.dark .color-preview {
     align-items: center;
     justify-content: center;
     background: var(--color-surface);
-    color: var(--color-text);
+    color: var(--color-primary);
     font-size: var(--grid-cell-font-size);
     user-select: none;
     text-transform: uppercase;
@@ -853,19 +845,16 @@ html.dark .color-preview {
 
 .grid-cell.correct {
     background: #4CAF50 !important;
-    border-color: #4CAF50 !important;
     color: #fff !important;
 }
 
 .grid-cell.close {
     background: #FFC107 !important;
-    border-color: #FFC107 !important;
     color: #fff !important;
 }
 
 .grid-cell.wrong {
-    background: #f44336 !important;
-    border-color: #f44336 !important;
+    background: #7e7e7e !important;
     color: #fff !important;
 }
 
@@ -894,14 +883,27 @@ html.dark .color-preview {
 }
 
 .grid-cell.land-pop,
-.stat-cell.land-pop {
+.stat-cell.land-pop,
+.ascii-title.land-pop {
     animation: land-pop-8bit 120ms steps(2, end);
+}
+
+.grid-cell.win-sweep {
+    background: var(--win-sweep-color) !important;
+    color: #fff !important;
+    animation: win-sweep-pop 170ms steps(2, end);
 }
 
 @keyframes jump-8bit {
     0% { transform: translateY(0); }
     40% { transform: translateY(var(--jump-distance)); }
     100% { transform: translateY(0); }
+}
+
+@keyframes win-sweep-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(var(--scale-pop)); }
+    100% { transform: scale(1); }
 }
 
 @keyframes land-pop-8bit {
@@ -923,7 +925,7 @@ html.dark .color-preview {
     font-size: var(--row-label-font-size);
     user-select: none;
     visibility: hidden;
-    filter: drop-shadow(var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow));
+    text-shadow: var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
     padding-top: var(--spacing-sm);
 }
 
@@ -941,7 +943,8 @@ html.dark .color-preview {
                  calc(-1 * var(--text-outline-size)) calc(-1 * var(--text-outline-size)) 0 #000,
                  var(--text-outline-size)            calc(-1 * var(--text-outline-size)) 0 #000,
                  calc(-1 * var(--text-outline-size)) var(--text-outline-size)            0 #000,
-                 var(--text-outline-size)            var(--text-outline-size)            0 #000;
+                 var(--text-outline-size)            var(--text-outline-size)            0 #000,
+                 var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
 }
 
 html.dark .row-label.colored {
@@ -952,7 +955,8 @@ html.dark .row-label.colored {
                  calc(-1 * var(--text-outline-size)) calc(-1 * var(--text-outline-size)) 0 #fff,
                  var(--text-outline-size)            calc(-1 * var(--text-outline-size)) 0 #fff,
                  calc(-1 * var(--text-outline-size)) var(--text-outline-size)            0 #fff,
-                 var(--text-outline-size)            var(--text-outline-size)            0 #fff;
+                 var(--text-outline-size)            var(--text-outline-size)            0 #fff,
+                 var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
 }
 
 .row-action {
@@ -969,17 +973,21 @@ html.dark .row-label.colored {
 }
 
 .paste-btn {
-    background: none;
+    background: var(--icon-btn-bg);
+    color: var(--icon-btn-color);
     border: none;
-    padding: 0;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: var(--paste-btn-size);
+    height: var(--paste-btn-size);
+    box-shadow: var(--shadow-key-offset) var(--shadow-key-offset) 0 var(--color-shadow);
+    padding: 0;
 }
 
 .paste-btn .icon {
-    filter: drop-shadow(var(--shadow-paste-offset) var(--shadow-paste-offset) 0 var(--color-shadow));
+    color: var(--icon-btn-color);
     width: var(--icon-size-paste);
     height: var(--icon-size-paste);
 }
@@ -1007,7 +1015,7 @@ html.dark .row-label.colored {
 
 .key-btn {
     background: var(--color-primary);
-    color: var(--color-text-inverse);
+    color: var(--color-secondary);
     border: none;
     padding: var(--key-padding);
     font-size: var(--key-font-size);
@@ -1024,6 +1032,60 @@ html.dark .row-label.colored {
 
 .wide-key {
     flex: 1;
+}
+
+/* ==========================================================================
+   HOVER STATES
+   ========================================================================== */
+
+@media (hover: hover) and (pointer: fine) {
+    .ascii-title:hover {
+        color: var(--hover-dark);
+    }
+
+    .mode-btn:hover {
+        background: var(--hover-light);
+    }
+    
+    .mode-btn.active:hover {
+        background: var(--hover-dark);
+    }
+
+    .icon-btn:hover {
+        background: var(--hover-dark);
+    }
+
+    .color-display.hidden:hover {
+        background: var(--hover-light) !important;
+    }
+
+    .hex-copy-btn:hover .icon {
+        color: var(--hover-dark);
+    }
+
+    .paste-btn:hover {
+        background: var(--hover-dark);
+    }
+
+    .key-btn:hover {
+        background: var(--hover-dark);
+    }
+
+    .footer-text a:hover {
+        color: var(--hover-light);
+    }
+
+    .modal-close:hover .icon {
+        color: var(--hover-light);
+    }
+
+    .stat-cell:hover {
+        background: var(--hover-alt);
+    }
+
+    .stats-button:not(:disabled):hover {
+        background: var(--hover-dark);
+    }
 }
 
 /* ==========================================================================
@@ -1061,7 +1123,7 @@ html.dark .row-label.colored {
     position: relative;
     z-index: 1001;
     background: var(--color-surface);
-    color: var(--color-text);
+    color: var(--color-primary);
     padding: var(--modal-padding);
     max-width: 90vw;
     max-height: 90vh;
@@ -1095,7 +1157,13 @@ html.dark .row-label.colored {
 .modal-close .icon {
     width: var(--icon-size-modal-close);
     height: var(--icon-size-modal-close);
-    color: var(--color-text-inverse);
+    color: var(--color-secondary);
+}
+
+.modal-close:focus,
+.modal-close:focus-visible {
+    outline: none;
+    box-shadow: none;
 }
 
 .modal-body {
@@ -1160,7 +1228,7 @@ html.dark .row-label.colored {
 
 .modal-body .title {
     background: var(--color-primary);
-    color: var(--color-text-inverse);
+    color: var(--color-secondary);
     padding: var(--modal-title-padding-v) var(--modal-title-padding-h);
     border: var(--modal-title-border) solid var(--color-primary);
     box-shadow: var(--shadow-modal-title-offset) var(--shadow-modal-title-offset) 0 var(--color-shadow);
@@ -1177,7 +1245,7 @@ html.dark .row-label.colored {
 .modal-body .number-box {
     display: inline-block;
     background: var(--color-primary);
-    color: var(--color-text-inverse);
+    color: var(--color-secondary);
     padding: var(--modal-number-box-padding-v) var(--modal-number-box-padding-h);
     border: var(--modal-number-box-border) solid var(--color-primary);
     box-shadow: var(--shadow-number-box-offset) var(--shadow-number-box-offset) 0 var(--color-shadow);
@@ -1211,6 +1279,7 @@ html.dark .row-label.colored {
     text-align: center;
     position: relative;
     transform-origin: center center;
+    box-shadow: var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
 }
 
 .stat-cell.easter-egg-active .stat-value,
@@ -1243,8 +1312,8 @@ html.dark .row-label.colored {
 
 .stats-button {
     background: var(--color-primary);
-    color: var(--color-text-inverse);
-    border: var(--stats-button-border) solid var(--color-primary);
+    color: var(--color-secondary);
+    border: none;
     padding: var(--stats-button-padding-v) var(--stats-button-padding-h);
     font-family: var(--ps2p-stack);
     font-size: var(--stats-button-font-size);
@@ -1290,12 +1359,12 @@ html.dark .row-label.colored {
 
 .toast {
     background: var(--color-primary);
-    color: var(--color-text-inverse);
+    color: var(--color-secondary);
     padding: var(--toast-padding-v) var(--toast-padding-h);
     font-family: var(--ps2p-stack);
     font-size: var(--toast-font-size);
     font-weight: bold;
-    border: var(--toast-border) solid var(--color-text-inverse);
+    border: var(--toast-border) solid var(--color-secondary);
     white-space: nowrap;
     width: fit-content;
     opacity: 0;
@@ -1334,10 +1403,10 @@ html.dark .row-label.colored {
 
 .site-footer {
     background: var(--color-primary);
-    color: var(--color-text-inverse);
+    color: var(--color-secondary);
     padding: var(--footer-padding);
     margin-top: var(--footer-margin-top);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;

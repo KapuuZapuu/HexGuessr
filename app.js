@@ -24,29 +24,31 @@
     }, 1000);
 })();
 
-// ASCII title animation - toggle on click
+// ASCII title interaction - pop + random palette color on click
 document.addEventListener("DOMContentLoaded", () => {
-    const pre   = document.querySelector(".ascii-title");
-    const lines = pre.textContent.split("\n");
-    pre.innerHTML = ""; // clear out the raw ASCII
+    const pre = document.querySelector(".ascii-title");
+    if (!pre) return;
 
-    lines.forEach((line, row) => {
-        Array.from(line).forEach((ch, col) => {
-            const span = document.createElement("span");
-            span.textContent = ch;
-            // keep only the column index for the RGB wave
-            span.style.setProperty("--col", col);
-            pre.appendChild(span);
-        });
-        // re–insert a newline so your <pre> stays multi-line
-        if (row < lines.length - 1) {
-            pre.appendChild(document.createTextNode("\n"));
-        }
-    });
+    const colors = [
+        '#F33800', // red
+        '#FF8200', // orange
+        '#FFC500', // yellow
+        '#72CA00', // lime
+        '#009442', // green
+        '#00BFBD', // cyan
+        '#006CAD', // blue
+        '#5E2AA6', // indigo
+        '#B40075'  // violet
+    ];
 
-    // Toggle animation on click
     pre.addEventListener("click", () => {
-        pre.classList.toggle("animating");
+        const currentColor = (pre.dataset.paletteColor || '').toUpperCase();
+        const availableColors = colors.filter(color => color !== currentColor);
+        const nextColor = availableColors[Math.floor(Math.random() * availableColors.length)];
+
+        pre.style.color = nextColor;
+        pre.dataset.paletteColor = nextColor;
+        triggerPop(pre);
     });
 });
 
@@ -1047,6 +1049,9 @@ class HexColorWordle {
                 this.colorDisplay.classList.remove('disabled');
                 if (!this.colorVisible) {
                     this.colorDisplay.textContent = 'Click to reveal color!';
+                    // Refill timer at the same moment the reveal prompt resets
+                    this.timerFill.style.transition = '';
+                    this.timerFill.style.width = '100%';
                 }
             }
         }, 1100); // Wait for all animations to complete
@@ -1073,9 +1078,6 @@ class HexColorWordle {
             if (this.currentAttemptSpan) {
                 this.currentAttemptSpan.textContent = this.currentAttempt;
             }
-            // Refill the timer bar for next attempt
-            this.timerFill.style.transition = '';
-            this.timerFill.style.width = '100%';
         }
     }
 
@@ -1137,6 +1139,29 @@ class HexColorWordle {
         return Math.abs(guessValue - targetValue) <= 1;
     }
 
+    playWinGridSweep() {
+        const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        const perColumnDelay = prefersReducedMotion ? 0 : 105;
+        const holdDuration = prefersReducedMotion ? 150 : 450;
+
+        for (let col = 0; col < this.gridCols; col++) {
+            setTimeout(() => {
+                for (let row = 0; row < this.maxAttempts; row++) {
+                    const cell = this.gridCellRefs[row]?.[col];
+                    if (!cell) continue;
+
+                    cell.style.setProperty('--win-sweep-color', `#${this.targetColor}`);
+                    cell.classList.add('win-sweep');
+
+                    setTimeout(() => {
+                        cell.classList.remove('win-sweep');
+                        cell.style.removeProperty('--win-sweep-color');
+                    }, holdDuration);
+                }
+            }, col * perColumnDelay);
+        }
+    }
+
     endGame(won) {
         this.gameOver = true;
         // Always empty the timer bar when game ends
@@ -1159,6 +1184,10 @@ class HexColorWordle {
             // Save state after setting the color
             if (this.mode === 'daily') {
                 this.saveDailyGameState();
+            }
+
+            if (won) {
+                this.playWinGridSweep();
             }
             
             // Show random win/loss message
@@ -1560,6 +1589,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             // Toggle both html and body
             const isDark = document.documentElement.classList.toggle("dark");
             document.body.classList.toggle("dark", isDark);
+            document.documentElement.style.backgroundColor = isDark ? '#262626' : '#f5f5f5';
+            document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
             
             // Save preference to localStorage
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
