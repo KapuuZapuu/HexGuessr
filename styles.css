@@ -22,7 +22,7 @@
                   Consolas, 'Liberation Mono', 'Courier New', monospace;
 
     /* ===== APP-WIDE SCALE DRIVER ===== */
-    --app-scale: clamp(8px, 4vw, 28px);
+    --app-scale: clamp(8px, 4vw, 21px);
 
     /* ===== SPACING SCALE ===== */
     --spacing-xs: calc(var(--app-scale) * 0.15);

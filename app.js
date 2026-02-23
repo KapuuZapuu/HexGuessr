@@ -1589,8 +1589,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             // Toggle both html and body
             const isDark = document.documentElement.classList.toggle("dark");
             document.body.classList.toggle("dark", isDark);
-            document.documentElement.style.backgroundColor = isDark ? '#262626' : '#f5f5f5';
-            document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
             
             // Save preference to localStorage
             localStorage.setItem('theme', isDark ? 'dark' : 'light');

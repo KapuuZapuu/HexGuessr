@@ -32,11 +32,6 @@
             if (shouldBeDark) {
                 document.documentElement.classList.add('dark');
             }
-
-            // Prevent white flash between full-page mode navigations by painting
-            // the root background before external CSS is parsed.
-            document.documentElement.style.backgroundColor = shouldBeDark ? '#262626' : '#f5f5f5';
-            document.documentElement.style.colorScheme = shouldBeDark ? 'dark' : 'light';
         })();
     </script>
     
