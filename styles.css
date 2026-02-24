@@ -1077,7 +1077,7 @@ html.dark .row-label.colored {
     }
 
     .footer-text a:hover {
-        color: var(--hover-light);
+        color: var(--hover-alt);
     }
 
     .modal-close:hover .icon {

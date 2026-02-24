@@ -1053,6 +1053,11 @@ class HexColorWordle {
                     this.timerFill.style.transition = '';
                     this.timerFill.style.width = '100%';
                 }
+                // Persist the reset reveal-state for daily mode so reload doesn't
+                // incorrectly show "Submit a guess to reveal again!".
+                if (this.mode === 'daily') {
+                    this.saveDailyGameState();
+                }
             }
         }, 1100); // Wait for all animations to complete
         this.colorizeRowLabel(this.currentRow, guess);
