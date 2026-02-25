@@ -1409,24 +1409,8 @@ class HexColorWordle {
             gameOver: this.gameOver,
             colorVisible: this.colorVisible,
             hasRevealedThisAttempt: this.hasRevealedThisAttempt,
-            guessHistory: this.guessHistory,
-            gridState: [] // Store the visual grid state
+            guessHistory: this.guessHistory
         };
-        
-        // Save grid state (all rows)
-        for (let row = 0; row < this.maxAttempts; row++) {
-            const rowState = [];
-            for (let col = 0; col < 6; col++) {
-                const cell = this.gridCellRefs[row]?.[col];
-                if (cell) {
-                    rowState.push({
-                        text: cell.textContent,
-                        class: cell.className
-                    });
-                }
-            }
-            gameState.gridState.push(rowState);
-        }
         
         localStorage.setItem('dailyGameState', JSON.stringify(gameState));
     }
@@ -1456,48 +1440,8 @@ class HexColorWordle {
             this.colorVisible = gameState.colorVisible || false;
             this.hasRevealedThisAttempt = gameState.hasRevealedThisAttempt || false;
             this.guessHistory = gameState.guessHistory || [];
-            
-            // Restore grid visual state
-            if (gameState.gridState) {
-                for (let row = 0; row < gameState.gridState.length; row++) {
-                    const rowState = gameState.gridState[row];
-                    let hasContent = false;
-                    const isGuessedRow = row < this.guessHistory.length;
-                    
-                    for (let col = 0; col < rowState.length; col++) {
-                        const cell = this.gridCellRefs[row]?.[col];
-                        const cellState = rowState[col];
-                        if (cell && cellState) {
-                            cell.textContent = cellState.text;
-                            // Guessed rows are restored from deterministic statuses below.
-                            // For non-guessed rows, restore class but remove animation/status classes.
-                            if (!isGuessedRow) {
-                                const cleanClass = (cellState.class || '')
-                                    .replace(/\b(reveal-jump|land-pop|correct|close|wrong)\b/g, '')
-                                    .trim();
-                                cell.className = cleanClass || 'grid-cell';
-                            }
-                            if (cellState.text) hasContent = true;
-                        }
-                    }
-                    
-                    // Lock completed rows (rows before current row)
-                    if (hasContent && row < this.currentRow) {
-                        this.lockRow(row);
-                    }
-                }
-            }
-            
-            // Restore row labels with colors
-            for (let i = 0; i < this.guessHistory.length; i++) {
-                const guess = this.guessHistory[i];
-                if (guess && guess.hex) {
-                    this.colorizeRowLabel(i, guess.hex);
-                }
-            }
 
-            // Re-apply deterministic cell statuses from guess model so visuals do
-            // not depend on whether an animation-timed class save had completed.
+            // Rebuild grid from submitted guesses only (no in-progress text persistence).
             for (let row = 0; row < this.guessHistory.length; row++) {
                 const guess = this.guessHistory[row];
                 if (!guess || !guess.hex || guess.hex.length !== 6) continue;
@@ -1515,6 +1459,9 @@ class HexColorWordle {
                     cell.classList.remove('correct', 'close', 'wrong', 'reveal-jump', 'land-pop');
                     cell.classList.add(statuses[col]);
                 }
+
+                this.colorizeRowLabel(row, guess.hex);
+                this.lockRow(row);
             }
             
             // Update UI to reflect loaded state
