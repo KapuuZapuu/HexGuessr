@@ -1024,11 +1024,13 @@ class HexColorWordle {
             return;
         }
         
-        // Calculate and store color error for this guess (after validation passes)
+        // Calculate and store deterministic status + error for this guess.
+        const statuses = this.computeGuessStatuses(guess);
         const colorError = this.calculateColorError(guess, this.targetColor);
         this.guessHistory.push({
             hex: guess,
-            colorError: colorError
+            colorError: colorError,
+            statuses: statuses
         });
 
         // lock the row UI
@@ -1038,7 +1040,7 @@ class HexColorWordle {
         this.isAnimating = true;
                 
         // Process the guess animation first
-        this.processGuess(guess);
+        this.processGuess(guess, statuses);
         
         // Reset reveal ability for next attempt AFTER animation completes
         // Animation timing: last cell starts at 5*140ms=700ms, animation duration is 360ms = 1060ms total
@@ -1086,16 +1088,23 @@ class HexColorWordle {
         }
     }
 
-    processGuess(guess) {
-        const rowCells = this.gridCellRefs[this.currentRow];
-
-        // 1) Compute statuses up front, but don't apply yet
+    computeGuessStatuses(guess) {
         const statuses = [];
         for (let i = 0; i < 6; i++) {
             const isCorrect = (guess[i] === this.targetColor[i]);
-            const isClose   = this.isClose(guess[i], this.targetColor[i]);
+            const isClose = this.isClose(guess[i], this.targetColor[i]);
             statuses.push(isCorrect ? 'correct' : (isClose ? 'close' : 'wrong'));
         }
+        return statuses;
+    }
+
+    processGuess(guess, statusesOverride = null) {
+        const rowCells = this.gridCellRefs[this.currentRow];
+
+        // 1) Compute statuses up front, but don't apply yet
+        const statuses = (Array.isArray(statusesOverride) && statusesOverride.length === 6)
+            ? statusesOverride
+            : this.computeGuessStatuses(guess);
 
         // 2) Ensure each cell's character is wrapped for crisp control (doesn't change visuals)
         rowCells.forEach((cell) => {
@@ -1453,15 +1462,21 @@ class HexColorWordle {
                 for (let row = 0; row < gameState.gridState.length; row++) {
                     const rowState = gameState.gridState[row];
                     let hasContent = false;
+                    const isGuessedRow = row < this.guessHistory.length;
                     
                     for (let col = 0; col < rowState.length; col++) {
                         const cell = this.gridCellRefs[row]?.[col];
                         const cellState = rowState[col];
                         if (cell && cellState) {
                             cell.textContent = cellState.text;
-                            // Restore class but remove animation classes to prevent glitch
-                            const cleanClass = cellState.class.replace(/\b(reveal-jump|land-pop)\b/g, '').trim();
-                            cell.className = cleanClass;
+                            // Guessed rows are restored from deterministic statuses below.
+                            // For non-guessed rows, restore class but remove animation/status classes.
+                            if (!isGuessedRow) {
+                                const cleanClass = (cellState.class || '')
+                                    .replace(/\b(reveal-jump|land-pop|correct|close|wrong)\b/g, '')
+                                    .trim();
+                                cell.className = cleanClass || 'grid-cell';
+                            }
                             if (cellState.text) hasContent = true;
                         }
                     }
@@ -1478,6 +1493,27 @@ class HexColorWordle {
                 const guess = this.guessHistory[i];
                 if (guess && guess.hex) {
                     this.colorizeRowLabel(i, guess.hex);
+                }
+            }
+
+            // Re-apply deterministic cell statuses from guess model so visuals do
+            // not depend on whether an animation-timed class save had completed.
+            for (let row = 0; row < this.guessHistory.length; row++) {
+                const guess = this.guessHistory[row];
+                if (!guess || !guess.hex || guess.hex.length !== 6) continue;
+
+                const statuses = (Array.isArray(guess.statuses) && guess.statuses.length === 6)
+                    ? guess.statuses
+                    : this.computeGuessStatuses(guess.hex);
+
+                for (let col = 0; col < 6; col++) {
+                    const cell = this.gridCellRefs[row]?.[col];
+                    if (!cell) continue;
+
+                    const ch = guess.hex[col] || '';
+                    cell.textContent = ch;
+                    cell.classList.remove('correct', 'close', 'wrong', 'reveal-jump', 'land-pop');
+                    cell.classList.add(statuses[col]);
                 }
             }
             
