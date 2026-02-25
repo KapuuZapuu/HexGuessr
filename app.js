@@ -1498,6 +1498,7 @@ class HexColorWordle {
             // Update caret position and row labels
             this.updateCaret();
             this.updateRowLabels();
+            this.updatePasteAction();
             
             // Restore color display state
             if (this.gameOver) {
