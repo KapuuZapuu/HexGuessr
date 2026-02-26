@@ -1358,6 +1358,7 @@ html.dark .row-label.colored {
     z-index: 2000;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: var(--toast-gap);
     pointer-events: none;
 }

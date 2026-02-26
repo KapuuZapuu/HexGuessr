@@ -406,6 +406,17 @@ class HexColorWordle {
             lbl.style.color = ''; // reset to default
         }
     }
+
+    clearActiveRowIndicators() {
+        // Hide caret from any row
+        this.gridCellRefs.flat().forEach(cell => cell.classList.remove('grid-current'));
+        // Hide only the non-colored "#" labels (keep guessed row labels visible)
+        this.rowLabels.forEach((lbl) => {
+            if (!lbl.classList.contains('colored')) {
+                lbl.classList.remove('visible');
+            }
+        });
+    }
     colorizeRowLabel(rowIndex, hex) {
         if (rowIndex < 0 || rowIndex >= this.rowLabels.length) return;
         const lbl = this.rowLabels[rowIndex];
@@ -452,11 +463,33 @@ class HexColorWordle {
                 this.hexInputField.value = hex;
                 this.updateFromHex(hex);
 
-                // Optional: focus the input so user can edit it
+                // Keep preview + input visible, then focus input for quick editing.
+                const controls = this.hexInputField?.closest('.color-controls') || this.hexInputField;
+                if (controls && controls.scrollIntoView) {
+                    controls.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                }
+
                 try {
                     this.hexInputField.focus({ preventScroll: true });
                 } catch {
                     this.hexInputField.focus();
+                }
+
+                // On mobile, keyboard open can shift the viewport after focus.
+                // Run one more smooth centering pass for stability.
+                const isCoarsePointer = window.matchMedia?.('(pointer: coarse)').matches;
+                if (isCoarsePointer && controls && controls.scrollIntoView) {
+                    setTimeout(() => {
+                        controls.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                            inline: 'nearest'
+                        });
+                    }, 320);
                 }
             };
         });
@@ -1063,13 +1096,9 @@ class HexColorWordle {
         this.colorizeRowLabel(this.currentRow, guess);
         this.clearCurrentRowBuffer();
         
-        // Save game state after animations complete (colors are applied with delays)
+        // Save game state immediately after a valid submit.
         if (this.mode === 'daily') {
-            // Wait for all cell animations to complete before saving
-            // Last cell starts at 5 * 140ms = 700ms, then color applied at +180ms = 880ms
-            setTimeout(() => {
-                this.saveDailyGameState();
-            }, 1000); // Wait 1 second to be safe
+            this.saveDailyGameState();
         }
 
         if (guess === this.targetColor) {
@@ -1174,6 +1203,7 @@ class HexColorWordle {
 
     endGame(won) {
         this.gameOver = true;
+        this.clearActiveRowIndicators();
         // Always empty the timer bar when game ends
         this.timerFill.style.transition = '';
         this.timerFill.style.width = '0%';
@@ -1404,7 +1434,7 @@ class HexColorWordle {
             currentCol: this.currentCol,
             gameOver: this.gameOver,
             colorVisible: this.colorVisible,
-            hasRevealedThisAttempt: this.hasRevealedThisAttempt,
+            hasRevealedThisAttempt: this.isAnimating ? false : this.hasRevealedThisAttempt,
             guessHistory: this.guessHistory,
             gridState: [] // Store the visual grid state
         };
@@ -1418,9 +1448,9 @@ class HexColorWordle {
             for (let col = 0; col < 6; col++) {
                 const cell = this.gridCellRefs[row]?.[col];
                 if (cell) {
-                    const savedClass = rowStatuses ? `grid-cell ${rowStatuses[col]}` : cell.className;
+                    const savedClass = rowStatuses ? `grid-cell ${rowStatuses[col]}` : 'grid-cell';
                     rowState.push({
-                        text: cell.textContent,
+                        text: isSubmittedRow ? cell.textContent : '',
                         class: savedClass
                     });
                 }
@@ -1506,6 +1536,7 @@ class HexColorWordle {
                 this.colorDisplay.style.background = '#' + this.targetColor;
                 this.colorDisplay.classList.remove('hidden');
                 this.colorDisplay.classList.add('game-ended');
+                this.clearActiveRowIndicators();
                 // Ensure timer bar and text are empty for completed games
                 this.timerFill.style.transition = '';
                 this.timerFill.style.width = '0%';
@@ -1806,35 +1837,48 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }, { passive: false, capture: true });
 
+    function openHelpModal() {
+        const helpContent = `
+            <div class="title">
+                HOW TO PLAY
+                <button class="modal-close" id="modalClose" aria-label="Close">
+                    <svg class="icon" aria-hidden="true">
+                        <use href="#icon-cancel"></use>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body-text">
+                <p class="modal-paragraph-intro"><strong>HexGuessr</strong> is a color guessing game based on Wordle using hexcodes.</p>
+                <p class="modal-paragraph"><span class="number-box">1</span> Click the square to briefly reveal the target color.</p>
+                <p class="modal-paragraph"><span class="number-box">2</span> Enter your 6-digit hexcode guess and press Enter.</p>
+                <p class="modal-paragraph"><span class="number-box">3</span> Color feedback:</p>
+                <ul class="color-list">
+                    <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--correct"></span></span> = Correct digit in correct position</li>
+                    <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--near"></span></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
+                    <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--far"></span></span> = Digit is off by more than 1</li>
+                </ul>
+                <p class="modal-paragraph"><span class="number-box">4</span> You have 6 attempts – good luck!</p>
+                <p class="modal-footer-text">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" style="color: inherit; text-decoration: underline;">here</a>.</p>
+            </div>
+        `;
+        openModal(helpContent);
+    }
+
     // Info/Help button
     const infoBtn = document.getElementById('infoButton');
     if (infoBtn) {
-        infoBtn.addEventListener('click', () => {
-            const helpContent = `
-                <div class="title">
-                    HOW TO PLAY
-                    <button class="modal-close" id="modalClose" aria-label="Close">
-                        <svg class="icon" aria-hidden="true">
-                            <use href="#icon-cancel"></use>
-                        </svg>
-                    </button>
-                </div>
-                <div class="modal-body-text">
-                    <p class="modal-paragraph-intro"><strong>HexGuessr</strong> is a color guessing game based on Wordle using hexcodes.</p>
-                    <p class="modal-paragraph"><span class="number-box">1</span> Click the square to briefly reveal the target color.</p>
-                    <p class="modal-paragraph"><span class="number-box">2</span> Enter your 6-digit hexcode guess and press Enter.</p>
-                    <p class="modal-paragraph"><span class="number-box">3</span> Color feedback:</p>
-                    <ul class="color-list">
-                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--correct"></span></span> = Correct digit in correct position</li>
-                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--near"></span></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
-                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--far"></span></span> = Digit is off by more than 1</li>
-                    </ul>
-                    <p class="modal-paragraph"><span class="number-box">4</span> You have 6 attempts – good luck!</p>
-                    <p class="modal-footer-text">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" style="color: inherit; text-decoration: underline;">here</a>.</p>
-                </div>
-            `;
-            openModal(helpContent);
-        });
+        infoBtn.addEventListener('click', openHelpModal);
+    }
+
+    // Show onboarding help once for first-time users (no gameplay save data yet).
+    const hasGameplaySaveData = (
+        localStorage.getItem('dailyGameState') ||
+        localStorage.getItem('dailyCompletion') ||
+        localStorage.getItem('gameStats_daily') ||
+        localStorage.getItem('gameStats_unlimited')
+    );
+    if (!hasGameplaySaveData && !document.body.classList.contains('modal-open')) {
+        openHelpModal();
     }
 
     // Stats button
