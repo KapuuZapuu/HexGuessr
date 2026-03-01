@@ -1886,7 +1886,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 openHelpModal();
                 localStorage.setItem(onboardingHelpSeenKey, '1');
             }
-        }, 500);
+        }, 1000);
     }
 
     // Stats button
