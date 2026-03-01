@@ -463,13 +463,15 @@ class HexColorWordle {
                 this.hexInputField.value = hex;
                 this.updateFromHex(hex);
 
-                // Keep preview + input visible, then focus input for quick editing.
+                // Keep preview + input visible with a top offset (no center jump).
                 const controls = this.hexInputField?.closest('.color-controls') || this.hexInputField;
-                if (controls && controls.scrollIntoView) {
-                    controls.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                        inline: 'nearest'
+                if (controls) {
+                    const topPad = 16; // room above preview so it doesn't feel cramped
+                    const rect = controls.getBoundingClientRect();
+                    const targetY = window.scrollY + rect.top - topPad;
+                    window.scrollTo({
+                        top: Math.max(0, targetY),
+                        behavior: 'smooth'
                     });
                 }
 
@@ -477,19 +479,6 @@ class HexColorWordle {
                     this.hexInputField.focus({ preventScroll: true });
                 } catch {
                     this.hexInputField.focus();
-                }
-
-                // On mobile, keyboard open can shift the viewport after focus.
-                // Run one more smooth centering pass for stability.
-                const isCoarsePointer = window.matchMedia?.('(pointer: coarse)').matches;
-                if (isCoarsePointer && controls && controls.scrollIntoView) {
-                    setTimeout(() => {
-                        controls.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                        });
-                    }, 320);
                 }
             };
         });
@@ -1519,6 +1508,17 @@ class HexColorWordle {
                     this.colorizeRowLabel(i, guess.hex);
                 }
             }
+
+            // Recompute caret column from actual active-row content so stale
+            // saved cursor positions don't survive when unsubmitted text is not persisted.
+            if (!this.gameOver && this.currentRow >= 0 && this.currentRow < this.gridRows) {
+                const activeRowCells = this.gridCellRefs[this.currentRow] || [];
+                let nextCol = 0;
+                while (nextCol < this.gridCols && (activeRowCells[nextCol]?.textContent || '')) {
+                    nextCol++;
+                }
+                this.currentCol = Math.min(nextCol, this.gridCols);
+            }
             
             // Update UI to reflect loaded state
             if (this.currentAttemptSpan) {
@@ -1871,14 +1871,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Show onboarding help once for first-time users (no gameplay save data yet).
+    const onboardingHelpSeenKey = 'onboardingHelpSeen';
+    const hasSeenOnboardingHelp = localStorage.getItem(onboardingHelpSeenKey) === '1';
     const hasGameplaySaveData = (
         localStorage.getItem('dailyGameState') ||
         localStorage.getItem('dailyCompletion') ||
         localStorage.getItem('gameStats_daily') ||
         localStorage.getItem('gameStats_unlimited')
     );
-    if (!hasGameplaySaveData && !document.body.classList.contains('modal-open')) {
-        openHelpModal();
+    if (!hasSeenOnboardingHelp && !hasGameplaySaveData) {
+        // Small delay so the first-load modal feels less abrupt.
+        setTimeout(() => {
+            if (!document.body.classList.contains('modal-open')) {
+                openHelpModal();
+                localStorage.setItem(onboardingHelpSeenKey, '1');
+            }
+        }, 500);
     }
 
     // Stats button
