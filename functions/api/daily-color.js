@@ -28,7 +28,7 @@ export const onRequestGet = async ({ request, env }) => {
   const nextMidnight = new Date(utcDate.getTime() + 24*60*60*1000);
   const seconds = Math.max(1, Math.floor((nextMidnight - now) / 1000));
 
-  return new Response(JSON.stringify({ hex }), {
+  return new Response(JSON.stringify({ hex, date: dayStr }), {
     headers: {
       "content-type": "application/json; charset=utf-8",
       "cache-control": `public, max-age=${seconds}, s-maxage=${seconds}`,

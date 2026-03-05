@@ -1088,7 +1088,7 @@ html.dark .row-label.colored {
         background: var(--hover-alt);
     }
 
-    .stats-button:not(:disabled):hover {
+    .stats-button:not(:disabled):not(#nextColorTimer):hover {
         background: var(--hover-dark);
     }
 }

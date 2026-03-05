@@ -79,11 +79,14 @@ function triggerPop(cell) {
 }
 
 // Daily color: fetch from server (no client algorithm)
-async function fetchDailyHex() {
+async function fetchDailyPuzzle() {
   const res = await fetch('/api/daily-color', { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch daily color');
-  const { hex } = await res.json();
-  return hex;
+  const data = await res.json();
+  const hex = String(data?.hex || '').toUpperCase();
+  const date = data?.date || new Date().toISOString().split('T')[0];
+  if (!/^[0-9A-F]{6}$/.test(hex)) throw new Error('Invalid daily color payload');
+  return { hex, date };
 }
 
 // --- End of helper functions ---
@@ -92,6 +95,7 @@ class HexColorWordle {
     constructor(opts = {}) {
         this.mode = opts.mode || 'unlimited';
         this.targetColor = (opts.targetColor || this.generateRandomColor());
+        this.dailyPuzzleDate = opts.dailyPuzzleDate || new Date().toISOString().split('T')[0];
         this.currentAttempt = 1;
         
         this.maxAttempts = 6;
@@ -738,9 +742,11 @@ class HexColorWordle {
             const pos = input.selectionStart;
             const filtered = input.value
                 .replace(/[^0-9A-Fa-f]/g, '')
-                .toUpperCase();
+                .toUpperCase()
+                .slice(0, 6);
             input.value = filtered;
-            input.setSelectionRange(pos, pos);
+            const caretPos = Math.min(pos ?? filtered.length, filtered.length);
+            input.setSelectionRange(caretPos, caretPos);
 
             if (filtered.length === 6) {
                 this.updateFromHex(filtered);
@@ -1085,11 +1091,6 @@ class HexColorWordle {
         this.colorizeRowLabel(this.currentRow, guess);
         this.clearCurrentRowBuffer();
         
-        // Save game state immediately after a valid submit.
-        if (this.mode === 'daily') {
-            this.saveDailyGameState();
-        }
-
         if (guess === this.targetColor) {
             this.endGame(true);
         } 
@@ -1100,6 +1101,10 @@ class HexColorWordle {
             this.currentAttempt++;
             if (this.currentAttemptSpan) {
                 this.currentAttemptSpan.textContent = this.currentAttempt;
+            }
+            if (this.mode === 'daily') {
+                // Persist only after attempt progression is finalized.
+                this.saveDailyGameState();
             }
         }
     }
@@ -1404,9 +1409,9 @@ class HexColorWordle {
     }
 
     saveDailyCompletion(won) {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const puzzleDate = this.dailyPuzzleDate || new Date().toISOString().split('T')[0];
         localStorage.setItem('dailyCompletion', JSON.stringify({
-            date: today,
+            date: puzzleDate,
             won: won
         }));
     }
@@ -1414,9 +1419,10 @@ class HexColorWordle {
     saveDailyGameState() {
         if (this.mode !== 'daily') return;
         
-        const today = new Date().toISOString().split('T')[0];
+        const puzzleDate = this.dailyPuzzleDate || new Date().toISOString().split('T')[0];
         const gameState = {
-            date: today,
+            date: puzzleDate,
+            puzzleDate: puzzleDate,
             targetColor: this.targetColor,
             currentAttempt: this.currentAttempt,
             currentRow: this.currentRow,
@@ -1459,14 +1465,16 @@ class HexColorWordle {
         try {
             const gameState = JSON.parse(saved);
             const today = new Date().toISOString().split('T')[0];
+            const savedPuzzleDate = gameState.puzzleDate || gameState.date;
             
             // Only restore if it's today's game
-            if (gameState.date !== today) {
+            if (savedPuzzleDate !== today) {
                 localStorage.removeItem('dailyGameState');
                 return;
             }
             
             // Restore game state
+            this.dailyPuzzleDate = savedPuzzleDate;
             this.targetColor = gameState.targetColor;
             this.currentAttempt = gameState.currentAttempt;
             this.currentRow = gameState.currentRow !== undefined ? gameState.currentRow : (this.currentAttempt - 1);
@@ -1475,6 +1483,14 @@ class HexColorWordle {
             this.colorVisible = gameState.colorVisible || false;
             this.hasRevealedThisAttempt = gameState.hasRevealedThisAttempt || false;
             this.guessHistory = gameState.guessHistory || [];
+
+            // Defensive normalization: derive active position from submitted guesses.
+            // This prevents stale saved attempt/cursor values from breaking end-game flow.
+            if (!this.gameOver) {
+                this.currentAttempt = Math.min(this.maxAttempts, this.guessHistory.length + 1);
+                this.currentRow = Math.min(this.gridRows - 1, this.guessHistory.length);
+                this.currentCol = 0;
+            }
             
             // Restore grid visual state
             if (gameState.gridState) {
@@ -1584,8 +1600,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     } 
     else {
         try {
-            const dailyHex = await fetchDailyHex();
-            gameInstance = new HexColorWordle({ mode: 'daily', targetColor: dailyHex });
+            const dailyPuzzle = await fetchDailyPuzzle();
+            gameInstance = new HexColorWordle({
+                mode: 'daily',
+                targetColor: dailyPuzzle.hex,
+                dailyPuzzleDate: dailyPuzzle.date
+            });
         } 
         catch {
             // graceful fallback if the API isn't reachable in dev
