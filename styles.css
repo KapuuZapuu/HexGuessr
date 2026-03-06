@@ -1343,6 +1343,8 @@ html.dark .row-label.colored {
 
 #nextColorTimer {
     cursor: default;
+    justify-content: flex-start;
+    text-align: left;
 }
 
 .stats-note {
