@@ -1928,7 +1928,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         let buttonContent;
         if (dailyAlreadyCompleted && mode === 'daily') {
             // Show countdown timer for next daily color
-            buttonContent = '<div id="nextColorTimer" class="stats-button">Next color in <span id="timerDisplay">--:--:--</span></div>';
+            buttonContent = '<div id="nextColorTimer" class="stats-button">Next color in&nbsp;<span id="timerDisplay">--:--:--</span></div>';
         } else if (isGameOver) {
             // Game is over - show "PLAY AGAIN!" button that restarts
             buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY AGAIN!</button>';
