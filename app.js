@@ -1989,7 +1989,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 const timerContainer = document.getElementById('nextColorTimer');
                 if (timerContainer) {
                     timerContainer.innerHTML =
-                        '<button class="stats-button" onclick="window.location.reload()">PLAY NEW DAILY COLOR!</button>';
+                        '<button class="stats-button" onclick="window.location.reload()">PLAY!</button>';
                 }
                 clearInterval(interval);
                 return;
