@@ -783,7 +783,10 @@ html.dark .color-preview {
     width: 100%;
     height: 100%;
     background: var(--color-primary);
-    transition: width linear;
+    transform: scaleX(1);
+    transform-origin: left center;
+    transition: transform linear;
+    will-change: transform;
 }
 
 /* ==========================================================================

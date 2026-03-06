@@ -986,7 +986,7 @@ class HexColorWordle {
                 this.colorVisible = false;
                 // Keep timer bar empty after color is hidden
                 this.timerFill.style.transition = '';
-                this.timerFill.style.width = '0%';
+                this.timerFill.style.transform = 'scaleX(0)';
                 
                 // Save state after timer expires
                 if (this.mode === 'daily') {
@@ -997,9 +997,9 @@ class HexColorWordle {
     }
 
     startTimer(duration) {
-        this.timerFill.style.transition = `width ${duration}ms linear`;
+        this.timerFill.style.transition = `transform ${duration}ms linear`;
         requestAnimationFrame(() => {
-            this.timerFill.style.width = '0%';
+            this.timerFill.style.transform = 'scaleX(0)';
         });
     }
 
@@ -1079,7 +1079,7 @@ class HexColorWordle {
                     this.colorDisplay.textContent = 'Click to reveal color!';
                     // Refill timer at the same moment the reveal prompt resets
                     this.timerFill.style.transition = '';
-                    this.timerFill.style.width = '100%';
+                    this.timerFill.style.transform = 'scaleX(1)';
                 }
                 // Persist the reset reveal-state for daily mode so reload doesn't
                 // incorrectly show "Submit a guess to reveal again!".
@@ -1200,7 +1200,7 @@ class HexColorWordle {
         this.clearActiveRowIndicators();
         // Always empty the timer bar when game ends
         this.timerFill.style.transition = '';
-        this.timerFill.style.width = '0%';
+        this.timerFill.style.transform = 'scaleX(0)';
         // Hide paste actions
         this.updatePasteAction();
         
@@ -1386,7 +1386,7 @@ class HexColorWordle {
                 
         // Reset timer bar to full for new game
         this.timerFill.style.transition = '';
-        this.timerFill.style.width = '100%';
+        this.timerFill.style.transform = 'scaleX(1)';
                 
         // Initialize timer text for new game
     }
@@ -1555,7 +1555,7 @@ class HexColorWordle {
                 this.clearActiveRowIndicators();
                 // Ensure timer bar and text are empty for completed games
                 this.timerFill.style.transition = '';
-                this.timerFill.style.width = '0%';
+                this.timerFill.style.transform = 'scaleX(0)';
                 // Hide paste button for completed games
                 this.updatePasteAction();
             } else if (this.colorVisible) {
@@ -1567,7 +1567,7 @@ class HexColorWordle {
                 this.colorDisplay.classList.add('disabled');
                 // Reset timer bar and text to empty
                 this.timerFill.style.transition = '';
-                this.timerFill.style.width = '0%';
+                this.timerFill.style.transform = 'scaleX(0)';
             } else if (this.hasRevealedThisAttempt) {
                 // User has already revealed color this attempt, disable the button
                 this.colorDisplay.classList.add('disabled');
@@ -1575,7 +1575,7 @@ class HexColorWordle {
                 this.colorDisplay.style.background = ''; // Clear background
                 // Reset timer bar and text to empty since color was already revealed
                 this.timerFill.style.transition = '';
-                this.timerFill.style.width = '0%';
+                this.timerFill.style.transform = 'scaleX(0)';
             }
         } catch (e) {
             console.error('Failed to load daily game state:', e);
