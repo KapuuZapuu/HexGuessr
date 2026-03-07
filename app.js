@@ -1923,12 +1923,23 @@ window.addEventListener('DOMContentLoaded', async () => {
         const mode = window.gameInstance?.mode || 'daily';
         const stats = getStats(mode);
         const isGameOver = window.gameInstance?.gameOver || false;
+        const puzzleDate = window.gameInstance?.dailyPuzzleDate || null;
+        const todayUtc = new Date().toISOString().split('T')[0];
+        const hasNextDailyAvailable =
+            mode === 'daily' &&
+            !!puzzleDate &&
+            todayUtc > puzzleDate;
         
         // Determine button content
         let buttonContent;
         if (dailyAlreadyCompleted && mode === 'daily') {
-            // Show countdown timer for next daily color
-            buttonContent = '<div id="nextColorTimer" class="stats-button">Next color in&nbsp;<span id="timerDisplay">--:--:--</span></div>';
+            if (hasNextDailyAvailable) {
+                // New daily is already available on this same page session.
+                buttonContent = '<button type="button" class="stats-button" onclick="window.location.reload()">PLAY!</button>';
+            } else {
+                // Show countdown timer for next daily color
+                buttonContent = '<div id="nextColorTimer" class="stats-button">Next color in&nbsp;<span id="timerDisplay">--:--:--</span></div>';
+            }
         } else if (isGameOver) {
             // Game is over - show "PLAY AGAIN!" button that restarts
             buttonContent = '<button class="stats-button" onclick="window.closeModalAndPlay()">PLAY AGAIN!</button>';
@@ -1965,7 +1976,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         openModal(statsContent);
         
         // Start countdown timer if daily already completed
-        if (dailyAlreadyCompleted && mode === 'daily') {
+        if (dailyAlreadyCompleted && mode === 'daily' && !hasNextDailyAvailable) {
             startNextColorTimer();
         }
         
@@ -1981,6 +1992,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         const target = new Date();
         target.setUTCHours(24, 0, 0, 0); // next midnight UTC
 
+        let interval = null;
+        let observer = null;
+
         function updateTimer() {
             const now = new Date();
             const diff = target - now;
@@ -1988,10 +2002,15 @@ window.addEventListener('DOMContentLoaded', async () => {
             if (diff <= 0) {
                 const timerContainer = document.getElementById('nextColorTimer');
                 if (timerContainer) {
-                    timerContainer.innerHTML =
-                        '<button class="stats-button" onclick="window.location.reload()">PLAY!</button>';
+                    const playButton = document.createElement('button');
+                    playButton.type = 'button';
+                    playButton.className = 'stats-button';
+                    playButton.textContent = 'PLAY!';
+                    playButton.onclick = () => window.location.reload();
+                    timerContainer.replaceWith(playButton);
                 }
-                clearInterval(interval);
+                if (interval) clearInterval(interval);
+                if (observer) observer.disconnect();
                 return;
             }
 
@@ -2006,14 +2025,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         updateTimer();
-        const interval = setInterval(updateTimer, 1000);
+        interval = setInterval(updateTimer, 1000);
         
         // Clear interval when modal is closed
         const modal = document.getElementById('modal');
-        const observer = new MutationObserver((mutations) => {
+        observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === 'style' && modal.style.display === 'none') {
-                    clearInterval(interval);
+                    if (interval) clearInterval(interval);
                     observer.disconnect();
                 }
             });
