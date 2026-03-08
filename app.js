@@ -491,7 +491,13 @@ class HexColorWordle {
     setupOnScreenKeyboard() {
         this.keyboardEl = document.getElementById('hexKeyboard');
         if (!this.keyboardEl) return;
-        this.keyboardEl.addEventListener('click', (e) => {
+
+        // Prevent duplicate handlers across restartGame() calls.
+        if (this.onScreenKeyboardClickHandler) {
+            this.keyboardEl.removeEventListener('click', this.onScreenKeyboardClickHandler);
+        }
+
+        this.onScreenKeyboardClickHandler = (e) => {
             if (this.gameOver || this.isAnimating) return;
             const btn = e.target.closest('.key-btn');
             if (!btn) return;
@@ -517,7 +523,9 @@ class HexColorWordle {
                     this.updateCaret();
                 }
             }
-        });
+        };
+
+        this.keyboardEl.addEventListener('click', this.onScreenKeyboardClickHandler);
     }
 
     setupEventListeners() {
@@ -1935,7 +1943,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (dailyAlreadyCompleted && mode === 'daily') {
             if (hasNextDailyAvailable) {
                 // New daily is already available on this same page session.
-                buttonContent = '<button type="button" class="stats-button" onclick="window.location.reload()">PLAY!</button>';
+                buttonContent = '<button type="button" class="stats-button" onclick="window.location.reload()">PLAY NEW COLOR!</button>';
             } else {
                 // Show countdown timer for next daily color
                 buttonContent = '<div id="nextColorTimer" class="stats-button">Next color in&nbsp;<span id="timerDisplay">--:--:--</span></div>';
@@ -2005,7 +2013,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     const playButton = document.createElement('button');
                     playButton.type = 'button';
                     playButton.className = 'stats-button';
-                    playButton.textContent = 'PLAY!';
+                    playButton.textContent = 'PLAY NEW COLOR!';
                     playButton.onclick = () => window.location.reload();
                     timerContainer.replaceWith(playButton);
                 }
