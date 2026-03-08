@@ -726,7 +726,23 @@ class HexColorWordle {
             clearTouchFocus();
         }, { passive: true });
 
-        // ----- Hex input restrictions (unchanged) -----
+        // ----- Hex input restrictions -----
+        this.hexInputField.addEventListener('beforeinput', (e) => {
+            if (e.isComposing) return;
+            if (!e.inputType || !e.inputType.startsWith('insert')) return;
+
+            const input = e.target;
+            const current = (input.value || '').replace(/[^0-9A-Fa-f]/g, '');
+            const start = input.selectionStart ?? current.length;
+            const end = input.selectionEnd ?? current.length;
+            const hasSelection = end > start;
+
+            // At max length, block insertion unless user is replacing selected text.
+            if (current.length >= 6 && !hasSelection) {
+                e.preventDefault();
+            }
+        });
+
         this.hexInputField.addEventListener("keydown", e => {
             // Allow shortcuts
             if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -742,6 +758,17 @@ class HexColorWordle {
             // Only allow 0–9 / A–F
             if (e.key.length === 1 && !/^[0-9A-Fa-f]$/.test(e.key)) {
                 e.preventDefault();
+                return;
+            }
+
+            // At max length, don't allow new chars unless replacing a selection.
+            if (/^[0-9A-Fa-f]$/.test(e.key)) {
+                const start = this.hexInputField.selectionStart ?? 0;
+                const end = this.hexInputField.selectionEnd ?? 0;
+                const hasSelection = end > start;
+                if (this.hexInputField.value.length >= 6 && !hasSelection) {
+                    e.preventDefault();
+                }
             }
         });
 
