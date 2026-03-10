@@ -150,7 +150,7 @@
     --footer-padding: calc(var(--app-scale) * 0.8);
     --footer-gap: calc(var(--app-scale) * 0.8);
     --footer-letter-spacing: calc(var(--app-scale) * 0.04);
-    --footer-margin-top: calc(var(--app-scale) * 1.8);
+    --footer-margin-top: calc(var(--app-scale) * 1.2);
     --footer-font-size: calc(var(--app-scale) * 0.6);
 
     /* ===== BUTTON/CONTROL GAPS ===== */
@@ -328,6 +328,7 @@ body.modal-open .layout-container {
     flex-direction: column;     /* stack mode buttons above icons */
     align-items: center;
     justify-content: center;
+    width: fit-content;
     gap: var(--header-row-gap); /* keeps your existing spacing variable */
 }
 
@@ -408,7 +409,9 @@ body.modal-open .layout-container {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: calc(var(--top-controls-gap) - var(--shadow-header-offset));
+    justify-content: space-between;
+    width: calc(100% - (var(--mode-container-padding) * 2));
+    gap: 0;
     margin: 0;
 }
 
@@ -1123,7 +1126,7 @@ html.dark .row-label.colored {
     padding: var(--modal-padding);
     width: min(var(--max-width-modal), calc(100vw - (var(--modal-viewport-padding) * 2)));
     height: auto;
-    max-height: calc(90vh - (var(--modal-viewport-padding) * 2));
+    max-height: calc(80vh - (var(--modal-viewport-padding) * 2));
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
