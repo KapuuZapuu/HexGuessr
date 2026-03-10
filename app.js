@@ -1742,6 +1742,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const modalOverlay = modal?.querySelector('.modal-overlay');
     
     let focusTrapHandler = null;
+    let lockedScrollY = 0;
 
     function setupFocusTrap() {
         // Remove old handler if exists
@@ -1796,7 +1797,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         modal.style.display = 'flex';
         
         // Block background interactions
+        lockedScrollY = window.scrollY || window.pageYOffset || 0;
+        document.documentElement.classList.add('modal-open');
         document.body.classList.add('modal-open');
+        document.body.style.top = `-${lockedScrollY}px`;
         
         // Attach close button handler (now inside modal content)
         const modalClose = modalBody.querySelector('.modal-close');
@@ -1821,7 +1825,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         modal.classList.remove('open');
         
         // Re-enable background interactions
+        document.documentElement.classList.remove('modal-open');
         document.body.classList.remove('modal-open');
+        document.body.style.top = '';
+        window.scrollTo(0, lockedScrollY);
         
         // Remove focus trap handler
         if (focusTrapHandler) {
@@ -1902,19 +1909,23 @@ window.addEventListener('DOMContentLoaded', async () => {
                     </svg>
                 </button>
             </div>
-            <div class="modal-body-text">
-                <p class="modal-paragraph-intro"><strong>HexGuessr</strong> is a color guessing game based on Wordle using hexcodes.</p>
-                <p class="modal-paragraph"><span class="number-box">1</span> Click the square to briefly reveal the target color.</p>
-                <p class="modal-paragraph"><span class="number-box">2</span> Enter your 6-digit hexcode guess and press Enter.</p>
-                <p class="modal-paragraph"><span class="number-box">3</span> Color feedback:</p>
-                <ul class="color-list">
-                    <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--correct"></span></span> = Correct digit in correct position</li>
-                    <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--near"></span></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
-                    <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--far"></span></span> = Digit is off by more than 1</li>
-                </ul>
-                <p class="modal-paragraph"><span class="number-box">4</span> You have 6 attempts – good luck!</p>
-                <p class="modal-footer-text">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" style="color: inherit; text-decoration: underline;">here</a>.</p>
-            </div>
+                <div class="modal-body-text">
+                    <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Goal</span></p>
+                    <p class="modal-paragraph">Match the hidden target color by entering its exact 6-digit hex code (0-9, A-F) into the grid.</p>
+                    <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Rules</span></p>
+                    <p class="modal-paragraph">You get 6 attempts, and can only reveal the target color once per attempt. Click the reveal square to briefly preview the target color, then use the color canvas and hue slider to help you guess. You can fine tune your guess by manually editing the hexcode under the color preview, and then copy/paste it into the grid. Submit once you're ready, and use the grid color feedback to improve your next guess.</p>
+                    <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Feedback</span></p>
+                    <ul class="color-list">
+                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--correct"></span> = Correct digit in correct position</li>
+                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--near"></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
+                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--far"></span> = Digit is off by more than 1</li>
+                    </ul>
+                    <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Tips & Controls</span></p>
+                    <p class="modal-paragraph">With each attempt, the amount of time the target color is shown per reveal increases. You can click on the "#" in any row with a submitted guess to quickly paste it back into the color picker. On mobile you have to tap the color canvas and hue slider first before they become interactable.</p>
+                    <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Modes</span></p>
+                    <p class="modal-paragraph">Daily mode gives every player the same global color each day. Unlimited mode gives you endless random colors for practice.</p>
+                    <p class="modal-footer-text">New to hexcodes? Click <a href="https://www.w3schools.com/html/html_colors_hex.asp" target="_blank" class="modal-link">here</a>.</p>
+                </div>
         `;
         openModal(helpContent);
     }
@@ -1997,7 +2008,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     ${createStatCell(stats.gamesPlayed, 'Games Played', 0)}
                     ${createStatCell(stats.gamesWon, 'Games Won', 1)}
                     ${createStatCell(stats.gamesLost, 'Games Lost', 2)}
-                    ${createStatCell(stats.winPercentage + '%', 'Win Pct.', 3)}
+                    ${createStatCell(stats.winPercentage, 'Win Pct.', 3)}
                     ${createStatCell(stats.currentStreak, 'Current Streak', 4)}
                     ${createStatCell(stats.maxStreak, 'Max Streak', 5)}
                     ${createStatCell(stats.avgGuesses, 'Avg. Guesses', 6)}
@@ -2076,10 +2087,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     function createStatCell(value, label, index) {
+        const stackedLabel = String(label).trim().split(/\s+/).join('<br>');
+
         return `
             <div class="stat-cell" data-index="${index}">
                 <span class="stat-value">${value}</span>
-                <span class="stat-label">${label}</span>
+                <span class="stat-label">${stackedLabel}</span>
             </div>
         `;
     }
@@ -2192,13 +2205,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     function getStats(mode = 'daily') {
+        function formatPercent(value, includePlus = false) {
+            const rounded = Math.round(value * 10) / 10;
+            const normalized = Object.is(rounded, -0) ? 0 : rounded;
+            const sign = includePlus && normalized > 0 ? '+' : '';
+            const numberText = Number.isInteger(normalized)
+                ? String(normalized)
+                : normalized.toFixed(1);
+            return `${sign}${numberText}%`;
+        }
+
         const storageKey = `gameStats_${mode}`;
         const savedStats = localStorage.getItem(storageKey);
         const defaultStats = {
             gamesPlayed: 0,
             gamesWon: 0,
             gamesLost: 0,
-            winPercentage: 0,
+            winPercentage: '0%',
             currentStreak: 0,
             maxStreak: 0,
             avgGuesses: '--',
@@ -2213,9 +2236,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         try {
             const stats = JSON.parse(savedStats);
             // Calculate derived stats
-            stats.winPercentage = stats.gamesPlayed > 0 
-                ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) 
-                : 0;
+            stats.winPercentage = stats.gamesPlayed > 0
+                ? formatPercent((stats.gamesWon / stats.gamesPlayed) * 100)
+                : '0%';
             // Count all guesses across all games (wins and losses)
             stats.avgGuesses = stats.gamesPlayed > 0 
                 ? (stats.totalGuessesAllGames / stats.gamesPlayed).toFixed(1)
@@ -2226,7 +2249,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             if (stats.totalGuessesAllGames > 0) {
                 const avgError = stats.totalColorErrorAllGuesses / stats.totalGuessesAllGames;
                 const accuracyPercent = ((1 - (avgError / maxColorDistance)) * 100);
-                stats.avgColorAccuracy = accuracyPercent.toFixed(1) + '%';
+                stats.avgColorAccuracy = formatPercent(accuracyPercent);
                 
                 // Add descriptor
                 if (accuracyPercent >= 95) stats.accuracyLabel = 'Extremely Accurate';
@@ -2244,8 +2267,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             if (stats.totalGuessesAllGames > 1) {
                 const avgReduction = stats.totalErrorReduction / (stats.totalGuessesAllGames - stats.gamesPlayed);
                 const improvementPercent = ((avgReduction / maxColorDistance) * 100);
-                const sign = improvementPercent > 0 ? '+' : '';
-                stats.guessEfficiency = sign + improvementPercent.toFixed(1) + '%';
+                stats.guessEfficiency = formatPercent(improvementPercent, true);
                 
                 // Add descriptor
                 if (improvementPercent >= 5) stats.efficiencyLabel = 'Excellent Progress';
