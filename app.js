@@ -1917,7 +1917,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Feedback</span></p>
                     <ul class="color-list">
                         <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--correct"></span> = Correct digit in correct position</li>
-                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--near"></span> = Digit is off by 1 (e.g. 7 or 9 when answer is 8)</li>
+                        <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--near"></span> = Digit is off by 1</li>
                         <li class="modal-list-item"><span class="color-legend-swatch color-legend-swatch--far"></span> = Digit is off by more than 1</li>
                     </ul>
                     <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Tips & Controls</span></p>

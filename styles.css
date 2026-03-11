@@ -119,10 +119,9 @@
     --modal-section-box-padding-v: calc(var(--app-scale) * 0.175);
     --modal-section-box-padding-h: calc(var(--app-scale) * 0.35);
     --modal-section-box-border: calc(var(--app-scale) * 0.1);
-    --modal-list-padding-left: calc(var(--app-scale) * 0.875);
     --modal-title-font-size: calc(var(--app-scale) * 1.0);
-    --modal-body-font-size: calc(var(--app-scale) * 0.45);
-    --modal-section-header-font-size: calc(var(--app-scale) * 0.50);
+    --modal-body-font-size: calc(var(--app-scale) * 0.50);
+    --modal-section-header-font-size: calc(var(--app-scale) * 0.60);
     --modal-footer-font-size: calc(var(--app-scale) * 0.40);
 
     /* ===== STATS SPECIFIC ===== */
