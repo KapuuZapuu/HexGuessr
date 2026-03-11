@@ -298,13 +298,6 @@ button,
     touch-action: manipulation;
 }
 
-/* iOS/Safari often auto-zooms focused inputs below 16px, causing layout shift. */
-@media (pointer: coarse) {
-    .hex-input-field {
-        font-size: max(16px, var(--hex-input-font-size));
-    }
-}
-
 /* ==========================================================================
    LAYOUT CONTAINERS
    ========================================================================== */
@@ -733,6 +726,14 @@ html.dark .color-preview {
     text-transform: uppercase;
     color: var(--color-primary);
     outline: none;
+}
+
+/* iOS/Safari often auto-zooms focused inputs below 16px, causing layout shift.
+   Keep this AFTER the base .hex-input-field rule so it wins in the cascade. */
+@media (pointer: coarse) {
+    .hex-input-field {
+        font-size: max(16px, var(--hex-input-font-size));
+    }
 }
 
 .hex-copy-btn {
