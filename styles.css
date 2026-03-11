@@ -78,12 +78,13 @@
 
     /* ===== INPUT SIZES ===== */
     --hex-input-height: calc(var(--app-scale) * 2);
-    --hex-prefix-space: calc(var(--app-scale) * 1.75);
+    --hex-prefix-space: calc(var(--hex-input-focus-font-size) * 1.75);
     --hex-prefix-left: calc(var(--app-scale) * 0.5);
-    --hex-input-padding: calc(var(--app-scale) * 0.35);
-    --hex-input-padding-offset: calc(var(--app-scale) * 0.175);
-    --hex-input-padding-right: calc(var(--app-scale) * 1.4);
-    --hex-input-font-size: calc(var(--app-scale) * 1.0);
+    --hex-input-padding: calc(var(--hex-input-focus-font-size) * 0.35);
+    --hex-input-padding-offset: calc(var(--hex-input-focus-font-size) * 0.175);
+    --hex-input-padding-right: calc((var(--hex-input-height) + var(--hex-input-padding-offset)) / var(--hex-input-visual-scale));
+    --hex-input-focus-font-size: 16px;
+    --hex-input-visual-scale: calc(var(--app-scale) / var(--hex-input-focus-font-size));
 
     /* ===== TIMER BAR ===== */
     --timer-bar-height: calc(var(--app-scale) * 2);
@@ -702,8 +703,9 @@ html.dark .color-preview {
     position: absolute;
     left: var(--hex-prefix-left);
     top: 50%;
-    transform: translateY(-50%);
-    font-size: var(--hex-input-font-size);
+    transform: translateY(-50%) scale(var(--hex-input-visual-scale));
+    transform-origin: left center;
+    font-size: var(--hex-input-focus-font-size);
     color: var(--color-primary);
     user-select: none;
     pointer-events: none;
@@ -711,17 +713,20 @@ html.dark .color-preview {
 }
 
 .hex-input-field {
-    padding-left: var(--hex-prefix-space) !important;
-    padding-right: var(--hex-input-padding-right);
-    font-size: var(--hex-input-font-size);
     padding: var(--hex-input-padding) var(--hex-input-padding-offset);
+    padding-left: var(--hex-prefix-space) !important;
+    padding-right: var(--hex-input-padding-right) !important;
+    font-size: var(--hex-input-focus-font-size);
     border: none;
-    flex: 1;
+    flex: 0 0 auto;
+    width: calc((100% / var(--hex-input-visual-scale)) + 1px);
     min-width: 0;
     background: transparent;
     text-transform: uppercase;
     color: var(--color-primary);
     outline: none;
+    transform: scale(var(--hex-input-visual-scale));
+    transform-origin: left center;
 }
 
 .hex-copy-btn {

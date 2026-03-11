@@ -130,6 +130,7 @@ class HexColorWordle {
         }
 
         window.addEventListener('resize', this.handleResize);
+        this.setupPickerLayoutSync();
 
         // keyboard input
         document.addEventListener('keydown', this.handleKeydown);
@@ -955,8 +956,11 @@ class HexColorWordle {
         this.currentSaturation = s;
         this.currentValue      = v;
 
-        // Re-position cursors & canvas based on state
-        this.syncCursorsFromState();
+        // Re-position cursors & canvas based on state.
+        // If layout is transient (0x0), schedule a short retry window.
+        if (!this.syncCursorsFromState()) {
+            this.requestPickerCursorSync(6);
+        }
 
         // Update preview + hex field
         this.colorPreview.style.backgroundColor = `#${hex}`;
@@ -964,29 +968,96 @@ class HexColorWordle {
     }
 
     handleResize = () => {
-        // recompute cursor positions based on current HSV
-        this.syncCursorsFromState();
+        // Recompute after layout settles (mobile viewport/UI can lag one frame)
+        this.requestPickerCursorSync(4);
     };
 
     syncCursorsFromState() {
+        const sliderHeight = this.hueSlider?.clientHeight || 0;
+        const canvasWidth  = this.colorCanvas?.clientWidth || 0;
+        const canvasHeight = this.colorCanvas?.clientHeight || 0;
+
+        // Bail out when layout isn't ready yet (first-load race on some mobiles).
+        if (sliderHeight <= 0 || canvasWidth <= 0 || canvasHeight <= 0) {
+            return false;
+        }
+
+        const hue = Number.isFinite(this.currentHue) ? this.currentHue : 0;
+        const saturation = Number.isFinite(this.currentSaturation) ? this.currentSaturation : 0;
+        const value = Number.isFinite(this.currentValue) ? this.currentValue : 0;
+
+        const hueClamped = Math.max(0, Math.min(360, hue));
+        const satClamped = Math.max(0, Math.min(1, saturation));
+        const valClamped = Math.max(0, Math.min(1, value));
+
         // Hue slider cursor
-        const sliderHeight = this.hueSlider.clientHeight;
-        const huePos = (this.currentHue / 360) * sliderHeight;
+        const huePos = (hueClamped / 360) * sliderHeight;
         this.hueCursor.style.top = huePos + 'px';
 
         // Canvas cursor
-        const canvasWidth  = this.colorCanvas.clientWidth;
-        const canvasHeight = this.colorCanvas.clientHeight;
-        const canvasX = this.currentSaturation * canvasWidth;
-        const canvasY = (1 - this.currentValue) * canvasHeight;
+        const canvasX = satClamped * canvasWidth;
+        const canvasY = (1 - valClamped) * canvasHeight;
 
         this.canvasCursor.style.left = canvasX + 'px';
         this.canvasCursor.style.top  = canvasY + 'px';
 
         // Canvas background for the current hue
-        const hueColor = `hsl(${this.currentHue}, 100%, 50%)`;
+        const hueColor = `hsl(${hueClamped}, 100%, 50%)`;
         this.colorCanvas.style.background =
             `linear-gradient(to right, #fff, ${hueColor})`;
+
+        return true;
+    }
+
+    requestPickerCursorSync(maxFrames = 6) {
+        if (this._pickerSyncRaf) {
+            cancelAnimationFrame(this._pickerSyncRaf);
+            this._pickerSyncRaf = null;
+        }
+
+        let remaining = Math.max(1, maxFrames | 0);
+        const syncLoop = () => {
+            const synced = this.syncCursorsFromState();
+            if (synced || remaining <= 1) {
+                this._pickerSyncRaf = null;
+                return;
+            }
+            remaining -= 1;
+            this._pickerSyncRaf = requestAnimationFrame(syncLoop);
+        };
+
+        this._pickerSyncRaf = requestAnimationFrame(syncLoop);
+    }
+
+    setupPickerLayoutSync() {
+        // Guard against partial/missing picker DOM (defensive for future markup edits).
+        if (!this.colorCanvas || !this.hueSlider || !this.canvasCursor || !this.hueCursor) return;
+
+        // Initial post-construct retries to catch first-paint sizing on mobile.
+        this.requestPickerCursorSync(10);
+
+        // Ensure a sync after full page load (images/CSS/layout finalization).
+        window.addEventListener('load', () => this.requestPickerCursorSync(8), { once: true });
+
+        // Sync again after web fonts settle (can affect first render geometry).
+        if (document.fonts?.ready) {
+            document.fonts.ready
+                .then(() => this.requestPickerCursorSync(8))
+                .catch(() => {});
+        }
+
+        // Track size changes of the picker itself.
+        if (typeof ResizeObserver !== 'undefined') {
+            this._pickerResizeObserver = new ResizeObserver(() => this.requestPickerCursorSync(3));
+            this._pickerResizeObserver.observe(this.colorCanvas);
+            this._pickerResizeObserver.observe(this.hueSlider);
+        }
+
+        // Mobile browser chrome/keyboard often changes visual viewport without stable window resize timing.
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => this.requestPickerCursorSync(4), { passive: true });
+        }
+        window.addEventListener('orientationchange', () => this.requestPickerCursorSync(8), { passive: true });
     }
 
 
