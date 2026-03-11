@@ -731,6 +731,7 @@ html.dark .color-preview {
 /* iOS/Safari often auto-zooms focused inputs below 16px, causing layout shift.
    Keep this AFTER the base .hex-input-field rule so it wins in the cascade. */
 @media (pointer: coarse) {
+    .hex-prefix,
     .hex-input-field {
         font-size: max(16px, var(--hex-input-font-size));
     }
