@@ -1911,7 +1911,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             </div>
                 <div class="modal-body-text">
                     <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Goal</span></p>
-                    <p class="modal-paragraph">Match the hidden target color by entering its exact 6-digit hex code (0-9, A-F) into the grid.</p>
+                    <p class="modal-paragraph">Match the hidden target color by entering its corresponding 6-digit hex code into the grid.</p>
                     <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Rules</span></p>
                     <p class="modal-paragraph">You get 6 attempts, and can only reveal the target color once per attempt. Click the reveal square to briefly preview the target color, then use the color canvas and hue slider to help you guess. You can fine tune your guess by manually editing the hexcode under the color preview, and then copy/paste it into the grid. Submit once you're ready, and use the grid color feedback to improve your next guess.</p>
                     <p class="modal-paragraph modal-section-paragraph"><span class="modal-section-box modal-section-header">Feedback</span></p>
