@@ -1298,13 +1298,14 @@ html.dark .row-label.colored {
 .stat-cell {
     min-width: 0;
     background: var(--color-container-bg);
-    padding: var(--stat-cell-padding);
+    padding-inline: var(--stat-cell-padding);
+    padding-block: max(1px, calc(var(--stat-cell-padding) - 5px));
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    aspect-ratio: 1.5 / 1;
+    aspect-ratio: 1.65 / 1;
     position: relative;
     transform-origin: center center;
     box-shadow: var(--shadow-grid-offset) var(--shadow-grid-offset) 0 var(--color-shadow);
@@ -1327,7 +1328,7 @@ html.dark .row-label.colored {
     font-size: var(--stat-cell-value-font-size);
     font-weight: bold;
     display: block;
-    margin-bottom: var(--stat-value-margin);
+    margin-bottom: max(1px, calc(var(--stat-value-margin) - 1px));
     letter-spacing: var(--stat-value-letter-spacing);
     white-space: nowrap;
 }
