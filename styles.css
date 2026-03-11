@@ -229,7 +229,9 @@ html {
     box-sizing: border-box;
     opacity: 0;
     transition: opacity 0.1s ease-in;
+    max-width: 100%;
     overflow-x: hidden;
+    overflow-x: clip;
 }
 
 html.fonts-loaded {
@@ -248,7 +250,9 @@ body {
     padding: 0;
     background: var(--color-page-bg);
     color: var(--color-primary);
+    max-width: 100%;
     overflow-x: hidden;
+    overflow-x: clip;
     
     opacity: 0;
     transition: opacity 0.1s ease-in;
@@ -292,6 +296,13 @@ button,
 .hex-input-container,
 .hex-input-field {
     touch-action: manipulation;
+}
+
+/* iOS/Safari often auto-zooms focused inputs below 16px, causing layout shift. */
+@media (pointer: coarse) {
+    .hex-input-field {
+        font-size: max(16px, var(--hex-input-font-size));
+    }
 }
 
 /* ==========================================================================
