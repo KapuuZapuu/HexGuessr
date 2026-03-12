@@ -1,6 +1,6 @@
 # HexGuessr
 
-[hexguessr.pages.dev](hexguessr.pages.dev)
+[hexguessr.pages.dev](https://hexguessr.pages.dev)
 
 A retro-inspired web game where you attempt to guess a target color's hexcode within 6 tries.
 
