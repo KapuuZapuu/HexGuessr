@@ -84,7 +84,8 @@
     --hex-input-padding-offset: calc(var(--hex-input-focus-font-size) * 0.175);
     --hex-input-padding-right: calc((var(--hex-input-height) + var(--hex-input-padding-offset)) / var(--hex-input-visual-scale));
     --hex-input-focus-font-size: 16px;
-    --hex-input-visual-scale: calc(var(--app-scale) / var(--hex-input-focus-font-size));
+    /* JS computes this at runtime for iOS/WebKit compatibility (typed division fallback). */
+    --hex-input-visual-scale: 1;
 
     /* ===== TIMER BAR ===== */
     --timer-bar-height: calc(var(--app-scale) * 2);

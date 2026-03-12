@@ -1692,6 +1692,37 @@ class HexColorWordle {
 
 // Start the app when the page loads (server-driven daily color)
 window.addEventListener('DOMContentLoaded', async () => {
+    // Keep hex input scale stable on engines that don't support CSS typed division.
+    let hexScaleRaf = 0;
+    const syncHexInputVisualScale = () => {
+        const root = document.documentElement;
+        const styles = getComputedStyle(root);
+        const appScalePx = parseFloat(styles.getPropertyValue('--app-scale'));
+        const focusFontPx = parseFloat(styles.getPropertyValue('--hex-input-focus-font-size')) || 16;
+
+        if (!Number.isFinite(appScalePx) || !Number.isFinite(focusFontPx) || focusFontPx <= 0) return;
+
+        const scale = Math.max(0.5, Math.min(3, appScalePx / focusFontPx));
+        root.style.setProperty('--hex-input-visual-scale', scale.toFixed(4));
+    };
+
+    const queueHexInputScaleSync = () => {
+        if (hexScaleRaf) {
+            cancelAnimationFrame(hexScaleRaf);
+        }
+        hexScaleRaf = requestAnimationFrame(() => {
+            hexScaleRaf = 0;
+            syncHexInputVisualScale();
+        });
+    };
+
+    queueHexInputScaleSync();
+    window.addEventListener('resize', queueHexInputScaleSync, { passive: true });
+    window.addEventListener('orientationchange', queueHexInputScaleSync);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', queueHexInputScaleSync, { passive: true });
+    }
+
     // --- Decide mode (path vs local file query) ---
     const isFile = location.protocol === 'file:';
     const pathIsUnlimited  = /\/unlimited\/?$/.test(location.pathname);
