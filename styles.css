@@ -286,9 +286,7 @@ textarea {
 /* Apply globally so double-tap zoom is suppressed across the site. */
 html,
 body,
-body *,
-.timer-bar,
-.color-preview {
+body * {
     touch-action: manipulation;
 }
 

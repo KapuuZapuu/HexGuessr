@@ -1970,6 +1970,40 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }, { passive: false, capture: true });
 
+    // Safari fallback: suppress double-tap smart zoom on non-interactive surfaces.
+    const DOUBLE_TAP_WINDOW_MS = 350;
+    const DOUBLE_TAP_DISTANCE_PX = 30;
+    let lastTapTime = 0;
+    let lastTapX = 0;
+    let lastTapY = 0;
+
+    document.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || e.changedTouches.length !== 1) return;
+        if (e.touches && e.touches.length > 0) return;
+
+        const target = e.target instanceof Element ? e.target : null;
+        if (!target) return;
+
+        // Don't interfere with controls that may legitimately need rapid taps.
+        const isEditable = target.closest('input, textarea, select, [contenteditable="true"]');
+        const isInteractive = target.closest('button, label, summary, details, [role="button"], [data-allow-doubletap]');
+        if (isEditable || isInteractive) return;
+
+        const touch = e.changedTouches[0];
+        const now = Date.now();
+        const dt = now - lastTapTime;
+        const dx = Math.abs(touch.clientX - lastTapX);
+        const dy = Math.abs(touch.clientY - lastTapY);
+
+        if (dt > 0 && dt < DOUBLE_TAP_WINDOW_MS && dx < DOUBLE_TAP_DISTANCE_PX && dy < DOUBLE_TAP_DISTANCE_PX) {
+            e.preventDefault();
+        }
+
+        lastTapTime = now;
+        lastTapX = touch.clientX;
+        lastTapY = touch.clientY;
+    }, { passive: false, capture: true });
+
     function openHelpModal() {
         const helpContent = `
             <div class="title">
