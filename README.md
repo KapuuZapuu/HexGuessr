@@ -1,5 +1,7 @@
 # HexGuessr
 
+hexguessr.pages.dev
+
 A retro-inspired web game where you attempt to guess a target color's hexcode within 6 tries.
 
 HexGuessr combines Wordle-style per-character feedback with a live color picker so you can reason visually and numerically at the same time.
