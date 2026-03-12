@@ -1814,6 +1814,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     let focusTrapHandler = null;
     let lockedScrollY = 0;
+    let modalOpenedAt = 0;
 
     function setupFocusTrap() {
         // Remove old handler if exists
@@ -1866,6 +1867,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!modal || !modalBody) return;
         modalBody.innerHTML = content;
         modal.style.display = 'flex';
+        modalOpenedAt = Date.now();
         
         // Block background interactions
         lockedScrollY = window.scrollY || window.pageYOffset || 0;
@@ -1917,8 +1919,25 @@ window.addEventListener('DOMContentLoaded', async () => {
         }, 200); // matches transition duration
     }
 
-    // Overlay click handler
+    // Overlay close handlers
     if (modalOverlay) {
+        const closeModalFromTouch = (e) => {
+            e.preventDefault();
+            if (document.body.classList.contains('modal-open')) {
+                closeModal();
+            }
+        };
+
+        if (window.PointerEvent) {
+            modalOverlay.addEventListener('pointerup', (e) => {
+                if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+                    closeModalFromTouch(e);
+                }
+            }, { passive: false });
+        } else {
+            modalOverlay.addEventListener('touchend', closeModalFromTouch, { passive: false });
+        }
+
         modalOverlay.addEventListener('click', closeModal);
     }
 
@@ -1971,6 +1990,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }, { passive: false, capture: true });
 
     // Safari fallback: suppress double-tap smart zoom on non-interactive surfaces.
+    const MODAL_OPEN_GUARD_MS = 500;
     const DOUBLE_TAP_WINDOW_MS = 350;
     const DOUBLE_TAP_DISTANCE_PX = 30;
     let lastTapTime = 0;
@@ -1981,21 +2001,32 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!e.changedTouches || e.changedTouches.length !== 1) return;
         if (e.touches && e.touches.length > 0) return;
 
-        const target = e.target instanceof Element ? e.target : null;
+        const target = e.target instanceof Element
+            ? e.target
+            : (e.target && e.target.parentElement ? e.target.parentElement : null);
         if (!target) return;
 
         // Don't interfere with controls that may legitimately need rapid taps.
         const isEditable = target.closest('input, textarea, select, [contenteditable="true"]');
         const isInteractive = target.closest('button, label, summary, details, [role="button"], [data-allow-doubletap]');
-        if (isEditable || isInteractive) return;
+        const isNonInteractive = !isEditable && !isInteractive;
 
         const touch = e.changedTouches[0];
         const now = Date.now();
         const dt = now - lastTapTime;
         const dx = Math.abs(touch.clientX - lastTapX);
         const dy = Math.abs(touch.clientY - lastTapY);
+        const isRapidDoubleTap =
+            dt > 0 &&
+            dt < DOUBLE_TAP_WINDOW_MS &&
+            dx < DOUBLE_TAP_DISTANCE_PX &&
+            dy < DOUBLE_TAP_DISTANCE_PX;
+        const isModalOpenRaceTap =
+            document.body.classList.contains('modal-open') &&
+            !!target.closest('.modal-content') &&
+            now - modalOpenedAt < MODAL_OPEN_GUARD_MS;
 
-        if (dt > 0 && dt < DOUBLE_TAP_WINDOW_MS && dx < DOUBLE_TAP_DISTANCE_PX && dy < DOUBLE_TAP_DISTANCE_PX) {
+        if (isNonInteractive && (isRapidDoubleTap || isModalOpenRaceTap)) {
             e.preventDefault();
         }
 
