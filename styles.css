@@ -291,7 +291,9 @@ button,
 .color-canvas,     /* main color picking area */
 .hue-slider,       /* vertical hue strip */
 .hex-input-container,
-.hex-input-field {
+.hex-input-field,
+.modal,
+.modal * {
     touch-action: manipulation;
 }
 
