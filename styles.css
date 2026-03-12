@@ -283,17 +283,8 @@ textarea {
    TOUCH BEHAVIOR (MOBILE)
    ========================================================================== */
 
-button,
-.mode-btn,
-.key-btn,          /* on-screen keyboard keys */
-.icon-btn,         /* header icons (help, dark mode, stats, etc.) */
-.paste-btn,        /* little paste icons by rows */
-.color-canvas,     /* main color picking area */
-.hue-slider,       /* vertical hue strip */
-.hex-input-container,
-.hex-input-field,
-.modal,
-.modal * {
+/* Apply globally so double-tap zoom is suppressed across the site. */
+:where(html, body, body *) {
     touch-action: manipulation;
 }
 
