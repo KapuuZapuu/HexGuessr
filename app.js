@@ -1706,7 +1706,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!Number.isFinite(containerHeightPx) || !Number.isFinite(focusFontPx) || focusFontPx <= 0) return;
 
         // container height is 2 * app-scale; desired visual scale is app-scale / focusFontPx
-        const scale = Math.max(0.5, Math.min(3, containerHeightPx / (2 * focusFontPx)));
+        const scale = containerHeightPx / (2 * focusFontPx);
+        if (!Number.isFinite(scale) || scale <= 0) return;
         root.style.setProperty('--hex-input-visual-scale', scale.toFixed(4));
     };
 
