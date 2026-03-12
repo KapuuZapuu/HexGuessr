@@ -1696,13 +1696,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     let hexScaleRaf = 0;
     const syncHexInputVisualScale = () => {
         const root = document.documentElement;
-        const styles = getComputedStyle(root);
-        const appScalePx = parseFloat(styles.getPropertyValue('--app-scale'));
-        const focusFontPx = parseFloat(styles.getPropertyValue('--hex-input-focus-font-size')) || 16;
+        const hexInput = document.querySelector('.hex-input-field');
+        const hexContainer = document.querySelector('.hex-input-container');
+        if (!hexInput || !hexContainer) return;
 
-        if (!Number.isFinite(appScalePx) || !Number.isFinite(focusFontPx) || focusFontPx <= 0) return;
+        const focusFontPx = parseFloat(getComputedStyle(hexInput).fontSize) || 16;
+        const containerHeightPx = hexContainer.getBoundingClientRect().height;
 
-        const scale = Math.max(0.5, Math.min(3, appScalePx / focusFontPx));
+        if (!Number.isFinite(containerHeightPx) || !Number.isFinite(focusFontPx) || focusFontPx <= 0) return;
+
+        // container height is 2 * app-scale; desired visual scale is app-scale / focusFontPx
+        const scale = Math.max(0.5, Math.min(3, containerHeightPx / (2 * focusFontPx)));
         root.style.setProperty('--hex-input-visual-scale', scale.toFixed(4));
     };
 
