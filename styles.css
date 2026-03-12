@@ -697,8 +697,12 @@ html.dark .color-preview {
 .hex-prefix {
     position: absolute;
     left: var(--hex-prefix-left);
-    top: 50%;
-    transform: translateY(-50%) scale(var(--hex-input-visual-scale));
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    transform: scale(var(--hex-input-visual-scale));
     transform-origin: left center;
     font-size: var(--hex-input-focus-font-size);
     color: var(--color-primary);
@@ -712,6 +716,7 @@ html.dark .color-preview {
     padding-left: var(--hex-prefix-space) !important;
     padding-right: var(--hex-input-padding-right) !important;
     font-size: var(--hex-input-focus-font-size);
+    line-height: 1;
     border: none;
     flex: 0 0 auto;
     width: calc((100% / var(--hex-input-visual-scale)) + 1px);
