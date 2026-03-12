@@ -1814,6 +1814,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     let focusTrapHandler = null;
     let lockedScrollY = 0;
+    let suppressNonInteractiveTapUntil = 0;
 
     function setupFocusTrap() {
         // Remove old handler if exists
@@ -1866,6 +1867,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!modal || !modalBody) return;
         modalBody.innerHTML = content;
         modal.style.display = 'flex';
+        // Ignore non-interactive taps briefly after opening to absorb Safari's tap carry-over.
+        suppressNonInteractiveTapUntil = Date.now() + 450;
         
         // Block background interactions
         lockedScrollY = window.scrollY || window.pageYOffset || 0;
@@ -1981,24 +1984,32 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!e.changedTouches || e.changedTouches.length !== 1) return;
         if (e.touches && e.touches.length > 0) return;
 
-        const target = e.target instanceof Element ? e.target : null;
+        const target = e.target instanceof Element
+            ? e.target
+            : (e.target && e.target.parentElement ? e.target.parentElement : null);
         if (!target) return;
-
-        // Don't interfere with controls that may legitimately need rapid taps.
-        const isEditable = target.closest('input, textarea, select, [contenteditable="true"]');
-        const isInteractive = target.closest('button, label, summary, details, [role="button"], [data-allow-doubletap]');
-        if (isEditable || isInteractive) return;
 
         const touch = e.changedTouches[0];
         const now = Date.now();
         const dt = now - lastTapTime;
         const dx = Math.abs(touch.clientX - lastTapX);
         const dy = Math.abs(touch.clientY - lastTapY);
+        const isRapidDoubleTap = dt > 0 && dt < DOUBLE_TAP_WINDOW_MS && dx < DOUBLE_TAP_DISTANCE_PX && dy < DOUBLE_TAP_DISTANCE_PX;
 
-        if (dt > 0 && dt < DOUBLE_TAP_WINDOW_MS && dx < DOUBLE_TAP_DISTANCE_PX && dy < DOUBLE_TAP_DISTANCE_PX) {
+        // Don't interfere with controls that may legitimately need rapid taps.
+        const isEditable = target.closest('input, textarea, select, [contenteditable="true"]');
+        const isInteractive = target.closest('button, label, summary, details, [role="button"], [data-allow-doubletap]');
+        const isModalCooldownTap =
+            modal &&
+            document.body.classList.contains('modal-open') &&
+            modal.contains(target) &&
+            now < suppressNonInteractiveTapUntil;
+
+        if (!isEditable && !isInteractive && (isRapidDoubleTap || isModalCooldownTap)) {
             e.preventDefault();
         }
 
+        // Always update the baseline so tap timing carries across controls and surfaces.
         lastTapTime = now;
         lastTapX = touch.clientX;
         lastTapY = touch.clientY;
