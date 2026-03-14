@@ -1131,7 +1131,8 @@ html.dark .row-label.colored {
     padding: var(--modal-padding);
     width: min(var(--max-width-modal), calc(100vw - (var(--modal-viewport-padding) * 2)));
     height: auto;
-    max-height: calc(80vh - (var(--modal-viewport-padding) * 2));
+    max-height: calc(80vh - (var(--modal-viewport-padding) * 2)); /* use vh as a fallback for older devices/browsers */
+    max-height: calc(90dvh - (var(--modal-viewport-padding) * 2));
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
