@@ -252,10 +252,14 @@ class HexColorWordle {
 
     handleKeydown = (e) => {
         if (this.gameOver || this.isAnimating) return;
+        // Never process game input while modal is open
+        if (document.body.classList.contains('modal-open')) return;
         // accept input anywhere; if user is typing in another field, ignore
         const active = document.activeElement;
         const isTypingInInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
         if (isTypingInInput && active !== this.gridEl) return;
+        // Never intercept browser shortcuts (Cmd/Ctrl/Alt combos)
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
 
         const key = e.key.toUpperCase();
         if (/^[0-9A-F]$/.test(key)) {
@@ -1857,45 +1861,46 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (focusTrapHandler) {
             document.removeEventListener('keydown', focusTrapHandler);
         }
-        
-        // Get all focusable elements within the modal
-        const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-        const focusableElements = modal.querySelectorAll(focusableSelectors);
-        const focusableArray = Array.from(focusableElements).filter(el => {
-            // Filter out hidden or disabled elements
-            return el.offsetParent !== null && !el.disabled;
-        });
-        
-        if (focusableArray.length === 0) return;
-        
-        const firstFocusable = focusableArray[0];
-        const lastFocusable = focusableArray[focusableArray.length - 1];
-        
-        // Focus the first element
-        firstFocusable.focus();
-        
-        // Create trap handler
+
+        // Focus the modal content container itself so focus is immediately
+        // inside the modal — not on the x button, not on the grid.
+        // modal-content must have tabIndex="-1" in HTML for this to work.
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.focus({ preventScroll: true });
+        }
+
+        // Create trap handler — keeps Tab cycling within modal, wraps at edges
         focusTrapHandler = (e) => {
             if (e.key !== 'Tab') return;
-            
+
             const modalIsOpen = document.body.classList.contains('modal-open');
             if (!modalIsOpen) return;
-            
+
+            // Query fresh each time — content can change
+            const focusableSelectors = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+            const focusableArray = Array.from(modal.querySelectorAll(focusableSelectors))
+                .filter(el => el.offsetParent !== null);
+
+            if (focusableArray.length === 0) return;
+
+            const firstFocusable = focusableArray[0];
+            const lastFocusable = focusableArray[focusableArray.length - 1];
+            const active = document.activeElement;
+
             if (e.shiftKey) {
-                // Shift+Tab: if on first element, wrap to last
-                if (document.activeElement === firstFocusable) {
+                if (active === firstFocusable || !modal.contains(active)) {
                     e.preventDefault();
                     lastFocusable.focus();
                 }
             } else {
-                // Tab: if on last element, wrap to first
-                if (document.activeElement === lastFocusable) {
+                if (active === lastFocusable || !modal.contains(active)) {
                     e.preventDefault();
                     firstFocusable.focus();
                 }
             }
         };
-        
+
         document.addEventListener('keydown', focusTrapHandler);
     }
 
@@ -1981,30 +1986,28 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Prevents all keyboard input to background when modal is open
     document.addEventListener('keydown', (e) => {
         const modalIsOpen = document.body.classList.contains('modal-open');
-        
+
         if (modalIsOpen) {
-            // Allow Escape to close modal from anywhere
+            // Always allow Escape to close modal
             if (e.key === 'Escape') {
                 e.preventDefault();
                 closeModal();
                 return;
             }
-            
-            // Check if the event target is inside the modal
-            const isInsideModal = modal && modal.contains(e.target);
-            
-            // Special handling for Enter key - only allow if clicking a button/link inside modal
-            if (e.key === 'Enter' && !isInsideModal) {
+
+            // Always allow browser zoom shortcuts (Cmd/Ctrl +/=/−/_ and reset 0)
+            const isZoom = (e.metaKey || e.ctrlKey) && (e.key === '+' || e.key === '=' || e.key === '-' || e.key === '_' || e.key === '0');
+            if (isZoom) return;
+
+            // Check if the event target or active element is inside the modal.
+            // Using both covers the timing gap right after modal opens before
+            // focus has fully moved, and cases where e.target is document/body.
+            const isInsideModal = modal && (modal.contains(e.target) || modal.contains(document.activeElement));
+
+            // Block all keyboard events targeting elements outside the modal
+            if (!isInsideModal) {
                 e.preventDefault();
                 e.stopPropagation();
-                e.stopImmediatePropagation(); // Also stop other listeners on same element
-                return;
-            }
-            
-            // Block all other keyboard events targeting elements outside the modal
-            if (!isInsideModal) {
-                e.preventDefault(); // Prevent default browser behavior (Tab navigation, Enter activation)
-                e.stopPropagation(); // Prevent event from reaching game handlers
             }
         }
     }, true); // Use capture phase to intercept before game handlers

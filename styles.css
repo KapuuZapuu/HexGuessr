@@ -1167,12 +1167,6 @@ html.dark .row-label.colored {
     color: var(--color-secondary);
 }
 
-.modal-close:focus,
-.modal-close:focus-visible {
-    outline: none;
-    box-shadow: none;
-}
-
 .modal-body {
     font-family: var(--ps2p-stack);
     line-height: 1.6;
