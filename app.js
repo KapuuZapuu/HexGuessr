@@ -140,7 +140,7 @@ class HexColorWordle {
             // Only handle if we're not in an input field and game is active
             const active = document.activeElement;
             const isInInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
-            if (!isInInput && !this.gameOver && !this.isAnimating) {
+            if (!isInInput && active !== this.gridEl && !this.gameOver && !this.isAnimating) {
                 this.handlePaste(e);
             }
         })
