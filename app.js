@@ -2079,7 +2079,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             <div class="title">
                 HOW TO PLAY
                 <button class="modal-close" id="modalClose" aria-label="Close">
-                    <svg class="icon" aria-hidden="true">
+                    <svg class="icon" viewBox="0 0 15 15" aria-hidden="true">
                         <use href="#icon-cancel"></use>
                     </svg>
                 </button>
@@ -2173,7 +2173,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             <div class="title">
                 STATISTICS
                 <button class="modal-close" id="modalClose" aria-label="Close">
-                    <svg class="icon" aria-hidden="true">
+                    <svg class="icon" viewBox="0 0 15 15" aria-hidden="true">
                         <use href="#icon-cancel"></use>
                     </svg>
                 </button>
