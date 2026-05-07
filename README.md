@@ -55,42 +55,49 @@ Each character gets one of four colored feedback states:
 
 ## Local Development
 
-### 1) Quick frontend-only run
+Local dev uses Wrangler so both `Daily` and `Unlimited` modes work the same as in production. Requires `Node.js 18+`.
 
-This is enough for UI work on `Unlimited` mode — visit `/unlimited` directly. `Daily` mode requires a successful response from `/api/daily-color`; without it, you'll see the "couldn't load today's mystery color" error screen with a retry button. For Daily-mode UI work, use option 2 below.
+### 1) Add a local secret
+
+Create a `.dev.vars` file in the project root. Wrangler reads it automatically.
 
 ```bash
-python3 -m http.server 8787
+# .dev.vars
+SECRET_SALT=any-long-random-string-for-local
 ```
 
-Open: `http://localhost:8787/unlimited`
+`.dev.vars` is gitignored. The value doesn't matter locally — just don't reuse a real production secret.
 
-### 2) Run with Daily API locally (Cloudflare Pages Functions)
-
-Set a secret salt and run Pages dev.
+### 2) Run the dev server
 
 ```bash
-# Example
-export SECRET_SALT="your-long-random-secret"
 npx wrangler pages dev .
 ```
 
-Then open the local URL printed by Wrangler.
+Open the URL Wrangler prints (typically `http://localhost:8788`).
+
+- `/` → Daily mode
+- `/unlimited` → Unlimited mode
+- `/api/daily-color` → local Pages Function
+
+### Troubleshooting
+
+- Daily shows the retry screen → `SECRET_SALT` not loaded. Check `.dev.vars` and restart Wrangler.
+- `/unlimited` returns 404 → you're on a plain static server (e.g. `python3 -m http.server`); `_redirects` only works under Wrangler.
+- Daily color identical between reloads → expected. Daily is deterministic per UTC day.
 
 ## Deployment (Cloudflare Pages)
 
+Static site + Pages Functions. No build step; Cloudflare serves the repo root and auto-detects `functions/`.
+
 1. Connect this repo to Cloudflare Pages.
-2. Set:
-   - Build command: *(none)*
-   - Build output directory: `/`
-   - Functions directory: `functions`
-3. Add environment variable:
-   - `SECRET_SALT` (required in Production/Preview)
-4. Deploy.
+2. Build configuration — leave all fields blank (Build command, Build output directory, Root directory).
+3. Add `SECRET_SALT` as an environment variable in **both** Production and Preview. Preview needs it too, otherwise preview deploys hit the Daily retry screen.
+4. Push to `main`. Automatic deployments are enabled.
 
 ### Why `SECRET_SALT` matters
 
-The daily color is generated server-side using HMAC(date, secret), then converted to RGB/hex. This makes the daily color deterministic per day but not guessable from client code alone.
+The daily color is generated server-side using `HMAC(date, SECRET_SALT)`, then converted to RGB/hex. This makes the daily color deterministic per day but not guessable from client code alone.
 
 ## Project Structure
 
