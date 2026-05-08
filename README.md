@@ -55,7 +55,7 @@ Each character gets one of four colored feedback states:
 
 ## Local Development
 
-Local dev uses Wrangler so both `Daily` and `Unlimited` modes work the same as in production. Requires `Node.js 18+`.
+Local dev uses Wrangler so both `Daily` and `Unlimited` modes work the same as in production. Requires `Node.js` version `18` or newer.
 
 ### 1) Add a local secret
 
