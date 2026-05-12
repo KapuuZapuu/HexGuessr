@@ -1,4 +1,5 @@
-/unlimited              /   200
-/unlimited/*            /   200
+/                       /index.html   200
+/unlimited              /             200
+/unlimited/*            /             200
 
 /*                      /             301
