@@ -6,7 +6,7 @@ export const onRequestGet = async ({ request, env }) => {
   const accept = request.headers.get('Accept') || '';
 
   if (mode === 'navigate' || dest === 'document' || accept.includes('text/html')) {
-    return new Response('Not found', { status: 404 });
+    return new Response('NO CHEATING!', { status: 403 });
   }
 
   const secret = env.SECRET_SALT;
