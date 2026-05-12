@@ -1,12 +1,24 @@
 // /functions/api/daily-color.js
 export const onRequestGet = async ({ request, env }) => {
+  // Reject cache-buster query strings (would bypass edge caching otherwise)
+  const url = new URL(request.url);
+  if (url.search) {
+    return new Response('NO CHEATING!', {
+      status: 403,
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }
+
   // Block direct navigations (address-bar visits)
   const mode  = request.headers.get('Sec-Fetch-Mode');   // 'navigate' on URL bar
   const dest  = request.headers.get('Sec-Fetch-Dest');   // 'document' on URL bar
   const accept = request.headers.get('Accept') || '';
 
   if (mode === 'navigate' || dest === 'document' || accept.includes('text/html')) {
-    return new Response('NO CHEATING!', { status: 403 });
+    return new Response('NO CHEATING!', {
+      status: 403,
+      headers: { 'Cache-Control': 'no-store' },
+    });
   }
 
   const secret = env.SECRET_SALT;
