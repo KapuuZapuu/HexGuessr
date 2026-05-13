@@ -104,19 +104,19 @@ The daily color is generated server-side using `HMAC(date, SECRET_SALT)`, then c
 ```text
 .
 ├── index.html
+├── 404.html
 ├── styles.css
 ├── app.js
 ├── functions/
 │   └── api/
 │       └── daily-color.js
 ├── assets/
-│   ├── fonts/
-│   ├── pngs/
-│   └── svgs/
+│   └── fonts/
 ├── _redirects
 ├── _headers
 ├── favicon.ico
-└── favicon.png
+├── favicon.png
+└── og-image.png
 ```
 
 ## Data & Privacy
